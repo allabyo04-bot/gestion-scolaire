@@ -12,6 +12,8 @@ import Journal from './pages/Journal.jsx';
 import Parametres from './pages/Parametres.jsx';
 import Eleves from './pages/Eleves.jsx';
 import FicheEleve from './pages/FicheEleve.jsx';
+import Caisse from './pages/Caisse.jsx';
+import Recu from './pages/Recu.jsx';
 
 export default function App() {
   const [utilisateur, setUtilisateur] = useState(null);
@@ -48,10 +50,13 @@ function Coquille({ utilisateur, surDeconnexion }) {
   const direction = estDirection(utilisateur);
   const secretariat = utilisateur.role === 'SECRETARIAT';
   const gereEleves = direction || secretariat;
+  const comptable = utilisateur.role === 'COMPTABLE';
+  const caisse = gereEleves || comptable;
   const onglets = [
     ['accueil', 'Notes', direction || utilisateur.role === 'PROFESSEUR'],
     ['eleves', 'Élèves', gereEleves],
     ['classes', 'Classes', direction || secretariat || utilisateur.role === 'PROFESSEUR'],
+    ['caisse', 'Caisse', caisse],
     ['comptes', 'Comptes', direction],
     ['parametres', 'Paramètres', direction],
     ['journal', 'Journal', direction],
@@ -67,10 +72,13 @@ function Coquille({ utilisateur, surDeconnexion }) {
     case 'eleves': ecran = gereEleves ? <Eleves classeId={params[0]} /> : null; break;
     case 'eleve': ecran = gereEleves ? <FicheEleve eleveId={params[0]} /> : null; break;
     case 'parametres': ecran = direction ? <Parametres section={params[0]} sousParam={params[1]} /> : null; break;
+    case 'caisse': ecran = caisse ? <Caisse vue={params[0]} inscriptionId={params[1]} /> : null; break;
+    case 'recu': ecran = caisse ? <Recu paiementId={params[0]} /> : null; break;
     case 'mot-de-passe': ecran = <ChangerMdp surTermine={() => aller('accueil')} />; break;
-    default: ecran = secretariat ? <Eleves /> : <Accueil />;
+    default: ecran = comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />;
   }
-  const actif = { saisie: 'accueil', resultats: 'classes', eleve: 'eleves' }[page] ?? (page === 'accueil' && secretariat ? 'eleves' : page);
+  const actif = { saisie: 'accueil', resultats: 'classes', eleve: 'eleves', recu: 'caisse' }[page]
+    ?? (page === 'accueil' && comptable ? 'caisse' : page === 'accueil' && secretariat ? 'eleves' : page);
 
   return (
     <div className="coquille">

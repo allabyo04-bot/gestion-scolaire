@@ -78,6 +78,16 @@ const ROUTES = [
   'eleves/tuteur_retirer'              => ['eleves', 'r_eleves_tuteur_retirer', 'POST', true],
   'eleves/inscription_modifier'        => ['eleves', 'r_eleves_inscription_modifier', 'POST', true],
   'eleves/importer'                    => ['eleves', 'r_eleves_importer', 'POST', true],
+  'fin/tarifs'                         => ['finances', 'r_fin_tarifs', 'GET', true],
+  'fin/tarif_enregistrer'              => ['finances', 'r_fin_tarif_enregistrer', 'POST', true],
+  'fin/situation'                      => ['finances', 'r_fin_situation', 'GET', true],
+  'fin/encaisser'                      => ['finances', 'r_fin_encaisser', 'POST', true],
+  'fin/recu'                           => ['finances', 'r_fin_recu', 'GET', true],
+  'fin/annuler'                        => ['finances', 'r_fin_annuler', 'POST', true],
+  'fin/remise'                         => ['finances', 'r_fin_remise', 'POST', true],
+  'fin/remise_supprimer'               => ['finances', 'r_fin_remise_supprimer', 'POST', true],
+  'fin/journal'                        => ['finances', 'r_fin_journal', 'GET', true],
+  'fin/impayes'                        => ['finances', 'r_fin_impayes', 'GET', true],
 ];
 
 try {
@@ -91,7 +101,7 @@ try {
     if ($u['doit_changer_mdp'] && !str_starts_with($r, 'auth/'))
       erreur('Vous devez d\'abord changer votre mot de passe provisoire.', 428);
   }
-  if ($fichier === 'eleves') require __DIR__ . '/routes/parametres.php';
+  if (in_array($fichier, ['eleves', 'finances'], true)) require __DIR__ . '/routes/parametres.php';
   require __DIR__ . "/routes/$fichier.php";
   $fonction();
 } catch (ErreurApi $e) {

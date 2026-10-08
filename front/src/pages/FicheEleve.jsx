@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection } from '../composants/commun.jsx';
 import { STATUTS_INSC, LIENS, age, formatTel, incoherence } from './Eleves.jsx';
+import { Situation } from './Caisse.jsx';
 
 const dateFr = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 
@@ -62,8 +63,15 @@ export default function FicheEleve({ eleveId }) {
           </ul>
         </article>
 
+        {courante && (
+          <article className="carte-fiche carte-large">
+            <div className="carte-fiche-titre"><h2>Frais de scolarité</h2><a href={`#/caisse/encaisser/${courante.id}`}>Détail et paiements</a></div>
+            <Situation inscriptionId={courante.id} compacte />
+          </article>
+        )}
+
         <article className="carte-fiche carte-large">
-          <div className="carte-fiche-titre"><h2>Scolarité</h2>{courante && <button className="bouton-lien" onClick={() => setFenetre({ inscription: courante })}>Modifier l'inscription</button>}</div>
+          <div className="carte-fiche-titre"><h2>Parcours</h2>{courante && <button className="bouton-lien" onClick={() => setFenetre({ inscription: courante })}>Modifier l'inscription</button>}</div>
           <ol className="parcours">
             {el.inscriptions.map((i) => (
               <li key={i.id} className={Number(i.en_cours) ? 'en-cours' : ''}>

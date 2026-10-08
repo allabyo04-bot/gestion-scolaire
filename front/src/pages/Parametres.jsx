@@ -3,8 +3,9 @@ import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 import ParamClasses from './ParamClasses.jsx';
+import ParamFrais from './ParamFrais.jsx';
 
-const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs']];
+const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs'], ['frais', 'Frais de scolarité']];
 
 export default function Parametres({ section = 'ecole', sousParam }) {
   const { utilisateur } = useSession();
@@ -20,6 +21,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
       {ecoleId && section === 'annee' && <AnneePeriodes key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'classes' && <ParamClasses key={ecoleId} ecoleId={ecoleId} classeId={sousParam} />}
       {ecoleId && section === 'evaluations' && <ConfigEvaluations key={ecoleId} ecoleId={ecoleId} />}
+      {ecoleId && section === 'frais' && <ParamFrais key={ecoleId} ecoleId={ecoleId} />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'ecole' && <NouvelleEcole />}
     </section>
   );

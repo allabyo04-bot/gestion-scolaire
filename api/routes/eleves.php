@@ -44,7 +44,7 @@ function eleve_accessible(int $id): array {
 }
 
 function r_eleves_liste() {
-  exiger_role(...ROLES_ELEVES);
+  exiger_role(...ROLES_ELEVES, ...['COMPTABLE']);
   $sql = "SELECT el.id, el.matricule, el.educmaster, el.nom, el.prenoms, el.sexe, el.date_naissance,
                  i.id AS inscription_id, i.statut, i.redoublant, c.id AS classe_id, c.nom AS classe,
                  (SELECT t.telephone FROM eleve_tuteurs et JOIN tuteurs t ON t.id = et.tuteur_id

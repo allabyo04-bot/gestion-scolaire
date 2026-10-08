@@ -326,3 +326,85 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .apercu-import th[scope=row] { font-weight: 700; min-width: 8rem; }
 .apercu-import td:last-child { min-width: 7rem; }
 .apercu-import th, .apercu-import td { padding: .55rem .5rem; }
+
+/* ================================================================ Lot 6 : finances */
+.resultats-recherche { list-style: none; margin: 0; padding: 0; border: 1px solid var(--bordure); border-radius: var(--rayon); background: #fff; }
+.resultats-recherche li + li { border-top: 1px solid var(--ligne); }
+.resultats-recherche a { display: grid; grid-template-columns: 1fr auto; gap: 0 1rem; padding: .75rem 1rem; text-decoration: none; color: var(--graphite); }
+.resultats-recherche a:hover { background: var(--encre-pale); }
+.resultats-recherche strong { color: var(--encre); }
+.resultats-recherche .sous-ligne { grid-column: 1 / -1; }
+.titre-sous-section { font-family: var(--titre); font-size: 1.05rem; font-weight: 500; color: var(--encre-fonce); margin: 1.5rem 0 .6rem; }
+.entete-avec-action .titre-sous-section { margin: 1.5rem 0 .6rem; }
+.statistiques .stat-solde dd { color: var(--ardoise); }
+.statistiques .stat-retard { background: #FDF0F1; }
+.statistiques .stat-retard dd { color: var(--marge); }
+.texte-retard { color: var(--marge); font-weight: 700; }
+.liste-simple li .bouton-lien { margin-left: auto; }
+.liste-tarifs { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); }
+.tarif-total { font-family: var(--titre); font-size: 1.6rem; color: var(--encre); margin: .25rem 0; font-variant-numeric: tabular-nums; }
+.liste-tranches { list-style: none; margin: .5rem 0 0; padding: 0; }
+.liste-tranches li { display: grid; grid-template-columns: 1fr auto; padding: .4rem 0; border-top: 1px solid var(--ligne); }
+.liste-tranches small { grid-column: 1 / -1; color: var(--gris); font-size: .8rem; }
+.seulement-imprimer { display: none; }
+
+/* ---------------------------------------------------------------- Reçu */
+.barre-recu { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.barre-recu .retour { margin: 0; }
+.feuille-recus { background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); padding: 1rem; max-width: 46rem; margin: 0 auto; }
+.recu { position: relative; padding: .5rem .25rem; color: #111; }
+.recu-entete { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; padding-bottom: .6rem; border-bottom: 2px solid var(--encre); }
+.recu-officiel p { margin: 0; font-size: .72rem; text-transform: uppercase; letter-spacing: .02em; line-height: 1.35; color: #333; }
+.recu-officiel p:first-child { font-weight: 700; }
+.recu-ecole { text-align: right; }
+.recu-ecole strong { font-family: var(--titre); font-size: 1.15rem; color: var(--encre-fonce); }
+.recu-ecole p { margin: .1rem 0 0; font-size: .8rem; color: #333; }
+.recu-titre { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: .7rem 0 .4rem; }
+.recu-titre h1 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: .08em; }
+.recu-numero { font-family: var(--titre); font-weight: 700; font-size: 1.05rem; color: var(--marge); font-variant-numeric: tabular-nums; }
+.recu-numero span { color: #333; font-weight: 500; }
+.recu-lignes { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.25rem; }
+.recu-lignes div { display: grid; grid-template-columns: 5.5rem 1fr; gap: .4rem; padding: .28rem 0; border-bottom: 1px dotted #bbb; font-size: .88rem; }
+.recu-lignes dt { color: #555; }
+.recu-lignes dd { margin: 0; }
+.recu-montant { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; margin: .7rem 0; padding: .55rem .8rem; border: 2px solid var(--encre); border-radius: 4px; background: var(--encre-pale); }
+.recu-somme { font-family: var(--titre); font-size: 1.6rem; font-weight: 700; color: var(--encre-fonce); font-variant-numeric: tabular-nums; }
+.recu-lettres { font-style: italic; font-size: .9rem; }
+.recu-pied { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end; }
+.recu-reste { margin: 0; font-size: .88rem; }
+.recu-signature { text-align: right; font-size: .85rem; }
+.recu-signature p { margin: .1rem 0; }
+.recu-cachet { margin: .4rem 0 0 auto; width: 11rem; height: 3.6rem; border: 1px dashed #aaa; display: grid; place-items: end center; padding-bottom: .2rem; font-size: .72rem; color: #888; }
+.recu-exemplaire { position: absolute; top: .3rem; left: 50%; transform: translateX(-50%); margin: 0; font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #888; }
+.ligne-decoupe { position: relative; border-top: 1px dashed #999; margin: 1.1rem 0; }
+.ligne-decoupe span { position: absolute; left: 1rem; top: -.75rem; background: #fff; padding: 0 .3rem; color: #999; }
+@media (max-width: 34rem) {
+  .recu-entete, .recu-lignes, .recu-pied { grid-template-columns: 1fr; }
+  .recu-ecole, .recu-signature { text-align: left; }
+  .recu-cachet { margin-left: 0; }
+}
+
+/* ---------------------------------------------------------------- Impression */
+@media print {
+  @page { size: A4; margin: 10mm; }
+  body { background: #fff; padding: 0; }
+  .bandeau, .onglets, .sous-onglets, .pas-imprimer, .messages, .choix-ecole, .retour { display: none !important; }
+  .seulement-imprimer { display: block; }
+  .contenu { padding: 0; max-width: none; }
+  .entete-page { display: none; }
+  .tableau-defilant { overflow: visible; border: 0; }
+  .feuille-recus { border: 0; padding: 0; max-width: none; }
+  .recu { height: 133mm; overflow: hidden; break-inside: avoid; }
+  .recu-entete, .recu-lignes, .recu-pied { grid-template-columns: 1fr 1fr; }
+  .recu-ecole, .recu-signature { text-align: right; }
+  .recu-cachet { margin-left: auto; }
+  .recu-montant { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  a { color: inherit; text-decoration: none; }
+}
+/* Correctifs d'affichage (montants, statistiques, étiquettes d'état) */
+.tableau .nombre, .liste-tranches .chiffres { white-space: nowrap; }
+.statistiques { background: #fff; gap: 0; }
+.statistiques div { box-shadow: inset -1px -1px 0 var(--ligne); }
+.statut-nouveau, .statut-reinscription, .statut-ignore, .statut-erreur { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+.tableau th.chiffres { white-space: nowrap; }
+.tableau th .note-ligne { font-weight: 400; white-space: normal; max-width: 14rem; }
