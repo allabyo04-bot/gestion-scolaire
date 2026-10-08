@@ -4,6 +4,7 @@ import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ 
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 import ParamClasses from './ParamClasses.jsx';
 import ParamFrais from './ParamFrais.jsx';
+import ParamSauvegardes from './ParamSauvegardes.jsx';
 
 const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs'], ['frais', 'Frais de scolarité']];
 
@@ -15,13 +16,14 @@ export default function Parametres({ section = 'ecole', sousParam }) {
       <div className="entete-page"><h1>Paramètres</h1><p>Ce qui est réglé ici s'applique à toute l'école.</p></div>
       <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} />
       <nav className="sous-onglets" aria-label="Sections des paramètres">
-        {SECTIONS.map(([id, lib]) => <a key={id} href={`#/parametres/${id}`} aria-current={section === id ? 'page' : undefined}>{lib}</a>)}
+        {[...SECTIONS, ...(utilisateur.role === 'SUPER_ADMIN' ? [['sauvegardes', 'Sauvegardes']] : [])].map(([id, lib]) => <a key={id} href={`#/parametres/${id}`} aria-current={section === id ? 'page' : undefined}>{lib}</a>)}
       </nav>
       {ecoleId && section === 'ecole' && <FicheEcole key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'annee' && <AnneePeriodes key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'classes' && <ParamClasses key={ecoleId} ecoleId={ecoleId} classeId={sousParam} />}
       {ecoleId && section === 'evaluations' && <ConfigEvaluations key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'frais' && <ParamFrais key={ecoleId} ecoleId={ecoleId} />}
+      {utilisateur.role === 'SUPER_ADMIN' && section === 'sauvegardes' && <ParamSauvegardes />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'ecole' && <NouvelleEcole />}
     </section>
   );

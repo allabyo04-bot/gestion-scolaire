@@ -10,5 +10,7 @@ rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker
 PORT="${PORT:-80}"
 sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -i "s/<VirtualHost \*:[0-9]*>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
-# 4. Démarrage du serveur web
+# 4. Planificateur (sauvegarde nocturne) : vérifie toutes les 5 minutes, en arrière-plan
+( while true; do php /var/www/sql/planificateur.php || true; sleep 300; done ) &
+# 5. Démarrage du serveur web
 exec apache2-foreground

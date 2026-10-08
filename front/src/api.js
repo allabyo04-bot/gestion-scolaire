@@ -37,7 +37,23 @@ async function appel(methode, route, donnees) {
   return corps.donnees;
 }
 
+// Téléchargement d'un fichier (ex. sauvegarde) avec le jeton de connexion
+async function telecharger(route) {
+  const j = jeton.lire();
+  let r;
+  try { r = await fetch(`${BASE}?r=${route}`, { headers: j ? { Authorization: `Bearer ${j}`, 'X-Jeton': j } : {} }); }
+  catch { throw new ErreurApi('Connexion au serveur impossible.', 0); }
+  if (!r.ok) { let m = `Erreur du serveur (${r.status}).`; try { m = (await r.json()).erreur ?? m; } catch { /* binaire */ } throw new ErreurApi(m, r.status); }
+  const nom = /filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') ?? '')?.[1] ?? 'telechargement';
+  const url = URL.createObjectURL(await r.blob());
+  const a = Object.assign(document.createElement('a'), { href: url, download: nom });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  return nom;
+}
+
 export const api = {
+  telecharger,
   get: (route, params) => appel('GET', route, params),
   post: (route, donnees) => appel('POST', route, donnees ?? {}),
 };

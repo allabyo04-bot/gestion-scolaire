@@ -408,3 +408,31 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .statut-nouveau, .statut-reinscription, .statut-ignore, .statut-erreur { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-size: .82rem; font-weight: 700; white-space: nowrap; }
 .tableau th.chiffres { white-space: nowrap; }
 .tableau th .note-ligne { font-weight: 400; white-space: normal; max-width: 14rem; }
+.texte-ok { color: var(--ardoise); font-weight: 700; }
+
+/* ================================================================ Tableau de bord */
+.statistiques small { display: block; color: var(--gris); font-size: .8rem; margin-top: .1rem; }
+.grille-ecoles { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); margin-bottom: 2rem; }
+.carte-ecole { background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); overflow: hidden; }
+.carte-ecole > header { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; padding: .85rem 1.1rem; background: var(--encre); color: #fff; }
+.carte-ecole > header h2 { color: #fff; font-size: 1.1rem; }
+.carte-ecole > header .discret { color: #C9D6EE; }
+.bloc-indicateur, .bloc-alertes { padding: .85rem 1.1rem; border-top: 1px solid var(--ligne); }
+.carte-ecole > header + .bloc-indicateur { border-top: 0; }
+.bloc-indicateur h3, .bloc-alertes h3 { margin: 0 0 .3rem; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--gris); font-weight: 700; }
+.bloc-indicateur p { margin: .2rem 0; }
+.chiffre-cle { font-family: var(--titre); font-size: 1.6rem; color: var(--encre); font-variant-numeric: tabular-nums; }
+.chiffre-cle small { font-family: var(--texte); font-size: .9rem; color: var(--gris); }
+.jauge { height: .55rem; border-radius: 999px; background: var(--encre-pale); overflow: hidden; margin: .35rem 0 .45rem; }
+.jauge span { display: block; height: 100%; background: var(--ardoise); border-radius: 999px; }
+.jauge-notes span { background: var(--encre); }
+.liste-compacte { margin: .3rem 0 0; padding-left: 1.1rem; font-size: .9rem; color: var(--gris); }
+.bloc-alertes { background: var(--ambre-pale); }
+.bloc-alertes ul { margin: 0; padding-left: 1.1rem; }
+.bloc-alertes li { margin: .15rem 0; }
+.bloc-alertes a { color: var(--ambre); font-weight: 700; }
+.histogramme { display: flex; align-items: stretch; gap: .3rem; height: 12rem; padding: .75rem; background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); overflow-x: auto; }
+.barre-jour { flex: 1 0 2.4rem; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: .2rem; min-width: 2.4rem; }
+.barre-jour .barre { width: 70%; background: var(--ardoise); border-radius: 3px 3px 0 0; }
+.barre-jour .valeur { font-size: .62rem; color: var(--gris); white-space: nowrap; font-family: var(--titre); }
+.barre-jour .jour { font-size: .7rem; color: var(--gris); white-space: nowrap; }

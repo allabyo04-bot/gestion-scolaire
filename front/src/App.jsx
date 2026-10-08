@@ -14,6 +14,7 @@ import Eleves from './pages/Eleves.jsx';
 import FicheEleve from './pages/FicheEleve.jsx';
 import Caisse from './pages/Caisse.jsx';
 import Recu from './pages/Recu.jsx';
+import TableauBord from './pages/TableauBord.jsx';
 
 export default function App() {
   const [utilisateur, setUtilisateur] = useState(null);
@@ -25,7 +26,7 @@ export default function App() {
     api.get('auth/moi').then(setUtilisateur).catch(() => jeton.ecrire(null)).finally(() => setVerifie(true));
   }, []);
 
-  const connecte = (donnees) => { jeton.ecrire(donnees.jeton); setUtilisateur(donnees.utilisateur); aller('accueil'); };
+  const connecte = (donnees) => { jeton.ecrire(donnees.jeton); setUtilisateur(donnees.utilisateur); window.location.hash = '#/'; };
   const deconnecter = async () => {
     try { await api.post('auth/deconnexion'); } catch { /* déjà expirée */ }
     jeton.ecrire(null); setUtilisateur(null); window.location.hash = '';
@@ -53,6 +54,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
   const comptable = utilisateur.role === 'COMPTABLE';
   const caisse = gereEleves || comptable;
   const onglets = [
+    ['tableau', 'Tableau de bord', direction],
     ['accueil', 'Notes', direction || utilisateur.role === 'PROFESSEUR'],
     ['eleves', 'Élèves', gereEleves],
     ['classes', 'Classes', direction || secretariat || utilisateur.role === 'PROFESSEUR'],
@@ -72,13 +74,16 @@ function Coquille({ utilisateur, surDeconnexion }) {
     case 'eleves': ecran = gereEleves ? <Eleves classeId={params[0]} /> : null; break;
     case 'eleve': ecran = gereEleves ? <FicheEleve eleveId={params[0]} /> : null; break;
     case 'parametres': ecran = direction ? <Parametres section={params[0]} sousParam={params[1]} /> : null; break;
+    case 'tableau': ecran = direction ? <TableauBord /> : null; break;
+    case 'accueil': ecran = comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />; break;
     case 'caisse': ecran = caisse ? <Caisse vue={params[0]} inscriptionId={params[1]} /> : null; break;
     case 'recu': ecran = caisse ? <Recu paiementId={params[0]} /> : null; break;
     case 'mot-de-passe': ecran = <ChangerMdp surTermine={() => aller('accueil')} />; break;
-    default: ecran = comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />;
+    default: ecran = direction ? <TableauBord /> : comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />;
   }
   const actif = { saisie: 'accueil', resultats: 'classes', eleve: 'eleves', recu: 'caisse' }[page]
     ?? (page === 'accueil' && comptable ? 'caisse' : page === 'accueil' && secretariat ? 'eleves' : page);
+  const ongletActif = ['tableau', 'accueil', 'eleves', 'classes', 'caisse', 'comptes', 'parametres', 'journal'].includes(actif) ? actif : direction ? 'tableau' : 'accueil';
 
   return (
     <div className="coquille">
@@ -101,7 +106,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
       {onglets.length > 1 && (
         <nav className="onglets" aria-label="Navigation principale">
           {onglets.map(([id, libelle]) => (
-            <a key={id} href={`#/${id}`} aria-current={actif === id ? 'page' : undefined}>{libelle}</a>
+            <a key={id} href={`#/${id}`} aria-current={ongletActif === id ? 'page' : undefined}>{libelle}</a>
           ))}
         </nav>
       )}

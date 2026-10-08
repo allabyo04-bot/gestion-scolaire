@@ -29,20 +29,9 @@ function tarif_de(int $ecole, int $annee, int $niveau): ?array {
   return $t;
 }
 
-// Situation complète d'un élève : dû, payé, reste, état de chaque tranche
-function situation(array $i): array {
-  $tarif = tarif_de((int)$i['ecole_id'], (int)$i['annee_id'], (int)$i['niveau_id']);
-  $remises = lignes("SELECT r.*, CONCAT(u.nom, ' ', u.prenoms) AS auteur FROM remises r JOIN utilisateurs u ON u.id = r.accordee_par
-                     WHERE r.inscription_id = ? ORDER BY r.accordee_le", [$i['id']]);
-  $paiements = lignes("SELECT p.*, CONCAT(u.nom, ' ', u.prenoms) AS caissier FROM paiements p JOIN utilisateurs u ON u.id = p.encaisse_par
-                       WHERE p.inscription_id = ? ORDER BY p.date_paiement, p.id", [$i['id']]);
-  $total = (int)($tarif['montant'] ?? 0);
-  $remise = array_sum(array_map('intval', array_column($remises, 'montant')));
-  $paye = array_sum(array_map(fn($p) => $p['annule'] ? 0 : (int)$p['montant'], $paiements));
-  $du = max(0, $total - $remise);
-
-  // Les remises allègent les dernières tranches ; les paiements couvrent les tranches dans l'ordre
-  $tranches = $tarif['tranches'] ?? [];
+// Les remises allègent les dernières tranches ; les paiements couvrent les tranches dans l'ordre.
+// Renvoie les tranches avec leur état, et le montant en retard (échéance passée, non réglé).
+function repartir(array $tranches, int $remise, int $paye): array {
   $aDeduire = $remise;
   for ($k = count($tranches) - 1; $k >= 0; $k--) {
     $d = min($aDeduire, (int)$tranches[$k]['montant']);
@@ -56,6 +45,22 @@ function situation(array $i): array {
     if ($t['etat'] === 'EN_RETARD') $retard += $t['reste'];
   }
   unset($t);
+  return [$tranches, $retard];
+}
+
+// Situation complète d'un élève : dû, payé, reste, état de chaque tranche
+function situation(array $i): array {
+  $tarif = tarif_de((int)$i['ecole_id'], (int)$i['annee_id'], (int)$i['niveau_id']);
+  $remises = lignes("SELECT r.*, CONCAT(u.nom, ' ', u.prenoms) AS auteur FROM remises r JOIN utilisateurs u ON u.id = r.accordee_par
+                     WHERE r.inscription_id = ? ORDER BY r.accordee_le", [$i['id']]);
+  $paiements = lignes("SELECT p.*, CONCAT(u.nom, ' ', u.prenoms) AS caissier FROM paiements p JOIN utilisateurs u ON u.id = p.encaisse_par
+                       WHERE p.inscription_id = ? ORDER BY p.date_paiement, p.id", [$i['id']]);
+  $total = (int)($tarif['montant'] ?? 0);
+  $remise = array_sum(array_map('intval', array_column($remises, 'montant')));
+  $paye = array_sum(array_map(fn($p) => $p['annule'] ? 0 : (int)$p['montant'], $paiements));
+  $du = max(0, $total - $remise);
+
+  [$tranches, $retard] = repartir($tarif['tranches'] ?? [], $remise, $paye);
   return ['tarif' => $tarif ? ['montant' => $total, 'observation' => $tarif['observation']] : null, 'tranches' => $tranches,
           'remises' => $remises, 'paiements' => $paiements,
           'totaux' => ['tarif' => $total, 'remises' => $remise, 'du' => $du, 'paye' => $paye, 'reste' => max(0, $du - $paye), 'en_retard' => $retard]];

@@ -88,6 +88,10 @@ const ROUTES = [
   'fin/remise_supprimer'               => ['finances', 'r_fin_remise_supprimer', 'POST', true],
   'fin/journal'                        => ['finances', 'r_fin_journal', 'GET', true],
   'fin/impayes'                        => ['finances', 'r_fin_impayes', 'GET', true],
+  'tableau/bord'                       => ['tableau', 'r_tableau_bord', 'GET', true],
+  'admin/sauvegardes'                  => ['admin', 'r_admin_sauvegardes', 'GET', true],
+  'admin/sauvegarde_telecharger'       => ['admin', 'r_admin_sauvegarde_telecharger', 'GET', true],
+  'admin/sauvegarde_envoyer'           => ['admin', 'r_admin_sauvegarde_envoyer', 'POST', true],
 ];
 
 try {
@@ -101,7 +105,7 @@ try {
     if ($u['doit_changer_mdp'] && !str_starts_with($r, 'auth/'))
       erreur('Vous devez d\'abord changer votre mot de passe provisoire.', 428);
   }
-  if (in_array($fichier, ['eleves', 'finances'], true)) require __DIR__ . '/routes/parametres.php';
+  if (in_array($fichier, ['eleves', 'finances', 'tableau'], true)) require __DIR__ . '/routes/parametres.php';
   require __DIR__ . "/routes/$fichier.php";
   $fonction();
 } catch (ErreurApi $e) {
