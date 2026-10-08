@@ -1,0 +1,9 @@
+# Interdire l'accès direct aux dossiers internes et à la configuration
+RedirectMatch 403 ^.*/api/(lib|routes)/.*$
+<Files "config*.php">
+  Require all denied
+</Files>
+# Transmettre l'en-tête Authorization à PHP (nécessaire sur certains hébergements)
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

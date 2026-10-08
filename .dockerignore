@@ -1,0 +1,4 @@
+.git
+front/node_modules
+front/dist
+api/config.local.php
