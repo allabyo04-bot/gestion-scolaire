@@ -5,7 +5,9 @@
 -- =====================================================================
 SET NAMES utf8mb4;
 
-ALTER TABLE eleves DROP CONSTRAINT chk_educmaster;
+/*facultatif*/ ALTER TABLE eleves DROP CONSTRAINT chk_educmaster;
+-- Les numéros saisis pendant les essais avec l'ancienne règle (6 à 10 chiffres) sont vidés
+UPDATE eleves SET educmaster = NULL WHERE educmaster IS NOT NULL AND educmaster NOT REGEXP '^[0-9]{12,13}$';
 ALTER TABLE eleves MODIFY educmaster VARCHAR(13) NULL;
 ALTER TABLE eleves ADD CONSTRAINT chk_educmaster CHECK (educmaster IS NULL OR educmaster REGEXP '^[0-9]{12,13}$');
 

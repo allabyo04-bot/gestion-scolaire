@@ -37,7 +37,15 @@ foreach ($fichiers as $f) {
   $sql = preg_replace('/^\s*--.*$/m', '', file_get_contents($f));       // retire les commentaires
   $instructions = array_filter(array_map('trim', preg_split('/;\s*(\r?\n|$)/', $sql)));
   try {
-    foreach ($instructions as $i) bd()->exec($i);
+    foreach ($instructions as $i) {
+      // Une instruction précédée de /*facultatif*/ peut échouer sans bloquer
+      // (ex. supprimer une contrainte déjà supprimée lors d'un essai interrompu)
+      if (str_starts_with($i, '/*facultatif*/')) {
+        try { bd()->exec($i); } catch (Throwable $e) { info('  (instruction facultative ignorée : ' . $e->getMessage() . ')'); }
+        continue;
+      }
+      bd()->exec($i);
+    }
   } catch (Throwable $e) {
     info("ÉCHEC sur $nom : " . $e->getMessage());
     info('Instruction en cause : ' . mb_substr($i, 0, 200));
