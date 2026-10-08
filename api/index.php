@@ -77,6 +77,7 @@ const ROUTES = [
   'eleves/tuteur_enregistrer'          => ['eleves', 'r_eleves_tuteur_enregistrer', 'POST', true],
   'eleves/tuteur_retirer'              => ['eleves', 'r_eleves_tuteur_retirer', 'POST', true],
   'eleves/inscription_modifier'        => ['eleves', 'r_eleves_inscription_modifier', 'POST', true],
+  'eleves/importer'                    => ['eleves', 'r_eleves_importer', 'POST', true],
 ];
 
 try {

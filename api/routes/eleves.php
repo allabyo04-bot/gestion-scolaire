@@ -7,11 +7,21 @@ const ROLES_ELEVES = ['SUPER_ADMIN', 'DIRECTRICE', 'SECRETARIAT'];
 function educmaster_valide($v): ?string {
   if ($v === null || $v === '') return null;
   $v = preg_replace('/\s+/', '', (string)$v);
-  if (!preg_match('/^[0-9]{6,10}$/', $v)) erreur('Le numéro Educmaster doit comporter uniquement des chiffres (6 à 10).');
+  if (!preg_match('/^[0-9]{12,13}$/', $v)) erreur("Le numéro Educmaster doit comporter 12 ou 13 chiffres (reçu : $v).");
   return $v;
+}
+// Le 1er chiffre du numéro Educmaster indique le sexe : 1 = garçon, 2 = fille
+function avertissement_sexe(?string $educmaster, string $sexe): ?string {
+  if (!$educmaster) return null;
+  $attendu = $educmaster[0] === '1' ? 'M' : ($educmaster[0] === '2' ? 'F' : null);
+  if ($attendu && $attendu !== $sexe)
+    return "Attention : le numéro Educmaster commence par {$educmaster[0]}, ce qui correspond à " . ($attendu === 'M' ? 'un garçon' : 'une fille') . ". Vérifiez le sexe ou le numéro.";
+  return null;
 }
 function date_valide($v): ?string {
   if (!$v) return null;
+  $v = trim((string)$v);
+  if (preg_match('#^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$#', $v, $m)) $v = sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
   $d = DateTime::createFromFormat('Y-m-d', (string)$v);
   if (!$d || $d->format('Y-m-d') !== $v) erreur('Date invalide.');
   if ($d > new DateTime() || (int)$d->format('Y') < 1990) erreur('Date de naissance invalide.');
@@ -158,7 +168,8 @@ function r_eleves_inscrire() {
   $insc = (int)bd()->lastInsertId();
   bd()->commit();
   journaliser('INSCRIPTION', 'inscriptions', $insc, "{$e['nom']} {$e['prenoms']} inscrit(e) en {$c['nom']}");
-  repondre(['eleve_id' => $eleve_id, 'inscription_id' => $insc, 'matricule' => $e['matricule']], 201);
+  repondre(['eleve_id' => $eleve_id, 'inscription_id' => $insc, 'matricule' => $e['matricule'],
+            'avertissement' => avertissement_sexe($e['educmaster'] ?? null, $e['sexe'])], 201);
 }
 
 function r_eleves_modifier() {
@@ -172,7 +183,7 @@ function r_eleves_modifier() {
   $avant = array_intersect_key($e, $v);
   $diff = array_filter($v, fn($x, $k) => (string)$x !== (string)$avant[$k], ARRAY_FILTER_USE_BOTH);
   if ($diff) journaliser('MODIFICATION', 'eleves', $e['id'], "{$v['nom']} {$v['prenoms']}", array_intersect_key($avant, $diff), $diff);
-  repondre();
+  repondre(['avertissement' => avertissement_sexe($v['educmaster'], $v['sexe'])]);
 }
 
 function r_eleves_tuteur_enregistrer() {
@@ -213,4 +224,108 @@ function r_eleves_inscription_modifier() {
               ['classe_id' => $i['classe_id'], 'statut' => $i['statut'], 'redoublant' => $i['redoublant']],
               ['classe_id' => $classe, 'statut' => $statut, 'redoublant' => $red]);
   repondre();
+}
+
+// =====================================================================
+//  IMPORT D'UNE LISTE D'ÉLÈVES (Excel, CSV ou tableau copié depuis Word)
+//  Le site lit le fichier et envoie des lignes déjà découpées :
+//    { educmaster, nom, prenoms, sexe, date_naissance, lieu_naissance }
+//  confirmer = false : aperçu seul (rien n'est enregistré)
+//  confirmer = true  : enregistrement des lignes valides, en une seule transaction
+// =====================================================================
+const MAX_LIGNES_IMPORT = 400;
+
+function sexe_normalise($v): ?string {
+  $v = mb_strtoupper(trim((string)$v));
+  if (in_array($v, ['M', 'G', 'H', 'MASCULIN', 'GARÇON', 'GARCON', 'HOMME'], true)) return 'M';
+  if (in_array($v, ['F', 'FÉMININ', 'FEMININ', 'FILLE', 'FEMME'], true)) return 'F';
+  return null;
+}
+
+function analyser_ligne(array $l, array $a): array {
+  $r = ['nom' => mb_strtoupper(trim(preg_replace('/\s+/', ' ', (string)($l['nom'] ?? '')))),
+        'prenoms' => trim(preg_replace('/\s+/', ' ', (string)($l['prenoms'] ?? ''))),
+        'sexe' => sexe_normalise($l['sexe'] ?? ''),
+        'educmaster' => null, 'date_naissance' => null,
+        'lieu_naissance' => trim((string)($l['lieu_naissance'] ?? '')) ?: null,
+        'statut' => 'NOUVEAU', 'erreurs' => [], 'avertissements' => [], 'eleve_id' => null];
+  if ($r['nom'] === '') $r['erreurs'][] = 'Nom manquant';
+  if ($r['prenoms'] === '') $r['erreurs'][] = 'Prénoms manquants';
+  if (!$r['sexe']) $r['erreurs'][] = 'Sexe manquant ou illisible (« ' . ($l['sexe'] ?? '') . ' »)';
+
+  $num = preg_replace('/\s+/', '', (string)($l['educmaster'] ?? ''));
+  if ($num !== '') {
+    if (!ctype_digit($num)) $r['avertissements'][] = "Numéro Educmaster ignoré (« {$l['educmaster']} »)";
+    elseif (!preg_match('/^[0-9]{12,13}$/', $num)) $r['erreurs'][] = 'Numéro Educmaster à ' . strlen($num) . ' chiffres (12 ou 13 attendus)';
+    else {
+      $r['educmaster'] = $num;
+      if ($r['sexe'] && ($w = avertissement_sexe($num, $r['sexe']))) $r['avertissements'][] = 'Le numéro ne correspond pas au sexe indiqué';
+    }
+  }
+  if (!empty($l['date_naissance'])) {
+    try { $r['date_naissance'] = date_valide($l['date_naissance']); }
+    catch (ErreurApi $e) { $r['avertissements'][] = "Date de naissance ignorée (« {$l['date_naissance']} »)"; }
+  }
+  if ($r['erreurs']) { $r['statut'] = 'ERREUR'; return $r; }
+
+  // Élève déjà connu dans le réseau ?
+  $exist = $r['educmaster'] ? ligne('SELECT id FROM eleves WHERE educmaster = ?', [$r['educmaster']])
+         : ($r['date_naissance'] ? ligne('SELECT id FROM eleves WHERE nom = ? AND prenoms = ? AND date_naissance = ? AND educmaster IS NULL',
+                                         [$r['nom'], $r['prenoms'], $r['date_naissance']]) : null);
+  if ($exist) {
+    $r['eleve_id'] = (int)$exist['id'];
+    $insc = ligne('SELECT c.nom FROM inscriptions i JOIN classes c ON c.id = i.classe_id WHERE i.eleve_id = ? AND i.annee_id = ?', [$exist['id'], $a['id']]);
+    $r['statut'] = $insc ? 'DEJA_INSCRIT' : 'REINSCRIPTION';
+    if ($insc) $r['avertissements'][] = "Déjà inscrit(e) cette année en {$insc['nom']}";
+  }
+  return $r;
+}
+
+function r_eleves_importer() {
+  exiger_role(...ROLES_ELEVES);
+  $c = classe(entier('classe_id'));
+  $a = annee_en_cours();
+  if ((int)$c['annee_id'] !== (int)$a['id']) erreur("Cette classe n'appartient pas à l'année en cours.");
+  $lignes = champ('lignes');
+  if (!is_array($lignes) || !$lignes) erreur('Aucune ligne à importer.');
+  if (count($lignes) > MAX_LIGNES_IMPORT) erreur('Maximum ' . MAX_LIGNES_IMPORT . ' élèves par import : importez classe par classe.');
+  $confirmer = (bool)champ('confirmer', false);
+
+  $resultats = []; $vus = [];
+  foreach (array_values($lignes) as $i => $l) {
+    $r = analyser_ligne((array)$l, $a);
+    // Doublons à l'intérieur du fichier
+    $cle = $r['educmaster'] ?: ($r['nom'] . '|' . $r['prenoms']);
+    if ($r['statut'] !== 'ERREUR' && isset($vus[$cle])) { $r['statut'] = 'ERREUR'; $r['erreurs'][] = 'Doublon de la ligne ' . ($vus[$cle] + 1); }
+    $vus[$cle] ??= $i;
+    $r['ligne'] = $i + 1;
+    $resultats[] = $r;
+  }
+
+  $compte = array_count_values(array_column($resultats, 'statut'));
+  if (!$confirmer) repondre(['lignes' => $resultats, 'compte' => $compte, 'classe' => $c['nom']]);
+
+  $importes = 0;
+  bd()->beginTransaction();
+  try {
+    foreach ($resultats as &$r) {
+      if (!in_array($r['statut'], ['NOUVEAU', 'REINSCRIPTION'], true)) continue;
+      if ($r['statut'] === 'NOUVEAU') {
+        requete('INSERT INTO eleves (educmaster, nom, prenoms, sexe, date_naissance, lieu_naissance, matricule) VALUES (?,?,?,?,?,?,?)',
+                [$r['educmaster'], $r['nom'], $r['prenoms'], $r['sexe'], $r['date_naissance'], $r['lieu_naissance'],
+                 nouveau_matricule((int)$c['ecole_id'], $a)]);
+        $r['eleve_id'] = (int)bd()->lastInsertId();
+      }
+      requete('INSERT INTO inscriptions (eleve_id, classe_id, ecole_id, annee_id, date_inscription) VALUES (?,?,?,?,CURDATE())',
+              [$r['eleve_id'], $c['id'], $c['ecole_id'], $a['id']]);
+      $importes++;
+    }
+    unset($r);
+    bd()->commit();
+  } catch (Throwable $e) {
+    bd()->rollBack();
+    throw $e;
+  }
+  journaliser('IMPORT', 'classes', $c['id'], "{$c['nom']} : $importes élève(s) importé(s) sur " . count($resultats) . ' ligne(s)');
+  repondre(['importes' => $importes, 'compte' => $compte, 'classe' => $c['nom']], 201);
 }

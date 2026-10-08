@@ -2,8 +2,16 @@ import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, aller } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
+import ImportEleves from './ImportEleves.jsx';
 
 export const STATUTS_INSC = { ACTIF: 'Inscrit', TRANSFERE: 'Transféré', ABANDON: 'Abandon', EXCLU: 'Exclu' };
+// 1er chiffre du numéro Educmaster : 1 = garçon, 2 = fille
+export const incoherence = (num, sexe) => {
+  const n = String(num ?? '').replace(/\s/g, '');
+  if (!/^\d{12,13}$/.test(n) || !sexe) return null;
+  const attendu = n[0] === '1' ? 'M' : n[0] === '2' ? 'F' : null;
+  return attendu && attendu !== sexe ? `Le numéro Educmaster commence par ${n[0]}, ce qui correspond à ${attendu === 'M' ? 'un garçon' : 'une fille'}. Vérifiez.` : null;
+};
 export const LIENS = { PERE: 'Père', MERE: 'Mère', TUTEUR: 'Tuteur', AUTRE: 'Autre' };
 // 0197451230 → 01 97 45 12 30
 export const formatTel = (t) => t && /^\d{8,10}$/.test(t) ? t.replace(/(\d{2})(?=\d)/g, '$1 ') : t;
@@ -19,13 +27,17 @@ export default function Eleves({ classeId }) {
   const classes = useDonnees(() => ecoleId ? api.get('ref/classes', { ecole_id: ecoleId }) : Promise.resolve(null), [ecoleId]);
   const [q, setQ] = useState('');
   const [inscrire, setInscrire] = useState(false);
+  const [importer, setImporter] = useState(false);
   const choisie = classeId ?? '';
 
   return (
     <section>
       <div className="entete-page entete-avec-action">
         <div><h1>Élèves</h1><p>Inscriptions de l'année en cours, fiches et tuteurs.</p></div>
-        <button className="bouton bouton-principal" onClick={() => setInscrire(true)} disabled={!classes.donnees?.length}>Inscrire un élève</button>
+        <div className="groupe-boutons">
+          <button className="bouton" onClick={() => setImporter(true)} disabled={!classes.donnees?.length}>Importer une liste</button>
+          <button className="bouton bouton-principal" onClick={() => setInscrire(true)} disabled={!classes.donnees?.length}>Inscrire un élève</button>
+        </div>
       </div>
       <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} />
       <input className="recherche" type="search" placeholder="Rechercher par nom, matricule ou numéro Educmaster"
@@ -46,6 +58,8 @@ export default function Eleves({ classeId }) {
           {choisie ? <ListeClasse classeId={choisie} /> : classes.donnees?.length > 0 && <p className="discret">Choisissez une classe pour voir ses élèves.</p>}
         </>
       )}
+      {importer && <ImportEleves classes={classes.donnees ?? []} classeParDefaut={choisie} surFermer={() => setImporter(false)}
+                    surFait={(cid) => { setImporter(false); classes.recharger(); aller('eleves', cid); window.dispatchEvent(new HashChangeEvent('hashchange')); }} />}
       {inscrire && <FenetreInscription classes={classes.donnees ?? []} classeParDefaut={choisie}
                     surFermer={() => setInscrire(false)}
                     surFait={(r, cid) => { setInscrire(false); classes.recharger(); aller('eleve', r.eleve_id); }} />}
@@ -118,7 +132,7 @@ function FenetreInscription({ classes, classeParDefaut, surFermer, surFait }) {
   const verifier = async () => {
     setErreur('');
     if (!educ.trim()) { setEtape('formulaire'); return; }
-    if (!/^\d{6,10}$/.test(educ.replace(/\s/g, ''))) { setErreur('Le numéro Educmaster comporte 6 à 10 chiffres.'); return; }
+    if (!/^\d{12,13}$/.test(educ.replace(/\s/g, ''))) { setErreur('Le numéro Educmaster comporte 12 ou 13 chiffres.'); return; }
     try {
       const r = await api.get('eleves/chercher_educmaster', { educmaster: educ.replace(/\s/g, '') });
       setExistant(r); setEtape('formulaire');
@@ -131,6 +145,7 @@ function FenetreInscription({ classes, classeParDefaut, surFermer, surFait }) {
                              : { ...f, educmaster: educ.replace(/\s/g, ''), tuteurs, confirmer_homonyme: homonyme };
     try {
       const r = await api.post('eleves/inscrire', donnees);
+      if (r.avertissement) message(r.avertissement, 'erreur');
       message(`${existant ? existant.nom + ' ' + existant.prenoms : f.nom.toUpperCase() + ' ' + f.prenoms} inscrit${(existant?.sexe ?? f.sexe) === 'F' ? 'e' : ''}. Matricule ${r.matricule}.`);
       surFait(r, f.classe_id);
     } catch (x) {
@@ -149,7 +164,7 @@ function FenetreInscription({ classes, classeParDefaut, surFermer, surFait }) {
       <button className="bouton bouton-principal" onClick={envoyer} disabled={!formulaireOk}>{homonyme ? 'Inscrire quand même' : 'Inscrire'}</button></>}>
       {erreur && <Alerte>{erreur}</Alerte>}
       {etape === 'educmaster' ? (
-        <Champ libelle="Numéro Educmaster" id="i-educ" aide="Laissez vide si l'élève n'en a pas encore (primaire, maternelle). Le numéro pourra être ajouté plus tard.">
+        <Champ libelle="Numéro Educmaster" id="i-educ" aide="12 ou 13 chiffres. Laissez vide si l'élève n'en a pas encore : le numéro pourra être ajouté plus tard.">
           <input id="i-educ" inputMode="numeric" autoFocus value={educ} onChange={(e) => setEduc(e.target.value.replace(/[^\d\s]/g, ''))}
                  onKeyDown={(e) => e.key === 'Enter' && verifier()} />
         </Champ>
@@ -181,6 +196,7 @@ function FenetreInscription({ classes, classeParDefaut, surFermer, surFait }) {
                 </Champ>
                 <Champ libelle="Date de naissance" id="i-ddn"><input id="i-ddn" type="date" value={f.date_naissance} onChange={maj('date_naissance')} /></Champ>
               </div>
+              {incoherence(educ, f.sexe) && <p className="avertissement-champ">{incoherence(educ, f.sexe)}</p>}
               <div className="deux-colonnes">
                 <Champ libelle="Lieu de naissance" id="i-lieu"><input id="i-lieu" value={f.lieu_naissance} onChange={maj('lieu_naissance')} /></Champ>
                 <Champ libelle="Nationalité" id="i-nat"><input id="i-nat" value={f.nationalite} onChange={maj('nationalite')} /></Champ>

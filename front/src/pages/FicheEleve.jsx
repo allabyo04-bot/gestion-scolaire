@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection } from '../composants/commun.jsx';
-import { STATUTS_INSC, LIENS, age, formatTel } from './Eleves.jsx';
+import { STATUTS_INSC, LIENS, age, formatTel, incoherence } from './Eleves.jsx';
 
 const dateFr = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 
@@ -90,17 +90,18 @@ function FenetreIdentite({ eleve, surFermer, surFait }) {
   const [erreur, setErreur] = useState('');
   const maj = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const envoyer = async () => {
-    try { await api.post('eleves/modifier', f); message('Fiche modifiée.'); surFait(); } catch (x) { setErreur(x.message); }
+    try { const r = await api.post('eleves/modifier', f); message('Fiche modifiée.'); if (r?.avertissement) message(r.avertissement, 'erreur'); surFait(); } catch (x) { setErreur(x.message); }
   };
   return (
     <Fenetre titre="Modifier l'identité" surFermer={surFermer} actions={<>
       <button className="bouton" onClick={surFermer}>Annuler</button><button className="bouton bouton-principal" onClick={envoyer}>Enregistrer</button></>}>
       {erreur && <Alerte>{erreur}</Alerte>}
-      <Champ libelle="Numéro Educmaster" id="f-educ" aide="6 à 10 chiffres."><input id="f-educ" inputMode="numeric" value={f.educmaster} onChange={maj('educmaster')} /></Champ>
+      <Champ libelle="Numéro Educmaster" id="f-educ" aide="12 ou 13 chiffres."><input id="f-educ" inputMode="numeric" value={f.educmaster} onChange={maj('educmaster')} /></Champ>
       <div className="deux-colonnes">
         <Champ libelle="Nom" id="f-nom"><input id="f-nom" value={f.nom} onChange={maj('nom')} /></Champ>
         <Champ libelle="Prénoms" id="f-pre"><input id="f-pre" value={f.prenoms} onChange={maj('prenoms')} /></Champ>
       </div>
+      {incoherence(f.educmaster, f.sexe) && <p className="avertissement-champ">{incoherence(f.educmaster, f.sexe)}</p>}
       <div className="deux-colonnes">
         <Champ libelle="Sexe" id="f-sexe"><select id="f-sexe" value={f.sexe} onChange={maj('sexe')}><option value="F">Fille</option><option value="M">Garçon</option></select></Champ>
         <Champ libelle="Date de naissance" id="f-ddn"><input id="f-ddn" type="date" value={f.date_naissance} onChange={maj('date_naissance')} /></Champ>

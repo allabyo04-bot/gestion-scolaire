@@ -80,7 +80,7 @@ export function Alerte({ children, type = 'erreur', action }) {
   );
 }
 
-export function Fenetre({ titre, children, surFermer, actions }) {
+export function Fenetre({ titre, children, surFermer, actions, large }) {
   const ref = useRef(null);
   useEffect(() => {
     const d = ref.current;
@@ -90,7 +90,7 @@ export function Fenetre({ titre, children, surFermer, actions }) {
     return () => d?.removeEventListener('cancel', echap);
   }, [surFermer]);
   return (
-    <dialog ref={ref} className="fenetre" aria-labelledby="titre-fenetre">
+    <dialog ref={ref} className={`fenetre${large ? ' fenetre-large' : ''}`} aria-labelledby="titre-fenetre">
       <h2 id="titre-fenetre">{titre}</h2>
       <div className="fenetre-corps">{children}</div>
       <div className="fenetre-actions">{actions}</div>

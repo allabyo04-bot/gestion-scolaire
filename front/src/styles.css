@@ -308,3 +308,21 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .parcours-annee { font-family: var(--titre); color: var(--gris); min-width: 6rem; font-variant-numeric: tabular-nums; }
 .parcours li.en-cours .parcours-annee { color: var(--encre); font-weight: 700; }
 .tableau a[href^="tel"], .liste-tuteurs a[href^="tel"] { white-space: nowrap; font-family: var(--titre); font-variant-numeric: tabular-nums; }
+
+/* ================================================================ Import des listes, avertissements */
+.fenetre-large { width: min(96vw, 60rem); }
+.avertissement-champ { margin: -.5rem 0 1rem; padding: .5rem .75rem; border-radius: var(--rayon); background: var(--ambre-pale); color: var(--ambre); font-size: .9rem; }
+.resume-import { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.resume-import span, .apercu-import td > span { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.statut-nouveau { background: var(--ardoise-pale); color: var(--ardoise); }
+.statut-reinscription { background: var(--encre-pale); color: var(--encre); }
+.statut-ignore { background: #EEE; color: var(--gris); }
+.statut-erreur { background: #FCEBEC; color: var(--marge); }
+.apercu-import { max-height: 55vh; overflow-y: auto; }
+.apercu-import thead th { position: sticky; top: 0; z-index: 1; }
+.apercu-import .ligne-erreur > * { background: #FFF8F8; }
+.note-ligne { display: block; font-size: .8rem; color: var(--gris); margin-top: .2rem; }
+.ligne-erreur .note-ligne { color: var(--marge); }
+.apercu-import th[scope=row] { font-weight: 700; min-width: 8rem; }
+.apercu-import td:last-child { min-width: 7rem; }
+.apercu-import th, .apercu-import td { padding: .55rem .5rem; }
