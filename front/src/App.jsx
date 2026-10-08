@@ -76,7 +76,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
     <div className="coquille">
       <header className="bandeau">
         <div className="bandeau-ecole">
-          <strong>{utilisateur.ecole?.nom_officiel ?? 'Réseau des écoles'}</strong>
+          <strong>{utilisateur.ecole?.nom_officiel ?? 'Réseau des écoles FVPT'}</strong>
           <span>{utilisateur.ecole?.ville ?? 'Toutes les écoles'}</span>
         </div>
         <details className="menu-compte">
