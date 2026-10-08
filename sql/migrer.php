@@ -10,6 +10,8 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 $racine = is_dir(__DIR__ . '/../html/api') ? __DIR__ . '/../html/api' : __DIR__ . '/../api';
 require $racine . '/config.php';
 require $racine . '/lib/db.php';
+require $racine . '/lib/reponse.php';
+require $racine . '/lib/audit.php';
 
 function info(string $m): void { fwrite(STDOUT, '[base] ' . $m . PHP_EOL); }
 
@@ -28,12 +30,20 @@ bd()->exec('CREATE TABLE IF NOT EXISTS migrations_appliquees (
   fichier VARCHAR(150) PRIMARY KEY, appliquee_le DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 $faites = array_flip(bd()->query('SELECT fichier FROM migrations_appliquees')->fetchAll(PDO::FETCH_COLUMN));
-$fichiers = glob(__DIR__ . '/migrations/*.sql');
+// Fichiers .sql (structure) et .php (données, avec vérifications), appliqués dans l'ordre du numéro
+$fichiers = array_merge(glob(__DIR__ . '/migrations/*.sql'), glob(__DIR__ . '/migrations/*.php'));
 sort($fichiers);
 foreach ($fichiers as $f) {
   $nom = basename($f);
   if (isset($faites[$nom])) continue;
   info("Application de {$nom}…");
+  if (str_ends_with($nom, '.php')) {
+    try { (static function (string $f) { require $f; })($f); }
+    catch (Throwable $e) { info("ÉCHEC sur $nom : " . $e->getMessage()); exit(1); }
+    requete('INSERT INTO migrations_appliquees (fichier) VALUES (?)', [$nom]);
+    info("$nom appliquée.");
+    continue;
+  }
   $sql = preg_replace('/^\s*--.*$/m', '', file_get_contents($f));       // retire les commentaires
   $instructions = array_filter(array_map('trim', preg_split('/;\s*(\r?\n|$)/', $sql)));
   try {
