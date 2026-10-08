@@ -35,7 +35,7 @@ $ecoles = [
   'STANDRE' => ['nom_officiel' => 'EP Saint André de Tibona', 'ville' => 'Parakou',
                 'entete_ligne2' => $ENTETE_PRIMAIRE, 'entete_ligne3' => 'Fondation Vie Pour Tous',
                 'nom_directrice' => 'KPANGON Maia', 'niveau' => 'primaire'],
-  'SEGOVIANA' => ['nom_officiel' => 'EP La Ségoviana', 'ville' => 'À préciser',
+  'SEGOVIANA' => ['nom_officiel' => 'EP La Ségoviana', 'ville' => 'Parakou',
                   'entete_ligne2' => $ENTETE_PRIMAIRE, 'entete_ligne3' => 'Fondation Vie Pour Tous',
                   'nom_directrice' => 'YAROU Débora', 'niveau' => 'primaire'],
 ];
