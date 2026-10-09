@@ -30,7 +30,7 @@ function r_utilisateurs_liste() {
   exiger_role('SUPER_ADMIN', 'DIRECTRICE');
   $ecole = est_super_admin() ? entier('ecole_id', false) : (int)$UTILISATEUR['ecole_id'];
   $sql = 'SELECT u.id, u.ecole_id, e.nom_officiel AS ecole, u.role, u.nom, u.prenoms, u.telephone, u.email,
-                 u.identifiant, u.actif, u.derniere_connexion
+                 u.identifiant, u.actif, u.derniere_connexion, u.doit_changer_mdp
           FROM utilisateurs u LEFT JOIN ecoles e ON e.id = u.ecole_id';
   repondre($ecole ? lignes("$sql WHERE u.ecole_id = ? ORDER BY u.nom", [$ecole]) : lignes("$sql ORDER BY e.nom_officiel, u.nom"));
 }
@@ -77,4 +77,27 @@ function r_utilisateurs_reinitialiser_mdp() {
   requete('UPDATE jetons SET revoque = 1 WHERE utilisateur_id = ?', [$u['id']]);
   journaliser('REINITIALISATION_MDP', 'utilisateurs', $u['id'], $u['identifiant']);
   repondre(['identifiant' => $u['identifiant'], 'mot_de_passe_provisoire' => $mdp]);
+}
+
+// Codes d'accès : nouveau mot de passe provisoire pour chaque compte jamais utilisé de l'école
+// (affiché une seule fois, pour impression et distribution en main propre)
+function r_utilisateurs_generer_acces() {
+  global $UTILISATEUR;
+  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  $e = est_super_admin() ? entier('ecole_id') : (int)$UTILISATEUR['ecole_id'];
+  $roles = roles_creables();
+  $ids = array_map('intval', (array)(champ('ids', false) ?? []));
+  $comptes = lignes('SELECT u.*, ec.nom_officiel AS ecole FROM utilisateurs u JOIN ecoles ec ON ec.id = u.ecole_id
+                     WHERE u.ecole_id = ? AND u.actif = 1 AND u.derniere_connexion IS NULL AND u.id <> ? ORDER BY u.role, u.nom, u.prenoms', [$e, $UTILISATEUR['id']]);
+  $res = [];
+  foreach ($comptes as $u) {
+    if (!in_array($u['role'], $roles, true)) continue;
+    if ($ids && !in_array((int)$u['id'], $ids, true)) continue;
+    $mdp = mdp_provisoire();
+    requete('UPDATE utilisateurs SET mot_de_passe_hash = ?, doit_changer_mdp = 1, tentatives_echouees = 0, bloque_jusqu_a = NULL WHERE id = ?',
+            [password_hash($mdp, PASSWORD_DEFAULT), $u['id']]);
+    $res[] = ['nom' => $u['nom'], 'prenoms' => $u['prenoms'], 'role' => $u['role'], 'identifiant' => $u['identifiant'], 'mot_de_passe' => $mdp, 'ecole' => $u['ecole']];
+  }
+  journaliser('REINITIALISATION_MDP', 'utilisateurs', null, count($res) . " code(s) d'accès générés pour impression");
+  repondre($res);
 }

@@ -60,7 +60,7 @@ function Bordereau({ d }) {
   return (
     <article className="bordereau">
       <header className="bordereau-entete">
-        <div><strong>{d.ecole?.nom_officiel}</strong><span>{d.ecole?.ville}</span></div>
+        <div className="bordereau-ecole">{d.ecole?.images?.LOGO && <img className="doc-logo" src={d.ecole.images.LOGO} alt="" />}<div><strong>{d.ecole?.nom_officiel}</strong><span>{d.ecole?.ville}</span></div></div>
         <div className="bordereau-titre"><h2>Bordereau de remise de caisse</h2><p>{dateLongue(d.date)}</p></div>
       </header>
       <p>Caissier : <strong>{d.caissier}</strong>. Reçus valides : <strong>{d.nb_recus}</strong>.</p>

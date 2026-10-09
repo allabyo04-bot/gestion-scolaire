@@ -41,7 +41,7 @@ function r_caisse_jour() {
   }
   $u = ligne("SELECT CONCAT(nom, ' ', prenoms) AS nom FROM utilisateurs WHERE id = ?", [$caissier]);
   repondre($r + ['remise' => $remise, 'date' => $date, 'caissier' => $u['nom'] ?? '', 'caissier_id' => $caissier,
-                 'ecole' => ligne('SELECT nom_officiel, ville FROM ecoles WHERE id = ?', [$e])]);
+                 'ecole' => ligne('SELECT nom_officiel, ville FROM ecoles WHERE id = ?', [$e]) + ['images' => images_ecole($e)]]);
 }
 
 // Le caissier remet sa caisse du jour (ou corrige sa remise tant qu'elle n'est pas confirmée)

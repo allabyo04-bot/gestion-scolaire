@@ -543,3 +543,38 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .rc-solde { text-align: right; }
 .rc-reste { font-family: var(--titre); font-weight: 700; color: var(--encre); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .rc-solde .sous-ligne { font-family: var(--texte); }
+
+/* ================================================================ Images, codes d'accès */
+.grille-images { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); margin-top: 1rem; }
+.carte-image { background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); padding: .9rem; display: flex; flex-direction: column; gap: .5rem; }
+.carte-image h3 { margin: 0; font-size: 1rem; font-family: var(--titre); font-weight: 500; color: var(--encre-fonce); }
+.apercu-image { height: 7.5rem; display: grid; place-items: center; border: 1px dashed var(--ligne); border-radius: 4px;
+  background: repeating-conic-gradient(#f1f3f7 0% 25%, #fff 0% 50%) 50% / 16px 16px; }
+.apercu-image img { max-width: 100%; max-height: 7rem; object-fit: contain; }
+.doc-logo { height: 3.6rem; width: auto; object-fit: contain; grid-row: span 1; }
+.doc-entete:has(.doc-logo) { grid-template-columns: auto 1fr 1fr; }
+.doc-entete:has(.doc-logo) .doc-titre { grid-column: 1 / -1; }
+.recu-entete:has(.doc-logo) { grid-template-columns: auto 1fr 1fr; }
+.recu-entete .doc-logo { height: 3rem; }
+.bordereau-ecole { display: flex; align-items: center; gap: .75rem; }
+.bordereau-ecole > div { display: flex; flex-direction: column; }
+.bordereau-ecole .doc-logo { height: 3rem; }
+.signature-cachet { position: relative; height: 5.5rem; width: 12rem; margin: .3rem auto; }
+.img-cachet { position: absolute; left: 50%; top: 50%; transform: translate(-60%, -50%) rotate(-6deg); max-height: 5.5rem; max-width: 8rem; opacity: .85; }
+.img-signature { position: absolute; left: 50%; top: 50%; transform: translate(-35%, -45%); max-height: 4rem; max-width: 9rem; }
+.etiquettes-codes { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
+.etiquette-code { border: 1.5px dashed #888; border-radius: 6px; padding: .8rem 1rem; background: #fff; break-inside: avoid; }
+.etiquette-code p { margin: 0; }
+.ec-ecole { font-size: .75rem; color: var(--gris); text-transform: uppercase; letter-spacing: .04em; }
+.ec-nom { font-family: var(--titre); font-weight: 700; font-size: 1.1rem; color: var(--encre-fonce); margin-top: .2rem !important; }
+.ec-role { font-size: .85rem; color: var(--gris); margin-bottom: .5rem !important; }
+.etiquette-code dl { margin: 0; }
+.etiquette-code dl div { display: grid; grid-template-columns: 8.5rem 1fr; gap: .4rem; padding: .15rem 0; font-size: .85rem; }
+.etiquette-code dt { color: #555; }
+.etiquette-code dd { margin: 0; }
+.etiquette-code code { font-size: 1rem; font-weight: 700; letter-spacing: .04em; }
+.ec-note { font-size: .72rem; color: #666; margin-top: .4rem !important; }
+@media print {
+  .etiquettes-codes { grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .etiquette-code { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

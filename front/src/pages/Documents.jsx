@@ -8,6 +8,7 @@ const dateLongue = (d) => new Date((d ?? new Date().toISOString().slice(0, 10)) 
 function EnteteOfficiel({ e, titre, sousTitre }) {
   return (
     <header className="doc-entete">
+      {e.images?.LOGO && <img className="doc-logo" src={e.images.LOGO} alt="" />}
       <div className="doc-officiel">{[e.entete_ligne1, e.entete_ligne2, e.entete_ligne3].filter(Boolean).map((l) => <p key={l}>{l}</p>)}</div>
       <div className="doc-ecole">
         <strong>{e.nom_officiel}</strong>
@@ -16,6 +17,18 @@ function EnteteOfficiel({ e, titre, sousTitre }) {
       </div>
       {titre && <div className="doc-titre"><h1>{titre}</h1>{sousTitre && <p>{sousTitre}</p>}</div>}
     </header>
+  );
+}
+
+// Cachet et signature superposés, s'ils ont été déposés (sinon un cadre vide pour signer à la main)
+export function SignatureCachet({ e, vide }) {
+  const { CACHET, SIGNATURE } = e.images ?? {};
+  if (!CACHET && !SIGNATURE) return vide ? <div className="recu-cachet">Signature et cachet</div> : null;
+  return (
+    <div className="signature-cachet">
+      {CACHET && <img className="img-cachet" src={CACHET} alt="Cachet" />}
+      {SIGNATURE && <img className="img-signature" src={SIGNATURE} alt="Signature" />}
+    </div>
   );
 }
 
@@ -51,7 +64,7 @@ export function ListeClasse({ classeId }) {
           </tbody>
         </table>
         <p className="doc-pied">Arrêtée à {eleves.length} élève{eleves.length > 1 ? 's' : ''}. {ecole.ville}, le {dateLongue()}.{eleves.some((x) => Number(x.redoublant)) ? ' (R) : redoublant(e).' : ''}</p>
-        <div className="doc-signature"><p>{ecole.titre_signataire}</p><p className="signature-nom">{ecole.nom_directrice}</p></div>
+        <div className="doc-signature"><p>{ecole.titre_signataire}</p><SignatureCachet e={ecole} /><p className="signature-nom">{ecole.nom_directrice}</p></div>
       </article>
     </section>
   );
@@ -113,7 +126,7 @@ export function Certificat({ eleveId }) {
         <div className="doc-signature certificat-signature">
           <p>Fait à {ecole.ville}, le {dateLongue()}</p>
           <p>{ecole.titre_signataire}</p>
-          <div className="recu-cachet">Signature et cachet</div>
+          <SignatureCachet e={ecole} vide />
           <p className="signature-nom">{ecole.nom_directrice}</p>
         </div>
       </article>

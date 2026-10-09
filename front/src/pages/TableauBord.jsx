@@ -52,6 +52,8 @@ export default function TableauBord() {
             f.jours_non_remis > 0 && [`${f.jours_non_remis} journée(s) de caisse encaissée(s) sans remise`, '#/caisse/remise'],
             f.remises_a_confirmer > 0 && [`${f.remises_a_confirmer} remise(s) de caisse à confirmer`, '#/caisse/remise'],
             n.classes_sans_matieres > 0 && [`${n.classes_sans_matieres} classe(s) sans matières`, '#/parametres/classes'],
+            n.coef_a_confirmer > 0 && [`${n.coef_a_confirmer} coefficient(s) à confirmer`, '#/parametres/classes'],
+            e.comptes.jamais_connectes > 0 && [`${e.comptes.jamais_connectes} compte(s) jamais utilisé(s) : imprimer les codes d'accès`, '#/comptes'],
             n.sans_professeur > 0 && [`${n.sans_professeur} matière(s) sans professeur`, '#/parametres/classes'],
             n.classes_sans_evaluations > 0 && [`${n.classes_sans_evaluations} classe(s) sans interros ni devoirs préparés`, '#/classes'],
             !e.comptes.COMPTABLE && !e.comptes.SECRETARIAT && ['Aucun compte de caisse (comptable ou secrétariat)', '#/comptes'],

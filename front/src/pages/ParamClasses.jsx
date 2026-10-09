@@ -144,6 +144,7 @@ function MatieresClasse({ classe, classes, profs, surChangement }) {
         <div>
           <h2 className="titre-section">Matières de la {classe.nom}</h2>
           {liste.donnees?.length > 0 && <p className="discret">{liste.donnees.length} matières, total des coefficients : {coefTexte(totalCoef)}</p>}
+          {(liste.donnees ?? []).some((m) => Number(m.coef_a_confirmer)) && <p className="texte-alerte">Coefficients provisoires (1) : ouvrez chaque matière avec « Modifier » et enregistrez le vrai coefficient.</p>}
           {sansProf > 0 && <p className="manque">{sansProf === 1 ? 'Une matière attend' : `${sansProf} matières attendent`} un professeur.</p>}
         </div>
         <div className="groupe-boutons">
@@ -165,7 +166,7 @@ function MatieresClasse({ classe, classes, profs, surChangement }) {
                     <button className="fleche" aria-label={`Descendre ${m.libelle}`} disabled={i === liste.donnees.length - 1} onClick={() => deplacer(i, 1)}>▼</button>
                   </td>
                   <th scope="row">{m.libelle}{m.groupe_bulletin && <small className="etiquette">{m.groupe_bulletin}</small>}</th>
-                  <td className="nombre">{coefTexte(m.coefficient)}</td>
+                  <td className="nombre">{coefTexte(m.coefficient)}{Number(m.coef_a_confirmer) ? <small className="etiquette etiquette-alerte">à confirmer</small> : null}</td>
                   <td>{m.professeur ?? <span className="manque">À désigner</span>}</td>
                   <td className="actions-ligne">
                     <button className="bouton-lien" onClick={() => setEdition(m)}>Modifier</button>

@@ -11,6 +11,15 @@ export default function Comptes() {
   const comptes = useDonnees(() => api.get('utilisateurs/liste', { ecole_id: ecoleId }), [ecoleId]);
   const [creer, setCreer] = useState(false);
   const [provisoire, setProvisoire] = useState(null);
+  const [codes, setCodes] = useState(null);
+  const jamais = (comptes.donnees ?? []).filter((c) => c.actif && !c.derniere_connexion && c.id !== utilisateur.id && (superAdmin || ['SECRETARIAT', 'COMPTABLE', 'PROFESSEUR'].includes(c.role)));
+  const genererCodes = async () => {
+    if (!ecoleId && superAdmin) { message("Choisissez d'abord une école.", 'erreur'); return; }
+    if (!window.confirm(`Préparer les codes d'accès de ${jamais.length} compte(s) jamais utilisé(s) ? Un nouveau mot de passe provisoire sera créé pour chacun : imprimez la feuille et distribuez les étiquettes en main propre.`)) return;
+    try { setCodes(await api.post('utilisateurs/generer_acces', { ecole_id: ecoleId })); comptes.recharger(); }
+    catch (x) { message(x.message, 'erreur'); }
+  };
+  if (codes) return <FeuilleCodes codes={codes} surFermer={() => setCodes(null)} />;
 
   const activer = async (c) => {
     try { await api.post('utilisateurs/activer', { id: c.id, actif: c.actif ? 0 : 1 }); message(c.actif ? 'Compte désactivé.' : 'Compte réactivé.'); comptes.recharger(); }
@@ -26,7 +35,10 @@ export default function Comptes() {
     <section>
       <div className="entete-page entete-avec-action">
         <div><h1>Comptes</h1><p>Chaque personne a son propre compte. Ses actions sont enregistrées dans le journal.</p></div>
-        <button className="bouton bouton-principal" onClick={() => setCreer(true)}>Créer un compte</button>
+        <div className="groupe-boutons">
+          {jamais.length > 0 && <button className="bouton" onClick={genererCodes}>Codes d'accès ({jamais.length})</button>}
+          <button className="bouton bouton-principal" onClick={() => setCreer(true)}>Créer un compte</button>
+        </div>
       </div>
       <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} toutes />
       {comptes.charge && <Chargement />}
@@ -42,7 +54,7 @@ export default function Comptes() {
                   <td>{ROLES[c.role]}</td>
                   {superAdmin && <td>{c.ecole ?? 'Toutes'}</td>}
                   <td><code>{c.identifiant}</code></td>
-                  <td>{c.derniere_connexion ? formatDate(c.derniere_connexion) : 'Jamais'}</td>
+                  <td>{c.derniere_connexion ? formatDate(c.derniere_connexion) : <small className="etiquette etiquette-alerte">Jamais connecté</small>}</td>
                   <td className="actions-ligne">
                     {c.id !== utilisateur.id && (superAdmin || ['SECRETARIAT', 'COMPTABLE', 'PROFESSEUR'].includes(c.role)) && <>
                       <button className="bouton-lien" onClick={() => reinitialiser(c)}>Nouveau mot de passe</button>
@@ -108,5 +120,38 @@ function FenetreCreation({ superAdmin, surFermer, surCree }) {
         <Champ libelle="E-mail (facultatif)" id="f-mail"><input id="f-mail" type="email" value={f.email} onChange={maj('email')} /></Champ>
       </div>
     </Fenetre>
+  );
+}
+
+// Feuille d'étiquettes à découper : une par personne, avec l'adresse du site
+function FeuilleCodes({ codes, surFermer }) {
+  const adresse = window.location.origin;
+  return (
+    <section>
+      <div className="pas-imprimer barre-recu">
+        <button className="bouton-lien retour" onClick={surFermer}>Retour aux comptes</button>
+        <button className="bouton bouton-principal" onClick={() => window.print()}>Imprimer les étiquettes</button>
+      </div>
+      <div className="pas-imprimer">
+        <Alerte type="info">Ces mots de passe ne seront plus jamais affichés : imprimez cette page maintenant. Chaque personne devra choisir son propre mot de passe à sa première connexion.</Alerte>
+      </div>
+      {codes.length === 0 ? <div className="vide"><p>Aucun compte à préparer.</p></div> : (
+        <div className="etiquettes-codes">
+          {codes.map((c) => (
+            <div key={c.identifiant} className="etiquette-code">
+              <p className="ec-ecole">{c.ecole}</p>
+              <p className="ec-nom">{c.nom} {c.prenoms}</p>
+              <p className="ec-role">{ROLES[c.role]}</p>
+              <dl>
+                <div><dt>Adresse</dt><dd>{adresse.replace(/^https?:\/\//, '')}</dd></div>
+                <div><dt>Identifiant</dt><dd><code>{c.identifiant}</code></dd></div>
+                <div><dt>Mot de passe provisoire</dt><dd><code>{c.mot_de_passe}</code></dd></div>
+              </dl>
+              <p className="ec-note">À changer dès la première connexion. Ne le communiquez à personne.</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

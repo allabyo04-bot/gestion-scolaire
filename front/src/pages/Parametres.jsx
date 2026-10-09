@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
+import { preparerImage } from '../composants/images.js';
 import ParamClasses from './ParamClasses.jsx';
 import ParamFrais from './ParamFrais.jsx';
 import ParamSauvegardes from './ParamSauvegardes.jsx';
@@ -19,6 +20,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
         {[...SECTIONS, ...(utilisateur.role === 'SUPER_ADMIN' ? [['sauvegardes', 'Sauvegardes']] : [])].map(([id, lib]) => <a key={id} href={`#/parametres/${id}`} aria-current={section === id ? 'page' : undefined}>{lib}</a>)}
       </nav>
       {ecoleId && section === 'ecole' && <FicheEcole key={ecoleId} ecoleId={ecoleId} />}
+      {ecoleId && section === 'ecole' && <ImagesEcole key={'i' + ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'annee' && <AnneePeriodes key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'classes' && <ParamClasses key={ecoleId} ecoleId={ecoleId} classeId={sousParam} />}
       {ecoleId && section === 'evaluations' && <ConfigEvaluations key={ecoleId} ecoleId={ecoleId} />}
@@ -56,7 +58,6 @@ function FicheEcole({ ecoleId }) {
   return (
     <form className="formulaire-large" onSubmit={envoyer}>
       <h2>Fiche de l'école</h2>
-      <p className="discret">Le logo, le cachet et la signature seront ajoutés avec le module des bulletins.</p>
       {erreur && <Alerte>{erreur}</Alerte>}
       <div className="grille-champs">
         {CHAMPS.map(([k, lib, aide]) => (
@@ -312,6 +313,48 @@ function ConfigEvaluations({ ecoleId }) {
           </div>
         </Fenetre>
       )}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ Logo, cachet, signature
+const IMAGES = [['LOGO', 'Logo de l\'école', 'Affiché en tête des reçus, documents et bulletins.', 600],
+                ['CACHET', 'Cachet', 'Scanné sur fond blanc, ou mieux : sur fond transparent (PNG).', 450],
+                ['SIGNATURE', 'Signature de la directrice', 'Signature seule, sur fond blanc ou transparent.', 450]];
+function ImagesEcole({ ecoleId }) {
+  const message = useMessage();
+  const im = useDonnees(() => api.get('param/images', { ecole_id: ecoleId }), [ecoleId]);
+  const [envoi, setEnvoi] = useState('');
+  const choisir = async (type, largeur, e) => {
+    const f = e.target.files?.[0]; e.target.value = ''; if (!f) return;
+    setEnvoi(type);
+    try { const donnees = await preparerImage(f, largeur); await api.post('param/image_enregistrer', { ecole_id: ecoleId, type, donnees }); message('Image enregistrée.'); im.recharger(); }
+    catch (x) { message(x.message, 'erreur'); } finally { setEnvoi(''); }
+  };
+  const retirer = async (type) => {
+    if (!window.confirm('Retirer cette image ?')) return;
+    try { await api.post('param/image_supprimer', { ecole_id: ecoleId, type }); im.recharger(); } catch (x) { message(x.message, 'erreur'); }
+  };
+  return (
+    <div className="formulaire-large">
+      <h2 className="titre-section">Logo, cachet et signature</h2>
+      <p className="discret">Une photo nette prise au téléphone suffit, recadrée au plus près. L'image est réduite automatiquement avant l'envoi.</p>
+      <div className="grille-images">
+        {IMAGES.map(([type, titre, aide, largeur]) => (
+          <div key={type} className="carte-image">
+            <h3>{titre}</h3>
+            <div className="apercu-image">{im.donnees?.[type] ? <img src={im.donnees[type]} alt={titre} /> : <span className="discret">Aucune image</span>}</div>
+            <small className="aide">{aide}</small>
+            <div className="groupe-boutons">
+              <label className="bouton bouton-discret">
+                {envoi === type ? 'Envoi…' : im.donnees?.[type] ? 'Remplacer' : 'Choisir une image'}
+                <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => choisir(type, largeur, e)} disabled={!!envoi} />
+              </label>
+              {im.donnees?.[type] && <button className="bouton-lien" onClick={() => retirer(type)}>Retirer</button>}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

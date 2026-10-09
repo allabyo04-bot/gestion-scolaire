@@ -226,7 +226,7 @@ function r_param_matiere_enregistrer() {
 
 function r_param_professeurs() {
   $e = ecole_cible();
-  repondre(lignes("SELECT id, nom, prenoms FROM utilisateurs WHERE ecole_id = ? AND role = 'PROFESSEUR' AND actif = 1 ORDER BY nom, prenoms", [$e]));
+  repondre(lignes("SELECT id, nom, prenoms, role FROM utilisateurs WHERE ecole_id = ? AND role IN ('PROFESSEUR','DIRECTRICE') AND actif = 1 ORDER BY role = 'DIRECTRICE', nom, prenoms", [$e]));
 }
 
 // ---------------------------------------------------------------- Classes
@@ -241,7 +241,8 @@ function r_param_classes() {
 }
 
 function verifier_prof(?int $prof, int $ecole): void {
-  if ($prof && !ligne("SELECT id FROM utilisateurs WHERE id = ? AND ecole_id = ? AND role = 'PROFESSEUR'", [$prof, $ecole]))
+  // Un membre de la direction peut aussi enseigner (ex. directrice qui tient une classe)
+  if ($prof && !ligne("SELECT id FROM utilisateurs WHERE id = ? AND ecole_id = ? AND role IN ('PROFESSEUR','DIRECTRICE')", [$prof, $ecole]))
     erreur("Ce professeur n'appartient pas à l'école.");
 }
 
@@ -307,11 +308,13 @@ function r_param_classe_matiere_enregistrer() {
   $coef = str_replace(',', '.', (string)champ('coefficient'));
   if (!is_numeric($coef) || $coef <= 0 || $coef > 20) erreur('Coefficient invalide (entre 0,5 et 20).');
   $prof = entier('professeur_id', false);
-  verifier_prof($prof, (int)$c['ecole_id']);
+  // Maternelle et primaire : sans choix explicite, la matière est confiée au titulaire de la classe
+  if (!$prof && in_array($c['cycle'], ['MATERNELLE', 'PRIMAIRE'], true) && $c['prof_principal_id']) $prof = (int)$c['prof_principal_id'];
+  elseif ($prof) verifier_prof($prof, (int)$c['ecole_id']);
   $groupe = texte_ou_null('groupe_bulletin');
   $avant = ligne('SELECT * FROM classe_matieres WHERE classe_id = ? AND matiere_id = ?', [$c['id'], $matiere]);
   if ($avant) {
-    requete('UPDATE classe_matieres SET coefficient = ?, professeur_id = ?, groupe_bulletin = ?, actif = 1 WHERE id = ?',
+    requete('UPDATE classe_matieres SET coefficient = ?, coef_a_confirmer = 0, professeur_id = ?, groupe_bulletin = ?, actif = 1 WHERE id = ?',
             [$coef, $prof, $groupe, $avant['id']]);
     journaliser('MODIFICATION', 'classe_matieres', $avant['id'], "{$c['nom']} : matière $matiere",
                 ['coefficient' => $avant['coefficient'], 'professeur_id' => $avant['professeur_id']], ['coefficient' => $coef, 'professeur_id' => $prof]);
@@ -363,4 +366,32 @@ function r_param_classe_copier_matieres() {
   bd()->commit();
   journaliser('CREATION', 'classe_matieres', null, "{$n} matière(s) copiée(s) de {$src['nom']} vers {$dst['nom']}");
   repondre(['copiees' => $n]);
+}
+
+// ---------------------------------------------------------------- Logo, cachet, signature
+const TYPES_IMAGES = ['LOGO', 'CACHET', 'SIGNATURE'];
+function r_param_images() {
+  $e = ecole_cible();
+  repondre(array_column(lignes('SELECT type, donnees FROM ecole_images WHERE ecole_id = ?', [$e]), 'donnees', 'type'));
+}
+function r_param_image_enregistrer() {
+  global $UTILISATEUR;
+  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  $e = ecole_cible();
+  $type = strtoupper((string)champ('type'));
+  if (!in_array($type, TYPES_IMAGES, true)) erreur('Type d\'image invalide.');
+  $d = (string)champ('donnees');
+  if (!preg_match('#^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$#', $d)) erreur('Image invalide (PNG, JPEG ou WebP attendu).');
+  if (strlen($d) > 600000) erreur('Image trop lourde : choisissez une image plus petite.');
+  requete('INSERT INTO ecole_images (ecole_id, type, donnees, modifie_par) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE donnees = VALUES(donnees), modifie_par = VALUES(modifie_par)',
+          [$e, $type, $d, $UTILISATEUR['id']]);
+  journaliser('MODIFICATION', 'ecole_images', $e, strtolower($type) . ' de l\'école mis à jour');
+  repondre();
+}
+function r_param_image_supprimer() {
+  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  $e = ecole_cible();
+  requete('DELETE FROM ecole_images WHERE ecole_id = ? AND type = ?', [$e, strtoupper((string)champ('type'))]);
+  journaliser('SUPPRESSION', 'ecole_images', $e, strtolower((string)champ('type')) . ' de l\'école retiré');
+  repondre();
 }

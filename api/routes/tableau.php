@@ -65,6 +65,8 @@ function bilan_ecole(int $ecole, array $a): array {
   $notes = ['periode' => $periode['libelle'] ?? null];
   $notes += ligne("SELECT COUNT(DISTINCT cm.id) AS matieres, SUM(cm.professeur_id IS NULL) AS sans_professeur
                    FROM classe_matieres cm JOIN classes c ON c.id = cm.classe_id WHERE c.ecole_id = ? AND c.annee_id = ? AND cm.actif = 1", [$ecole, $a['id']]);
+  $notes['coef_a_confirmer'] = (int)ligne('SELECT COUNT(*) AS n FROM classe_matieres cm JOIN classes c ON c.id = cm.classe_id
+                     WHERE c.ecole_id = ? AND c.annee_id = ? AND cm.actif = 1 AND cm.coef_a_confirmer = 1', [$ecole, $a['id']])['n'];
   $notes['classes_sans_matieres'] = (int)ligne('SELECT COUNT(*) AS n FROM classes c WHERE c.ecole_id = ? AND c.annee_id = ?
                      AND NOT EXISTS (SELECT 1 FROM classe_matieres cm WHERE cm.classe_id = c.id AND cm.actif = 1)', [$ecole, $a['id']])['n'];
   if ($periode) {
@@ -103,6 +105,7 @@ function bilan_ecole(int $ecole, array $a): array {
   foreach (['heures_a_justifier', 'heures_7j'] as $k) $abs[$k] = (float)$abs[$k];
 
   $comptes = lignes("SELECT role, COUNT(*) AS n FROM utilisateurs WHERE ecole_id = ? AND actif = 1 GROUP BY role", [$ecole]);
+  $jamais = (int)ligne('SELECT COUNT(*) AS n FROM utilisateurs WHERE ecole_id = ? AND actif = 1 AND derniere_connexion IS NULL', [$ecole])['n'];
   return ['effectifs' => ['total' => (int)$eff['total'], 'filles' => (int)$eff['filles'], 'classes' => $nbClasses, 'par_cycle' => $parCycle],
-          'finances' => $f, 'notes' => $notes, 'absences' => $abs, 'comptes' => array_column($comptes, 'n', 'role')];
+          'finances' => $f, 'notes' => $notes, 'absences' => $abs, 'comptes' => array_column($comptes, 'n', 'role') + ['jamais_connectes' => $jamais]];
 }

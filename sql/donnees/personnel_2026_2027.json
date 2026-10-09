@@ -1,0 +1,855 @@
+{
+ "KANDI": {
+  "comptes": [
+   {
+    "nom": "MOUSSA",
+    "prenoms": "Zaliatou",
+    "telephone": "0195094575",
+    "role": "DIRECTRICE",
+    "fonction": "Directrice (CPV)"
+   },
+   {
+    "nom": "TCHANSI",
+    "prenoms": "F. Richard",
+    "telephone": "0166219331",
+    "role": "SECRETARIAT",
+    "fonction": "Secrétaire-caissier"
+   },
+   {
+    "nom": "HOUEGBAN",
+    "prenoms": "Clotilde",
+    "telephone": "0196768084",
+    "role": "PROFESSEUR",
+    "fonction": "Censeur (premier cycle)"
+   },
+   {
+    "nom": "ZIBO",
+    "prenoms": "Moudachirou",
+    "telephone": "0194938738",
+    "role": "PROFESSEUR",
+    "fonction": "Censeur (deuxième cycle)"
+   },
+   {
+    "nom": "MOUSSA",
+    "prenoms": "Nassirou",
+    "telephone": "0194141743",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ZIME",
+    "prenoms": "Gaston",
+    "telephone": "0167881111",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "GAMBARI",
+    "prenoms": "Mouslihou",
+    "telephone": "0191090203",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "TAKOROU",
+    "prenoms": "Machoudou",
+    "telephone": "0169254192",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "IBRAHIM",
+    "prenoms": "Taofik",
+    "telephone": "0150599622",
+    "role": "PROFESSEUR",
+    "fonction": "Surveillant général"
+   },
+   {
+    "nom": "SOMESSIM",
+    "prenoms": "Christian",
+    "telephone": "0197032452",
+    "role": "PROFESSEUR",
+    "fonction": "Surveillant général adjoint"
+   },
+   {
+    "nom": "BIO SAWE",
+    "prenoms": "Rafiath",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "KOUSSAHOUE",
+    "prenoms": "Zita",
+    "telephone": "0160792377",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ATEMON",
+    "prenoms": "Richard",
+    "telephone": "0166430968",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "DEMON",
+    "prenoms": "Abdou Razack",
+    "telephone": "0195011091",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "TAHOULAN",
+    "prenoms": "Gbodja",
+    "telephone": "0167631478",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "SOSSOUHOUNTO",
+    "prenoms": "Ignace",
+    "telephone": "0196383895",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "LOKOSSOU",
+    "prenoms": "Franck",
+    "telephone": "0160106360",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "HOUSSOU",
+    "prenoms": "Etienne",
+    "telephone": "0167717620",
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "YAYI",
+    "prenoms": "Esai",
+    "telephone": "0194222933",
+    "role": "PROFESSEUR",
+    "fonction": null
+   }
+  ],
+  "affectations": [
+   [
+    "ATEMON Richard",
+    "Français",
+    [
+     "Tle A2",
+     "Tle D"
+    ]
+   ],
+   [
+    "DEMON Abdou Razack",
+    "Français",
+    [
+     "4e",
+     "1ère A2",
+     "1ère D"
+    ]
+   ],
+   [
+    "LOKOSSOU Franck",
+    "Français",
+    [
+     "3e"
+    ]
+   ],
+   [
+    "KOUSSAHOUE Zita",
+    "Français",
+    [
+     "5e"
+    ]
+   ],
+   [
+    "SOMESSIM Christian",
+    "Français",
+    [
+     "6e"
+    ]
+   ],
+   [
+    "HOUEGBAN Clotilde",
+    "Hist-Géo",
+    [
+     "6e",
+     "3e",
+     "2nde D",
+     "1ère A2",
+     "1ère D",
+     "Tle A2",
+     "Tle D"
+    ]
+   ],
+   [
+    "BIO SAWE Rafiath",
+    "Hist-Géo",
+    [
+     "5e",
+     "4e"
+    ]
+   ],
+   [
+    "TAHOULAN Gbodja",
+    "Espagnol",
+    [
+     "3e",
+     "Tle A2"
+    ]
+   ],
+   [
+    "ZIME Gaston",
+    "Anglais",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "3e",
+     "2nde D",
+     "1ère A2",
+     "1ère D"
+    ]
+   ],
+   [
+    "IBRAHIM Taofik",
+    "Anglais",
+    [
+     "5e"
+    ]
+   ],
+   [
+    "YAYI Esai",
+    "Anglais",
+    [
+     "Tle A2",
+     "Tle D"
+    ]
+   ],
+   [
+    "SOMESSIM Christian",
+    "Philo",
+    [
+     "2nde D",
+     "1ère A2",
+     "1ère D",
+     "Tle A2",
+     "Tle D"
+    ]
+   ],
+   [
+    "GAMBARI Mouslihou",
+    "SVT",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "3e",
+     "2nde D",
+     "Tle A2"
+    ]
+   ],
+   [
+    "TAKOROU Machoudou",
+    "PCT",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "3e",
+     "2nde D",
+     "1ère D"
+    ]
+   ],
+   [
+    "HOUSSOU Etienne",
+    "PCT",
+    [
+     "Tle D"
+    ]
+   ],
+   [
+    "MOUSSA Nassirou",
+    "Maths",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "3e",
+     "Tle A2"
+    ]
+   ],
+   [
+    "ZIBO Moudachirou",
+    "Maths",
+    [
+     "2nde D",
+     "1ère A2",
+     "1ère D",
+     "Tle D"
+    ]
+   ]
+  ],
+  "titulaires": {}
+ },
+ "SOMO": {
+  "comptes": [
+   {
+    "nom": "TAMPOUHOUROU",
+    "prenoms": "Jeanne",
+    "telephone": "0197951898",
+    "role": "DIRECTRICE",
+    "fonction": "Directrice"
+   },
+   {
+    "nom": "AKISSATOM",
+    "prenoms": "A. Fidèle",
+    "telephone": "0196939750",
+    "role": "PROFESSEUR",
+    "fonction": "Censeur"
+   },
+   {
+    "nom": "BAGUIDAM",
+    "prenoms": "Reine Elisabeth M.",
+    "telephone": "0154584358",
+    "role": "PROFESSEUR",
+    "fonction": "Censeur adjointe"
+   },
+   {
+    "nom": "KPADE",
+    "prenoms": "Elias",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "KOTCHAO",
+    "prenoms": "Hugues",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "WOROU",
+    "prenoms": "Marhe",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ATANLEY",
+    "prenoms": "A. Franjus",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "M'BALIMA",
+    "prenoms": "Wilfried",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ALANDA",
+    "prenoms": "Falilou",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "DANNON",
+    "prenoms": "Simplice",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "GNANHOUI",
+    "prenoms": "Flora",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "TAMOU",
+    "prenoms": "Kizito",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "DEGNON",
+    "prenoms": "Romarik",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "DJAGBA",
+    "prenoms": "Jaruis",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ATAIROU",
+    "prenoms": "Alassane",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "IDOHOU",
+    "prenoms": "Narcisse",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ANIANBOSSOU",
+    "prenoms": "Roméo",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ABDOULAYE",
+    "prenoms": "Idrissou",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "NASSARA",
+    "prenoms": "Joël",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "LINKPEHOU",
+    "prenoms": "Clétus S.",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "TOVOLODO",
+    "prenoms": "André",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "TCHEBE",
+    "prenoms": "Serge",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "YAO",
+    "prenoms": "Kassa",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "SANAFA",
+    "prenoms": "Barthélémy",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "YACOUBOU",
+    "prenoms": "Ismaël",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ZEDAHOUAN",
+    "prenoms": "Léandre",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   }
+  ],
+  "affectations": [
+   [
+    "KPADE Elias",
+    "Français",
+    [
+     "3e",
+     "Tle A",
+     "Tle D"
+    ]
+   ],
+   [
+    "KOTCHAO Hugues",
+    "Français",
+    [
+     "6e"
+    ]
+   ],
+   [
+    "BAGUIDAM Reine Elisabeth M.",
+    "Français",
+    [
+     "5e",
+     "4e",
+     "2nde A",
+     "2nde D"
+    ]
+   ],
+   [
+    "WOROU Marhe",
+    "Français",
+    [
+     "1ère A",
+     "1ère D"
+    ]
+   ],
+   [
+    "ATANLEY A. Franjus",
+    "Hist-Géo",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "3e",
+     "2nde A",
+     "2nde D"
+    ]
+   ],
+   [
+    "M'BALIMA Wilfried",
+    "Hist-Géo",
+    [
+     "Tle A",
+     "Tle D"
+    ]
+   ],
+   [
+    "ALANDA Falilou",
+    "Hist-Géo",
+    [
+     "1ère A",
+     "1ère D"
+    ]
+   ],
+   [
+    "GNANHOUI Flora",
+    "Espagnol",
+    [
+     "5e",
+     "4e",
+     "3e",
+     "1ère A",
+     "1ère D"
+    ]
+   ],
+   [
+    "TAMOU Kizito",
+    "Espagnol",
+    [
+     "6e",
+     "2nde A"
+    ]
+   ],
+   [
+    "DANNON Simplice",
+    "Espagnol",
+    [
+     "Tle A"
+    ]
+   ],
+   [
+    "AKISSATOM A. Fidèle",
+    "SVT",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "2nde A",
+     "2nde D",
+     "1ère A",
+     "1ère D",
+     "Tle A"
+    ]
+   ],
+   [
+    "DJAGBA Jaruis",
+    "SVT",
+    [
+     "3e",
+     "1ère D"
+    ]
+   ],
+   [
+    "DEGNON Romarik",
+    "SVT",
+    [
+     "Tle D"
+    ]
+   ],
+   [
+    "IDOHOU Narcisse",
+    "Maths",
+    [
+     "5e",
+     "4e"
+    ]
+   ],
+   [
+    "ANIANBOSSOU Roméo",
+    "Maths",
+    [
+     "6e",
+     "2nde A",
+     "1ère A"
+    ]
+   ],
+   [
+    "ABDOULAYE Idrissou",
+    "Maths",
+    [
+     "3e",
+     "1ère D",
+     "Tle D"
+    ]
+   ],
+   [
+    "NASSARA Joël",
+    "Maths",
+    [
+     "2nde D"
+    ]
+   ],
+   [
+    "ATAIROU Alassane",
+    "Maths",
+    [
+     "Tle A"
+    ]
+   ],
+   [
+    "TCHEBE Serge",
+    "PCT",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "2nde D"
+    ]
+   ],
+   [
+    "TOVOLODO André",
+    "PCT",
+    [
+     "1ère D",
+     "3e"
+    ]
+   ],
+   [
+    "LINKPEHOU Clétus S.",
+    "PCT",
+    [
+     "Tle D"
+    ]
+   ],
+   [
+    "YAO Kassa",
+    "Philo",
+    [
+     "1ère A",
+     "1ère D",
+     "Tle A",
+     "Tle D"
+    ]
+   ],
+   [
+    "SANAFA Barthélémy",
+    "Philo",
+    [
+     "2nde A",
+     "2nde D"
+    ]
+   ],
+   [
+    "YACOUBOU Ismaël",
+    "Anglais",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "2nde A",
+     "2nde D"
+    ]
+   ],
+   [
+    "TAMPOUHOUROU Jeanne",
+    "Anglais",
+    [
+     "3e",
+     "1ère A",
+     "1ère D",
+     "Tle A",
+     "Tle D"
+    ]
+   ],
+   [
+    "ZEDAHOUAN Léandre",
+    "EPS",
+    [
+     "6e",
+     "5e",
+     "4e",
+     "3e",
+     "2nde A",
+     "2nde D",
+     "1ère A",
+     "1ère D",
+     "Tle A",
+     "Tle D"
+    ]
+   ]
+  ],
+  "titulaires": {}
+ },
+ "STANDRE": {
+  "comptes": [
+   {
+    "nom": "KPANGON",
+    "prenoms": "Maia",
+    "telephone": "0156425929",
+    "role": "DIRECTRICE",
+    "fonction": "Directrice"
+   },
+   {
+    "nom": "TAMPOUHOURO",
+    "prenoms": "D. Robert",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "GUENDEHOU",
+    "prenoms": "Justine",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "OROU YOROU",
+    "prenoms": "Assanath",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "MAMA BIO",
+    "prenoms": "Roukayatou",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "LEDEDJI",
+    "prenoms": "Geneviève",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "BARBA",
+    "prenoms": "Rachelle",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   }
+  ],
+  "affectations": [],
+  "titulaires": {
+   "CM2": "KPANGON Maia",
+   "CM1": "TAMPOUHOURO D. Robert",
+   "CE2": "GUENDEHOU Justine",
+   "CE1": "OROU YOROU Assanath",
+   "CP": "MAMA BIO Roukayatou",
+   "CI": "LEDEDJI Geneviève",
+   "Maternelle 1": "BARBA Rachelle",
+   "Maternelle 2": "BARBA Rachelle"
+  }
+ },
+ "SEGOVIANA": {
+  "comptes": [
+   {
+    "nom": "YAROU",
+    "prenoms": "Débora",
+    "telephone": "0163988274",
+    "role": "DIRECTRICE",
+    "fonction": "Directrice"
+   },
+   {
+    "nom": "AZONLINGNON",
+    "prenoms": "Ariel",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "MEDEBA",
+    "prenoms": "Théodore",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "MOUSSA",
+    "prenoms": "Féïchal",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "ZANNOU",
+    "prenoms": "Crépine",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "YESSOUFOU",
+    "prenoms": "Djamal",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   },
+   {
+    "nom": "FELIHO",
+    "prenoms": "R. Bienvenu",
+    "telephone": null,
+    "role": "PROFESSEUR",
+    "fonction": null
+   }
+  ],
+  "affectations": [],
+  "titulaires": {
+   "CI": "YAROU Débora",
+   "CM1": "AZONLINGNON Ariel",
+   "CP": "MEDEBA Théodore",
+   "CM2": "MOUSSA Féïchal",
+   "CE1": "ZANNOU Crépine",
+   "CE2": "YESSOUFOU Djamal",
+   "Maternelle 1": "FELIHO R. Bienvenu",
+   "Maternelle 2": "FELIHO R. Bienvenu"
+  }
+ }
+}

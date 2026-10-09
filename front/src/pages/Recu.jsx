@@ -10,6 +10,7 @@ function Exemplaire({ d, libelle }) {
   return (
     <article className="recu">
       <header className="recu-entete">
+        {e.images?.LOGO && <img className="doc-logo" src={e.images.LOGO} alt="" />}
         <div className="recu-officiel">
           {[e.entete_ligne1, e.entete_ligne2, e.entete_ligne3].filter(Boolean).map((l) => <p key={l}>{l}</p>)}
         </div>

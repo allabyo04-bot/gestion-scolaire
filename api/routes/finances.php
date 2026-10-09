@@ -159,7 +159,7 @@ function r_fin_recu() {
   $p = ligne("SELECT p.*, CONCAT(u.nom, ' ', u.prenoms) AS caissier FROM paiements p JOIN utilisateurs u ON u.id = p.encaisse_par WHERE p.id = ?", [entier('id')]);
   if (!$p) erreur('Paiement introuvable.', 404);
   $i = inscription_finances((int)$p['inscription_id']);
-  $ecole = ligne('SELECT * FROM ecoles WHERE id = ?', [$i['ecole_id']]);
+  $ecole = ligne('SELECT * FROM ecoles WHERE id = ?', [$i['ecole_id']]) + ['images' => images_ecole((int)$i['ecole_id'])];
   $s = situation($i);
   journaliser('IMPRESSION', 'paiements', $p['id'], "Reçu {$p['numero_recu']} affiché");
   repondre(['paiement' => $p, 'inscription' => $i, 'ecole' => $ecole,
