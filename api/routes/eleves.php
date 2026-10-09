@@ -329,3 +329,35 @@ function r_eleves_importer() {
   journaliser('IMPORT', 'classes', $c['id'], "{$c['nom']} : $importes élève(s) importé(s) sur " . count($resultats) . ' ligne(s)');
   repondre(['importes' => $importes, 'compte' => $compte, 'classe' => $c['nom']], 201);
 }
+
+// =====================================================================
+//  DOCUMENTS IMPRIMABLES : liste de classe, fiche d'appel, certificat
+// =====================================================================
+function entete_ecole(int $id): array {
+  return ligne('SELECT id, nom_officiel, sigle, ville, adresse, boite_postale, telephone, email, entete_ligne1, entete_ligne2, entete_ligne3,
+                       devise, nom_directrice, titre_signataire FROM ecoles WHERE id = ?', [$id]);
+}
+
+function r_eleves_liste_classe() {
+  exiger_role(...ROLES_ELEVES);
+  $c = classe(entier('classe_id'));
+  $infos = ligne("SELECT a.libelle AS annee, n.libelle AS niveau, s.code AS serie, CONCAT(u.nom, ' ', u.prenoms) AS prof_principal
+                  FROM classes c JOIN annees_scolaires a ON a.id = c.annee_id JOIN niveaux n ON n.id = c.niveau_id
+                  LEFT JOIN series s ON s.id = c.serie_id LEFT JOIN utilisateurs u ON u.id = c.prof_principal_id WHERE c.id = ?", [$c['id']]);
+  $eleves = lignes("SELECT el.matricule, el.educmaster, el.nom, el.prenoms, el.sexe, el.date_naissance, el.lieu_naissance, i.redoublant
+                    FROM inscriptions i JOIN eleves el ON el.id = i.eleve_id WHERE i.classe_id = ? AND i.statut = 'ACTIF' ORDER BY el.nom, el.prenoms", [$c['id']]);
+  journaliser('IMPRESSION', 'classes', $c['id'], "Liste ou fiche d'appel de la {$c['nom']}");
+  repondre(['ecole' => entete_ecole((int)$c['ecole_id']), 'classe' => $c['nom'] , 'infos' => $infos, 'eleves' => $eleves]);
+}
+
+function r_eleves_certificat() {
+  exiger_role(...ROLES_ELEVES);
+  $e = eleve_accessible(entier('id'));
+  $i = ligne("SELECT i.*, c.nom AS classe, a.libelle AS annee FROM inscriptions i JOIN classes c ON c.id = i.classe_id
+              JOIN annees_scolaires a ON a.id = i.annee_id WHERE i.eleve_id = ? AND a.en_cours = 1 AND i.statut = 'ACTIF'", [$e['id']]);
+  if (!$i) erreur("Cet élève n'est pas inscrit cette année : pas de certificat de scolarité possible.", 409);
+  verifier_ecole((int)$i['ecole_id']);
+  $n = (int)ligne("SELECT COUNT(*) AS n FROM journal_audit WHERE action = 'CERTIFICAT' AND ecole_id = ?", [$i['ecole_id']])['n'] + 1;
+  journaliser('CERTIFICAT', 'eleves', $e['id'], "Certificat de scolarité n° $n délivré à {$e['nom']} {$e['prenoms']} ({$i['classe']})");
+  repondre(['eleve' => $e, 'inscription' => $i, 'ecole' => entete_ecole((int)$i['ecole_id']), 'numero' => $n]);
+}

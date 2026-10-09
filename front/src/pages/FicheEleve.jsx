@@ -29,8 +29,9 @@ export default function FicheEleve({ eleveId }) {
       <a href={courante ? `#/eleves/${courante.classe_id}` : '#/eleves'} className="retour">{courante ? courante.classe : 'Élèves'}</a>
       <div className="entete-eleve">
         <div className="monogramme" aria-hidden="true">{el.prenoms[0]}{el.nom[0]}</div>
-        <div>
+        <div className="entete-eleve-texte">
           <h1>{el.nom} {el.prenoms}</h1>
+          {courante?.statut === 'ACTIF' && <a className="bouton bouton-discret lien-certificat" href={`#/document/certificat/${el.id}`}>Certificat de scolarité</a>}
           <p className="discret">{courante ? `${courante.classe}, ${STATUTS_INSC[courante.statut].toLowerCase()}${el.sexe === 'F' && courante.statut !== 'ABANDON' ? 'e' : ''}` : `Pas inscrit${el.sexe === 'F' ? 'e' : ''} cette année`}</p>
         </div>
       </div>

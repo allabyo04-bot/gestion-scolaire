@@ -16,6 +16,7 @@ import Caisse from './pages/Caisse.jsx';
 import Recu from './pages/Recu.jsx';
 import TableauBord from './pages/TableauBord.jsx';
 import Absences from './pages/Absences.jsx';
+import { ListeClasse, FicheAppel, Certificat } from './pages/Documents.jsx';
 
 export default function App() {
   const [utilisateur, setUtilisateur] = useState(null);
@@ -76,6 +77,9 @@ function Coquille({ utilisateur, surDeconnexion }) {
     case 'eleves': ecran = gereEleves ? <Eleves classeId={params[0]} /> : null; break;
     case 'eleve': ecran = gereEleves ? <FicheEleve eleveId={params[0]} /> : null; break;
     case 'parametres': ecran = direction ? <Parametres section={params[0]} sousParam={params[1]} /> : null; break;
+    case 'document':
+      ecran = !gereEleves ? null : params[0] === 'liste' ? <ListeClasse classeId={params[1]} /> : params[0] === 'appel' ? <FicheAppel classeId={params[1]} />
+        : params[0] === 'certificat' ? <Certificat eleveId={params[1]} /> : null; break;
     case 'absences': ecran = (gereEleves || utilisateur.role === 'PROFESSEUR') ? <Absences vue={params[0]} /> : null; break;
     case 'tableau': ecran = direction ? <TableauBord /> : null; break;
     case 'accueil': ecran = comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />; break;
@@ -84,7 +88,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
     case 'mot-de-passe': ecran = <ChangerMdp surTermine={() => aller('accueil')} />; break;
     default: ecran = direction ? <TableauBord /> : comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />;
   }
-  const actif = { saisie: 'accueil', resultats: 'classes', eleve: 'eleves', recu: 'caisse' }[page]
+  const actif = { saisie: 'accueil', resultats: 'classes', eleve: 'eleves', recu: 'caisse', document: 'eleves' }[page]
     ?? (page === 'accueil' && comptable ? 'caisse' : page === 'accueil' && secretariat ? 'eleves' : page);
   const ongletActif = ['tableau', 'accueil', 'eleves', 'absences', 'classes', 'caisse', 'comptes', 'parametres', 'journal'].includes(actif) ? actif : direction ? 'tableau' : 'accueil';
 

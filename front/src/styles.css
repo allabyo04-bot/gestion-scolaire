@@ -495,3 +495,42 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 @media (max-width: 34rem) { .bordereau-especes { grid-template-columns: 1fr; } }
 @media print { .bordereau { border: 0; padding: 0; max-width: none; margin: 0; } .bordereau .discret { color: #444; } }
 .tableau td.chiffres { white-space: nowrap; }
+
+/* ================================================================ Documents imprimables */
+.document { background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); padding: 1.5rem; max-width: 50rem; margin: 0 auto 2rem; color: #111; }
+.doc-entete { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem 1rem; border-bottom: 2px solid var(--encre); padding-bottom: .7rem; margin-bottom: 1rem; }
+.doc-officiel p { margin: 0; font-size: .72rem; text-transform: uppercase; line-height: 1.35; color: #333; }
+.doc-officiel p:first-child { font-weight: 700; }
+.doc-ecole { text-align: right; }
+.doc-ecole strong { font-family: var(--titre); font-size: 1.15rem; color: var(--encre-fonce); }
+.doc-ecole p { margin: .1rem 0 0; font-size: .8rem; color: #333; }
+.doc-titre { grid-column: 1 / -1; text-align: center; margin-top: .6rem; }
+.doc-titre h1 { font-size: 1.35rem; }
+.doc-titre p { margin: .2rem 0 0; color: #444; }
+.doc-resume { margin: 0 0 .75rem; }
+.doc-tableau { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.doc-tableau th, .doc-tableau td { border: 1px solid #999; padding: .3rem .4rem; text-align: left; }
+.doc-tableau thead th { background: var(--encre-pale); font-size: .78rem; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.doc-tableau .c { text-align: center; }
+.doc-tableau .chiffres { white-space: nowrap; }
+.doc-appel td:not(:first-child):not(:nth-child(2)) { width: 1.9rem; }
+.doc-appel th.demi { width: 1.9rem; text-align: center; font-size: .7rem; }
+.doc-appel th { text-align: center; }
+.doc-appel tbody tr { height: 1.7rem; }
+.doc-pied { font-size: .82rem; color: #333; margin: .8rem 0; }
+.doc-signature { margin: 1.5rem 0 0 auto; width: 16rem; text-align: center; font-size: .9rem; }
+.doc-signature p { margin: .15rem 0; }
+.doc-signature .recu-cachet { margin: .5rem auto; }
+.certificat-titre { text-align: center; font-size: 1.6rem; text-transform: uppercase; letter-spacing: .1em; margin: 2rem 0 .3rem; }
+.certificat-numero { text-align: center; color: #555; margin: 0 0 2rem; }
+.certificat-corps { font-size: 1.05rem; line-height: 1.9; max-width: 40rem; margin: 0 auto; }
+.certificat-eleve { text-align: center; font-size: 1.3rem; font-family: var(--titre); margin: 1rem 0; }
+.certificat-signature { margin-top: 2.5rem; }
+.entete-eleve-texte { flex: 1; }
+.lien-certificat { float: right; margin-left: .5rem; }
+@media print {
+  .document { border: 0; padding: 0; max-width: none; margin: 0; }
+  .doc-appel { font-size: .78rem; }
+  .doc-tableau tr { break-inside: avoid; }
+  .doc-tableau thead { display: table-header-group; }
+}

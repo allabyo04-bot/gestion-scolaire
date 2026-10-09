@@ -100,7 +100,13 @@ function ListeClasse({ classeId }) {
   const f = actifs.filter((e) => e.sexe === 'F').length;
   return (
     <>
-      <p className="resume-classe">{actifs.length} élèves : {f} fille{f > 1 ? 's' : ''} et {actifs.length - f} garçon{actifs.length - f > 1 ? 's' : ''}</p>
+      <div className="entete-avec-action">
+        <p className="resume-classe">{actifs.length} élèves : {f} fille{f > 1 ? 's' : ''} et {actifs.length - f} garçon{actifs.length - f > 1 ? 's' : ''}</p>
+        <div className="groupe-boutons">
+          <a className="bouton bouton-discret" href={`#/document/liste/${classeId}`}>Liste de classe</a>
+          <a className="bouton bouton-discret" href={`#/document/appel/${classeId}`}>Fiche d'appel</a>
+        </div>
+      </div>
       <TableEleves eleves={l.donnees} />
     </>
   );
