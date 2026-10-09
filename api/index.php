@@ -89,6 +89,7 @@ const ROUTES = [
   'fin/remise'                         => ['finances', 'r_fin_remise', 'POST', true],
   'fin/remise_supprimer'               => ['finances', 'r_fin_remise_supprimer', 'POST', true],
   'fin/journal'                        => ['finances', 'r_fin_journal', 'GET', true],
+  'fin/recherche'                      => ['finances', 'r_fin_recherche', 'GET', true],
   'fin/impayes'                        => ['finances', 'r_fin_impayes', 'GET', true],
   'abs/mes_classes'                    => ['absences', 'r_abs_mes_classes', 'GET', true],
   'abs/appel'                          => ['absences', 'r_abs_appel', 'GET', true],

@@ -30,25 +30,48 @@ export default function Caisse({ vue = 'encaisser', inscriptionId }) {
 }
 
 // ------------------------------------------------------------------ Recherche + situation
+// Recherche dans toute l'école par défaut ; filtre « Classe » facultatif ;
+// une classe choisie sans recherche affiche toute la classe avec le reste à payer de chacun.
 function Encaisser({ ecoleId, inscriptionId }) {
   const [q, setQ] = useState('');
   const [terme, setTerme] = useState('');
+  const [classeId, setClasseId] = useState('');
+  const classes = useDonnees(() => api.get('ref/classes', { ecole_id: ecoleId }), [ecoleId]);
   useEffect(() => { const t = setTimeout(() => setTerme(q.trim()), 300); return () => clearTimeout(t); }, [q]);
-  const r = useDonnees(() => terme.length >= 2 ? api.get('eleves/liste', { q: terme, ecole_id: ecoleId }) : Promise.resolve(null), [terme, ecoleId]);
+  const actif = terme.length >= 2 || (classeId && terme.length !== 1);
+  const r = useDonnees(() => actif ? api.get('fin/recherche', { q: terme, classe_id: classeId, ecole_id: ecoleId }) : Promise.resolve(null), [terme, classeId, ecoleId, actif]);
   if (inscriptionId) return <Situation inscriptionId={inscriptionId} />;
+  const liste = r.donnees ?? [];
+  const classeEntiere = classeId && !terme;
+  const nomClasse = classes.donnees?.find((c) => String(c.id) === String(classeId))?.nom;
+  const soldes = liste.filter((e) => e.tarif && e.reste === 0).length;
   return (
     <div>
-      <input className="recherche" type="search" autoFocus placeholder="Nom, matricule ou numéro Educmaster de l'élève"
-             aria-label="Rechercher un élève" value={q} onChange={(e) => setQ(e.target.value)} />
-      {terme.length < 2 && <p className="discret">Tapez au moins deux lettres du nom de l'élève.</p>}
-      {r.charge && terme.length >= 2 && <Chargement texte="Recherche…" />}
+      <div className="barre-recherche">
+        <input className="recherche" type="search" autoFocus placeholder="Début du nom, du prénom, matricule ou Educmaster"
+               aria-label="Rechercher un élève" value={q} onChange={(e) => setQ(e.target.value)} />
+        <select aria-label="Classe" value={classeId} onChange={(e) => setClasseId(e.target.value)}>
+          <option value="">Toutes les classes</option>
+          {classes.donnees?.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+        </select>
+      </div>
+      {!actif && <p className="discret">Tapez le début du nom ou du prénom (2 lettres minimum), ou choisissez une classe pour la voir en entier.</p>}
+      {actif && r.charge && <Chargement texte="Recherche…" />}
       {r.erreur && <Alerte>{r.erreur}</Alerte>}
-      {r.donnees?.length === 0 && <div className="vide"><p>Aucun élève inscrit cette année ne correspond.</p></div>}
-      {r.donnees?.length > 0 && (
-        <ul className="resultats-recherche">
-          {r.donnees.map((e) => (
-            <li key={e.id}><a href={`#/caisse/encaisser/${e.inscription_id}`}>
-              <strong>{e.nom} {e.prenoms}</strong><span>{e.classe}</span><small className="sous-ligne">{e.matricule}</small>
+      {actif && r.donnees && liste.length === 0 && <div className="vide"><p>Aucun élève inscrit cette année ne correspond{nomClasse ? ` en ${nomClasse}` : ''}.</p></div>}
+      {classeEntiere && liste.length > 0 && (
+        <p className="resume-classe">{nomClasse} : {liste.length} élèves, {soldes} soldé{soldes > 1 ? 's' : ''}, reste à recouvrer {fcfa(liste.reduce((t, e) => t + e.reste, 0))}.</p>
+      )}
+      {liste.length > 0 && (
+        <ul className="resultats-recherche resultats-caisse">
+          {liste.map((e) => (
+            <li key={e.inscription_id}><a href={`#/caisse/encaisser/${e.inscription_id}`}>
+              <span className="rc-eleve"><strong>{e.nom} {e.prenoms}</strong><small className="sous-ligne">{!classeEntiere ? `${e.classe}, ` : ''}{e.matricule}</small></span>
+              <span className="rc-solde">
+                {!e.tarif ? <span className="discret">Sans tarif</span>
+                  : e.reste === 0 ? <span className="statut-nouveau">Soldé</span>
+                  : <><span className="rc-reste">{fcfa(e.reste)}</span><small className="sous-ligne">{e.en_retard ? <span className="texte-retard">dont {fcfa(e.en_retard)} en retard</span> : `reste sur ${fcfa(e.du)}`}</small></>}
+              </span>
             </a></li>
           ))}
         </ul>

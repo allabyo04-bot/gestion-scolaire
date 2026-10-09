@@ -60,6 +60,10 @@ if (!function_exists('mb_strlen')) {
     preg_match_all('/./us', (string)$s, $m);
     return implode('', array_slice($m[0], $debut, $longueur));
   }
+  function mb_strtolower($s) {
+    return strtr(strtolower((string)$s), ['É'=>'é','È'=>'è','Ê'=>'ê','Ë'=>'ë','À'=>'à','Â'=>'â','Î'=>'î','Ï'=>'ï',
+                                          'Ô'=>'ô','Ö'=>'ö','Ù'=>'ù','Û'=>'û','Ü'=>'ü','Ç'=>'ç']);
+  }
   function mb_strtoupper($s) {
     return strtr(strtoupper((string)$s), ['é'=>'É','è'=>'È','ê'=>'Ê','ë'=>'Ë','à'=>'À','â'=>'Â','î'=>'Î','ï'=>'Ï',
                                           'ô'=>'Ô','ö'=>'Ö','ù'=>'Ù','û'=>'Û','ü'=>'Ü','ç'=>'Ç']);

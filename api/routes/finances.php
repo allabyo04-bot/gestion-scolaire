@@ -3,6 +3,7 @@
 //  FINANCES : tarifs, situation d'un élève, encaissements, reçus,
 //             annulations, remises, journal de caisse, impayés
 // =====================================================================
+require_once __DIR__ . '/eleves.php';
 const ROLES_CAISSE = ['SUPER_ADMIN', 'DIRECTRICE', 'COMPTABLE', 'SECRETARIAT'];
 const MODES_PAIEMENT = ['ESPECES', 'MOBILE_MONEY', 'VIREMENT', 'CHEQUE'];
 
@@ -246,4 +247,39 @@ function r_fin_impayes() {
   }
   usort($res, fn($a, $b) => $b['en_retard'] <=> $a['en_retard'] ?: strcmp($a['classe'] . $a['nom'], $b['classe'] . $b['nom']));
   repondre(['eleves' => $res, 'totaux' => $tot]);
+}
+
+// ---------------------------------------------------------------- Recherche pour la caisse (avec le reste à payer)
+// q : début de nom, prénom, matricule ou Educmaster ; classe_id : facultatif.
+// Sans q mais avec une classe : toute la classe, pour la parcourir.
+function r_fin_recherche() {
+  exiger_role(...ROLES_CAISSE);
+  $e = ecole_cible(); $a = annee_en_cours();
+  $q = trim((string)(champ('q', false) ?? ''));
+  $cid = entier('classe_id', false);
+  if (!$cid && mb_strlen($q) < 2) erreur('Tapez au moins 2 lettres, ou choisissez une classe.');
+  $where = "i.ecole_id = ? AND i.annee_id = ? AND i.statut = 'ACTIF'"; $par = [$e, $a['id']];
+  if ($cid) { $c = classe($cid); $where .= ' AND i.classe_id = ?'; $par[] = $c['id']; }
+  if ($q !== '') { [$cond, $p2] = condition_recherche($q); $where .= " AND $cond"; $par = [...$par, ...$p2]; }
+  $l = lignes("SELECT i.id AS inscription_id, el.id AS eleve_id, el.nom, el.prenoms, el.sexe, el.matricule, el.educmaster,
+                      c.nom AS classe, c.niveau_id,
+                      (SELECT COALESCE(SUM(r.montant),0) FROM remises r WHERE r.inscription_id = i.id) AS remise,
+                      (SELECT COALESCE(SUM(p.montant),0) FROM paiements p WHERE p.inscription_id = i.id AND p.annule = 0) AS paye
+               FROM inscriptions i JOIN eleves el ON el.id = i.eleve_id JOIN classes c ON c.id = i.classe_id
+               WHERE $where ORDER BY el.nom, el.prenoms LIMIT " . ($q === '' ? 200 : 60), $par);
+  $tarifs = [];
+  foreach ($l as &$x) {
+    $n = (int)$x['niveau_id'];
+    if (!array_key_exists($n, $tarifs)) $tarifs[$n] = tarif_de($e, (int)$a['id'], $n);
+    $t = $tarifs[$n];
+    if (!$t) { $x += ['tarif' => false, 'du' => 0, 'reste' => 0, 'en_retard' => 0]; }
+    else {
+      $du = max(0, (int)$t['montant'] - (int)$x['remise']);
+      [, $retard] = repartir($t['tranches'], (int)$x['remise'], (int)$x['paye']);
+      $x += ['tarif' => true, 'du' => $du, 'reste' => max(0, $du - (int)$x['paye']), 'en_retard' => $retard];
+    }
+    $x['paye'] = (int)$x['paye']; unset($x['remise'], $x['niveau_id']);
+  }
+  unset($x);
+  repondre($q !== '' ? classer_resultats($l, $q) : $l);
 }

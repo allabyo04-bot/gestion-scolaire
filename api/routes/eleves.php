@@ -58,10 +58,8 @@ function r_eleves_liste() {
   $e = ecole_cible();
   $q = trim((string)(champ('q', false) ?? ''));
   if (mb_strlen($q) < 2) erreur('Saisissez au moins 2 caractères pour rechercher.');
-  $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $q) . '%';
-  repondre(lignes("$sql WHERE i.ecole_id = ? AND (el.nom LIKE ? OR el.prenoms LIKE ? OR CONCAT(el.nom,' ',el.prenoms) LIKE ?
-                   OR el.matricule LIKE ? OR el.educmaster LIKE ?) ORDER BY el.nom, el.prenoms LIMIT 50",
-                  [$e, $like, $like, $like, $like, $like]));
+  [$cond, $par] = condition_recherche($q);
+  repondre(classer_resultats(lignes("$sql WHERE i.ecole_id = ? AND $cond LIMIT 60", [$e, ...$par]), $q));
 }
 
 function r_eleves_fiche() {
@@ -360,4 +358,34 @@ function r_eleves_certificat() {
   $n = (int)ligne("SELECT COUNT(*) AS n FROM journal_audit WHERE action = 'CERTIFICAT' AND ecole_id = ?", [$i['ecole_id']])['n'] + 1;
   journaliser('CERTIFICAT', 'eleves', $e['id'], "Certificat de scolarité n° $n délivré à {$e['nom']} {$e['prenoms']} ({$i['classe']})");
   repondre(['eleve' => $e, 'inscription' => $i, 'ecole' => entete_ecole((int)$i['ecole_id']), 'numero' => $n]);
+}
+
+// ---------------------------------------------------------------------
+// Recherche par DÉBUT DE MOT : « gank » trouve GANKPON, « kank » trouve SIA KANKPE,
+// « tour » trouve Soultarnou-Touré ; plusieurs mots = tous doivent correspondre.
+// Accents ignorés (collation de la base). Renvoie [condition SQL, paramètres].
+// ---------------------------------------------------------------------
+function condition_recherche(string $q): array {
+  $mots = array_filter(preg_split('/\s+/', trim($q)), fn($m) => $m !== '');
+  $cond = []; $par = [];
+  foreach ($mots as $m) {
+    $m = str_replace(['%', '_'], ['\%', '\_'], $m);
+    $cond[] = "(CONCAT(' ', el.nom, ' ', el.prenoms) LIKE ? OR CONCAT(' ', el.nom, ' ', el.prenoms) LIKE ? OR el.matricule LIKE ? OR el.educmaster LIKE ?)";
+    array_push($par, "% $m%", "%-$m%", "$m%", "$m%");
+  }
+  return [$cond ? implode(' AND ', $cond) : '1=1', $par];
+}
+
+// Les meilleurs résultats d'abord : nom qui commence par la recherche, puis nom, puis prénoms
+function classer_resultats(array $l, string $q): array {
+  $q = mb_strtolower(trim($q));
+  $score = function ($e) use ($q) {
+    $nom = mb_strtolower($e['nom']); $complet = $nom . ' ' . mb_strtolower($e['prenoms']);
+    if (str_starts_with($complet, $q)) return 0;
+    if (str_starts_with($nom, strtok($q, ' '))) return 1;
+    if (preg_match('/(^|[\s-])' . preg_quote(strtok($q, ' '), '/') . '/u', $nom)) return 2;
+    return 3;
+  };
+  usort($l, fn($a, $b) => $score($a) <=> $score($b) ?: strcmp($a['nom'] . $a['prenoms'], $b['nom'] . $b['prenoms']));
+  return $l;
 }
