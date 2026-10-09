@@ -12,6 +12,7 @@ function r_journal_liste() {
   $where = []; $p = [];
   if (!est_super_admin()) { $where[] = 'j.ecole_id = ?'; $p[] = $UTILISATEUR['ecole_id']; }
   elseif ($e = entier('ecole_id', false)) { $where[] = 'j.ecole_id = ?'; $p[] = $e; }
+  elseif ($g = entier('groupe_id', false)) { $where[] = '(j.ecole_id IS NULL OR j.ecole_id IN (SELECT id FROM ecoles WHERE groupe_id = ?))'; $p[] = $g; }
   if ($u = entier('utilisateur_id', false)) { $where[] = 'j.utilisateur_id = ?'; $p[] = $u; }
   if ($a = champ('action', false)) { $where[] = 'j.action = ?'; $p[] = strtoupper($a); }
   if ($d = champ('du', false)) { $where[] = 'j.cree_le >= ?'; $p[] = "$d 00:00:00"; }

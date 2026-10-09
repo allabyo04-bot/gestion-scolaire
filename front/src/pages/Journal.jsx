@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, Chargement, Alerte, formatDate } from '../composants/commun.jsx';
+import { useGroupe } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 
 const ACTIONS = {
@@ -23,7 +24,8 @@ export default function Journal() {
   const { utilisateur } = useSession();
   const [ecoleId, setEcoleId] = useState(null);
   const [filtres, setFiltres] = useState({ action: '', du: '', au: '' });
-  const j = useDonnees(() => api.get('journal/liste', { ...filtres, ecole_id: ecoleId, limite: 200 }), [ecoleId, filtres.action, filtres.du, filtres.au]);
+  const { groupeId } = useGroupe();
+  const j = useDonnees(() => api.get('journal/liste', { ...filtres, ecole_id: ecoleId, groupe_id: groupeId, limite: 200 }), [ecoleId, groupeId, filtres.action, filtres.du, filtres.au]);
   const maj = (k) => (e) => setFiltres({ ...filtres, [k]: e.target.value });
 
   return (

@@ -131,7 +131,7 @@ function Bulletin({ b, x }) {
           <p className="bul-nom-sig">{p.nom_signataire}</p>
         </div>
       </div>
-      <footer className="bul-pied"><span>Écoles FVPT / Édité le : {dateFr(b.edite_le)}</span><span>{p.note_bas}</span></footer>
+      <footer className="bul-pied"><span>{b.groupe?.sigle ? `${b.groupe.sigle} / ` : ''}Édité le : {dateFr(b.edite_le)}</span><span>{p.note_bas}</span></footer>
     </article>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, jeton, quandSessionExpire } from './api.js';
-import { Session, ZoneMessages, useRoute, aller, ROLES, estDirection, Chargement } from './composants/commun.jsx';
+import { Session, GroupeActif, ZoneMessages, useRoute, aller, ROLES, estDirection, Chargement } from './composants/commun.jsx';
 import Connexion from './pages/Connexion.jsx';
 import ChangerMdp from './pages/ChangerMdp.jsx';
 import Accueil from './pages/Accueil.jsx';
@@ -50,8 +50,21 @@ export default function App() {
   );
 }
 
+const CLE_GROUPE = 'gs_groupe';
 function Coquille({ utilisateur, surDeconnexion }) {
   const { page, params } = useRoute();
+  const superAdmin = utilisateur.role === 'SUPER_ADMIN';
+  const [groupes, setGroupes] = useState([]);
+  const [groupeId, setGroupeIdBrut] = useState(() => { try { return Number(localStorage.getItem(CLE_GROUPE)) || null; } catch { return null; } });
+  const setGroupeId = (g) => { setGroupeIdBrut(g); try { localStorage.setItem(CLE_GROUPE, String(g)); } catch { /* ignore */ } };
+  useEffect(() => {
+    api.get('ref/groupes').then((l) => {
+      setGroupes(l);
+      if (superAdmin && l.length && !l.some((g) => g.id === groupeId)) setGroupeId(l[0].id);
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const groupe = groupes.find((g) => g.id === (superAdmin ? groupeId : utilisateur.ecole?.groupe_id));
   const direction = estDirection(utilisateur);
   const secretariat = utilisateur.role === 'SECRETARIAT';
   const gereEleves = direction || secretariat;
@@ -96,11 +109,23 @@ function Coquille({ utilisateur, surDeconnexion }) {
   const ongletActif = ['tableau', 'accueil', 'eleves', 'absences', 'classes', 'caisse', 'comptes', 'parametres', 'journal'].includes(actif) ? actif : direction ? 'tableau' : 'accueil';
 
   return (
-    <div className="coquille">
+    <GroupeActif.Provider value={{ groupeId: superAdmin ? groupeId : (utilisateur.ecole?.groupe_id ?? null), groupe }}>
+    <div className="coquille" key={superAdmin ? `g${groupeId}` : 'g'}>
       <header className="bandeau">
         <div className="bandeau-ecole">
-          <strong>{utilisateur.ecole?.nom_officiel ?? 'Réseau des écoles FVPT'}</strong>
-          <span>{utilisateur.ecole?.ville ?? 'Toutes les écoles'}</span>
+          {superAdmin ? (
+            <>
+              <select className="choix-groupe" aria-label="Groupe d'écoles" value={groupeId ?? ''} onChange={(e) => setGroupeId(Number(e.target.value))}>
+                {groupes.map((g) => <option key={g.id} value={g.id}>{g.nom}</option>)}
+              </select>
+              <span>{groupe ? `${groupe.nb_ecoles} école${groupe.nb_ecoles > 1 ? 's' : ''}` : ''}</span>
+            </>
+          ) : (
+            <>
+              <strong>{utilisateur.ecole?.nom_officiel}</strong>
+              <span>{[utilisateur.ecole?.ville, utilisateur.ecole?.groupe].filter(Boolean).join(', ')}</span>
+            </>
+          )}
         </div>
         <div className="zone-compte">
           <span className="nom-connecte">{utilisateur.prenoms} {utilisateur.nom}<small>{ROLES[utilisateur.role]}</small></span>
@@ -127,5 +152,6 @@ function Coquille({ utilisateur, surDeconnexion }) {
       <main className="contenu">{ecran}</main>
       <Signature />
     </div>
+    </GroupeActif.Provider>
   );
 }

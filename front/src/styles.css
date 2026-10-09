@@ -664,3 +664,7 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .page-connexion .signature-phil { border-top: 0; background: rgba(255,255,255,.85); border-radius: var(--rayon); }
 .contenu + .signature-phil { margin-bottom: 4.5rem; }
 @media print { .signature-phil { display: none !important; } }
+/* Sélecteur de groupe dans le bandeau */
+.choix-groupe { width: auto; max-width: 70vw; min-height: 2.2rem; padding: .2rem 1.8rem .2rem .5rem; background-color: rgba(255,255,255,.12); color: #fff;
+  border: 1px solid rgba(255,255,255,.4); font-family: var(--titre); font-weight: 500; font-size: 1.05rem; }
+.choix-groupe option { color: #111; }

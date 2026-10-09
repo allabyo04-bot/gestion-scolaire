@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, ROLES, formatDate } from '../composants/commun.jsx';
+import { useGroupe } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 
 export default function Comptes() {
@@ -8,7 +9,8 @@ export default function Comptes() {
   const message = useMessage();
   const superAdmin = utilisateur.role === 'SUPER_ADMIN';
   const [ecoleId, setEcoleId] = useState(null);
-  const comptes = useDonnees(() => api.get('utilisateurs/liste', { ecole_id: ecoleId }), [ecoleId]);
+  const { groupeId } = useGroupe();
+  const comptes = useDonnees(() => api.get('utilisateurs/liste', { ecole_id: ecoleId, groupe_id: groupeId }), [ecoleId, groupeId]);
   const [creer, setCreer] = useState(false);
   const [provisoire, setProvisoire] = useState(null);
   const [codes, setCodes] = useState(null);

@@ -22,7 +22,7 @@ const CHAMPS_ECOLE = ['nom_officiel','sigle','ville','adresse','boite_postale','
                       'entete_ligne1','entete_ligne2','entete_ligne3','devise','nom_directrice','titre_signataire'];
 
 function r_param_ecole() {
-  $e = ligne('SELECT * FROM ecoles WHERE id = ?', [ecole_cible()]);
+  $e = ligne('SELECT e.*, g.nom AS groupe FROM ecoles e LEFT JOIN groupes g ON g.id = e.groupe_id WHERE e.id = ?', [ecole_cible()]);
   repondre($e);
 }
 
@@ -36,7 +36,10 @@ function r_param_ecole_enregistrer() {
   foreach (CHAMPS_ECOLE as $c) $v[$c] = texte_ou_null($c);
   if (!$v['nom_officiel'] || !$v['ville']) erreur('Le nom officiel et la ville sont obligatoires.');
   $v['titre_signataire'] ??= 'La Directrice';
+  $groupe = est_super_admin() ? entier('groupe_id', false) : null;
+  if ($groupe && !ligne('SELECT id FROM groupes WHERE id = ?', [$groupe])) erreur('Groupe introuvable.', 404);
   if ($id) {
+    if ($groupe) requete('UPDATE ecoles SET groupe_id = ? WHERE id = ?', [$groupe, $id]);
     $avant = ligne('SELECT ' . implode(',', CHAMPS_ECOLE) . ' FROM ecoles WHERE id = ?', [$id]);
     requete('UPDATE ecoles SET ' . implode(' = ?, ', CHAMPS_ECOLE) . ' = ? WHERE id = ?', [...array_values($v), $id]);
     journaliser('MODIFICATION', 'ecoles', $id, $v['nom_officiel'], $avant, $v);
@@ -44,8 +47,9 @@ function r_param_ecole_enregistrer() {
     $code = strtoupper((string)champ('code'));
     if (!preg_match('/^[A-Z0-9_-]{2,20}$/', $code)) erreur('Code école : 2 à 20 lettres majuscules ou chiffres (ex. KANDI).');
     if (ligne('SELECT id FROM ecoles WHERE code = ?', [$code])) erreur('Ce code école existe déjà.');
-    requete('INSERT INTO ecoles (code, ' . implode(',', CHAMPS_ECOLE) . ') VALUES (?' . str_repeat(',?', count(CHAMPS_ECOLE)) . ')',
-            [$code, ...array_values($v)]);
+    if (!$groupe) erreur('Choisissez le groupe de la nouvelle école.');
+    requete('INSERT INTO ecoles (groupe_id, code, ' . implode(',', CHAMPS_ECOLE) . ') VALUES (?,?' . str_repeat(',?', count(CHAMPS_ECOLE)) . ')',
+            [$groupe, $code, ...array_values($v)]);
     $id = (int)bd()->lastInsertId();
     journaliser('CREATION', 'ecoles', $id, "École créée : {$v['nom_officiel']}");
   }
@@ -394,4 +398,27 @@ function r_param_image_supprimer() {
   requete('DELETE FROM ecole_images WHERE ecole_id = ? AND type = ?', [$e, strtoupper((string)champ('type'))]);
   journaliser('SUPPRESSION', 'ecole_images', $e, strtolower((string)champ('type')) . ' de l\'école retiré');
   repondre();
+}
+
+// ---------------------------------------------------------------- Groupes d'écoles (administrateur général)
+function r_param_groupe_enregistrer() {
+  exiger_role('SUPER_ADMIN');
+  $id = entier('id', false);
+  $nom = trim((string)champ('nom'));
+  if (mb_strlen($nom) < 3) erreur('Nom du groupe trop court.');
+  $sigle = texte_ou_null('sigle');
+  if ($id) {
+    $avant = ligne('SELECT * FROM groupes WHERE id = ?', [$id]);
+    if (!$avant) erreur('Groupe introuvable.', 404);
+    requete('UPDATE groupes SET nom = ?, sigle = ? WHERE id = ?', [$nom, $sigle, $id]);
+    journaliser('MODIFICATION', 'groupes', $id, "Groupe renommé : $nom", ['nom' => $avant['nom'], 'sigle' => $avant['sigle']], ['nom' => $nom, 'sigle' => $sigle]);
+  } else {
+    $code = strtoupper((string)champ('code'));
+    if (!preg_match('/^[A-Z0-9_-]{2,20}$/', $code)) erreur('Code du groupe : 2 à 20 lettres majuscules ou chiffres.');
+    if (ligne('SELECT id FROM groupes WHERE code = ?', [$code])) erreur('Ce code de groupe existe déjà.');
+    requete('INSERT INTO groupes (code, nom, sigle) VALUES (?,?,?)', [$code, $nom, $sigle]);
+    $id = (int)bd()->lastInsertId();
+    journaliser('CREATION', 'groupes', $id, "Groupe créé : $nom");
+  }
+  repondre(['id' => $id]);
 }

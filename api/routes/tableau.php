@@ -11,7 +11,9 @@ function r_tableau_bord() {
   exiger_role('SUPER_ADMIN', 'DIRECTRICE');
   $a = ligne('SELECT * FROM annees_scolaires WHERE en_cours = 1');
   if (!$a) repondre(['annee' => null, 'ecoles' => []]);
-  $ecoles = est_super_admin() ? lignes('SELECT id, code, nom_officiel, ville FROM ecoles WHERE actif = 1 ORDER BY ville, nom_officiel')
+  $g = entier('groupe_id', false);
+  $ecoles = est_super_admin() ? ($g ? lignes('SELECT id, code, nom_officiel, ville FROM ecoles WHERE actif = 1 AND groupe_id = ? ORDER BY ville, nom_officiel', [$g])
+                                    : lignes('SELECT id, code, nom_officiel, ville FROM ecoles WHERE actif = 1 ORDER BY ville, nom_officiel'))
                               : lignes('SELECT id, code, nom_officiel, ville FROM ecoles WHERE id = ?', [$UTILISATEUR['ecole_id']]);
   $resultat = [];
   foreach ($ecoles as $e) $resultat[] = $e + bilan_ecole((int)$e['id'], $a);
@@ -23,7 +25,8 @@ function r_tableau_bord() {
                    AND date_paiement >= CURDATE() - INTERVAL 13 DAY GROUP BY date_paiement", $ids);
   $parJour = array_column($jours, 'total', 'jour'); $serie = [];
   for ($k = 13; $k >= 0; $k--) { $j = date('Y-m-d', strtotime("-$k day")); $serie[] = ['jour' => $j, 'total' => (int)($parJour[$j] ?? 0)]; }
-  repondre(['annee' => $a['libelle'], 'ecoles' => $resultat, 'encaissements_14j' => $serie]);
+  repondre(['annee' => $a['libelle'], 'ecoles' => $resultat, 'encaissements_14j' => $serie,
+            'groupe' => $g ? ligne('SELECT id, nom, sigle FROM groupes WHERE id = ?', [$g]) : null]);
 }
 
 function bilan_ecole(int $ecole, array $a): array {

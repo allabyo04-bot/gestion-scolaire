@@ -16,7 +16,7 @@ function lire_jeton(): ?string {
 }
 
 function profil_public(array $u): array {
-  $ecole = $u['ecole_id'] ? ligne('SELECT id, code, nom_officiel, ville FROM ecoles WHERE id = ?', [$u['ecole_id']]) : null;
+  $ecole = $u['ecole_id'] ? ligne('SELECT e.id, e.code, e.nom_officiel, e.ville, e.groupe_id, g.nom AS groupe FROM ecoles e LEFT JOIN groupes g ON g.id = e.groupe_id WHERE e.id = ?', [$u['ecole_id']]) : null;
   return [
     'id' => (int)$u['id'], 'nom' => $u['nom'], 'prenoms' => $u['prenoms'],
     'role' => $u['role'], 'identifiant' => $u['identifiant'],

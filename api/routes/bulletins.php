@@ -108,7 +108,8 @@ function r_bul_classe() {
       'recap' => $recap[$id] ?? [], 'absences' => $absences[$id] ?? ($param['afficher_absences'] ? ['justifiees' => 0, 'non_justifiees' => 0, 'retards' => 0] : null)];
   }
 
-  repondre(['ecole' => $ecole, 'parametres' => $param, 'annee' => $annee, 'classe' => $c['nom'], 'periode' => $p,
+  $gr = ligne('SELECT g.nom, g.sigle FROM groupes g JOIN ecoles e ON e.groupe_id = g.id WHERE e.id = ?', [$c['ecole_id']]);
+  repondre(['ecole' => $ecole, 'parametres' => $param, 'groupe' => $gr, 'annee' => $annee, 'classe' => $c['nom'], 'periode' => $p,
             'effectif' => count($res['eleves']), 'statistiques' => $res['statistiques'], 'colonnes' => ['devoirs' => $nbDevoirs, 'dtl' => $avecDtl],
             'controles' => controles_bulletin((int)$c['id'], (int)$p['id']), 'bulletins' => $bulletins, 'edite_le' => date('Y-m-d')]);
 }

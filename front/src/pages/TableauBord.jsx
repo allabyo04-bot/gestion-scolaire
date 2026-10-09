@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { useDonnees, useSession, Chargement, Alerte } from '../composants/commun.jsx';
+import { useDonnees, useSession, useGroupe, Chargement, Alerte } from '../composants/commun.jsx';
 import { fcfa } from '../composants/montants.js';
 import { heuresTexte } from './Absences.jsx';
 
@@ -14,7 +14,8 @@ function Jauge({ valeur, total, classe = '' }) {
 
 export default function TableauBord() {
   const { utilisateur } = useSession();
-  const d = useDonnees(() => api.get('tableau/bord'), []);
+  const { groupeId } = useGroupe();
+  const d = useDonnees(() => api.get('tableau/bord', { groupe_id: groupeId }), [groupeId]);
   if (d.charge && !d.donnees) return <Chargement texte="Préparation du tableau de bord…" />;
   if (d.erreur) return <Alerte>{d.erreur}</Alerte>;
   const { annee, ecoles, encaissements_14j: serie } = d.donnees;
@@ -29,7 +30,7 @@ export default function TableauBord() {
   return (
     <section>
       <div className="entete-page">
-        <h1>{reseau ? 'Tableau de bord du réseau' : 'Tableau de bord'}</h1>
+        <h1>{reseau ? `Tableau de bord : ${d.donnees.groupe?.nom ?? 'toutes les écoles'}` : 'Tableau de bord'}</h1>
         <p>Année scolaire {annee}, situation au {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}.</p>
       </div>
 

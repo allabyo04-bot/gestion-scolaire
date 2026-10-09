@@ -32,7 +32,11 @@ function r_utilisateurs_liste() {
   $sql = 'SELECT u.id, u.ecole_id, e.nom_officiel AS ecole, u.role, u.nom, u.prenoms, u.telephone, u.email,
                  u.identifiant, u.actif, u.derniere_connexion, u.doit_changer_mdp
           FROM utilisateurs u LEFT JOIN ecoles e ON e.id = u.ecole_id';
-  repondre($ecole ? lignes("$sql WHERE u.ecole_id = ? ORDER BY u.nom", [$ecole]) : lignes("$sql ORDER BY e.nom_officiel, u.nom"));
+  $g = est_super_admin() ? entier('groupe_id', false) : null;
+  if ($ecole) repondre(lignes("$sql WHERE u.ecole_id = ? ORDER BY u.nom", [$ecole]));
+  // Vue d'ensemble : les comptes du groupe choisi, plus les administrateurs généraux (sans école)
+  repondre($g ? lignes("$sql WHERE e.groupe_id = ? OR u.ecole_id IS NULL ORDER BY e.nom_officiel IS NOT NULL, e.nom_officiel, u.nom", [$g])
+              : lignes("$sql ORDER BY e.nom_officiel IS NOT NULL, e.nom_officiel, u.nom"));
 }
 
 function r_utilisateurs_creer() {

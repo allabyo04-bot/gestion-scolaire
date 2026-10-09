@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
+import { useDonnees, useSession, useGroupe, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 import { preparerImage } from '../composants/images.js';
 import ParamClasses from './ParamClasses.jsx';
@@ -18,7 +18,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
       <div className="entete-page"><h1>Paramètres</h1><p>Ce qui est réglé ici s'applique à toute l'école.</p></div>
       <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} />
       <nav className="sous-onglets" aria-label="Sections des paramètres">
-        {[...SECTIONS, ...(utilisateur.role === 'SUPER_ADMIN' ? [['sauvegardes', 'Sauvegardes']] : [])].map(([id, lib]) => <a key={id} href={`#/parametres/${id}`} aria-current={section === id ? 'page' : undefined}>{lib}</a>)}
+        {[...SECTIONS, ...(utilisateur.role === 'SUPER_ADMIN' ? [['groupes', "Groupes d'écoles"], ['sauvegardes', 'Sauvegardes']] : [])].map(([id, lib]) => <a key={id} href={`#/parametres/${id}`} aria-current={section === id ? 'page' : undefined}>{lib}</a>)}
       </nav>
       {ecoleId && section === 'ecole' && <FicheEcole key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'ecole' && <ImagesEcole key={'i' + ecoleId} ecoleId={ecoleId} />}
@@ -28,6 +28,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
       {ecoleId && section === 'frais' && <ParamFrais key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'bulletins' && <ParamBulletin key={ecoleId} ecoleId={ecoleId} />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'sauvegardes' && <ParamSauvegardes />}
+      {utilisateur.role === 'SUPER_ADMIN' && section === 'groupes' && <ParamGroupes />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'ecole' && <NouvelleEcole />}
     </section>
   );
@@ -75,16 +76,17 @@ function FicheEcole({ ecoleId }) {
 
 function NouvelleEcole() {
   const message = useMessage();
+  const { groupeId, groupe } = useGroupe();
   const [ouvert, setOuvert] = useState(false);
   const [f, setF] = useState({ code: '', nom_officiel: '', ville: '' });
   const [erreur, setErreur] = useState('');
   const envoyer = async () => {
-    try { await api.post('param/ecole_enregistrer', f); message(`École « ${f.nom_officiel} » créée.`); setOuvert(false); window.location.reload(); }
+    try { await api.post('param/ecole_enregistrer', { ...f, groupe_id: groupeId }); message(`École « ${f.nom_officiel} » créée.`); setOuvert(false); window.location.reload(); }
     catch (x) { setErreur(x.message); }
   };
   return (
     <div className="zone-secondaire">
-      <h2>Ajouter une école au réseau</h2>
+      <h2>Ajouter une école au groupe {groupe?.nom ?? ''}</h2>
       <p className="discret">Chaque école a ses propres classes, élèves, comptes et bulletins.</p>
       <button className="bouton" onClick={() => setOuvert(true)}>Ajouter une école</button>
       {ouvert && (
@@ -358,6 +360,61 @@ function ImagesEcole({ ecoleId }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ Groupes d'écoles
+function ParamGroupes() {
+  const message = useMessage();
+  const g = useDonnees(() => api.get('ref/groupes'), []);
+  const ecoles = useDonnees(() => api.get('ref/ecoles'), []);
+  const [edition, setEdition] = useState(null);
+  const enregistrer = async () => {
+    try { await api.post('param/groupe_enregistrer', edition); message('Groupe enregistré.'); setEdition(null); g.recharger(); }
+    catch (x) { message(x.message, 'erreur'); }
+  };
+  const deplacer = async (ecole, groupeId) => {
+    if (!window.confirm(`Rattacher ${ecole.nom_officiel} à ce groupe ? Son entête de bulletin devra peut-être être revue.`)) return;
+    try { await api.post('param/ecole_enregistrer', { ...(await api.get('param/ecole', { ecole_id: ecole.id })), id: ecole.id, ecole_id: ecole.id, groupe_id: groupeId }); message('École déplacée.'); ecoles.recharger(); g.recharger(); }
+    catch (x) { message(x.message, 'erreur'); }
+  };
+  if (!g.donnees || !ecoles.donnees) return <Chargement />;
+  return (
+    <div>
+      <div className="entete-avec-action">
+        <h2 className="titre-section">Groupes d'écoles</h2>
+        <button className="bouton" onClick={() => setEdition({ code: '', nom: '', sigle: '' })}>Créer un groupe</button>
+      </div>
+      <p className="discret texte-explicatif">Chaque groupe a son nom et son sigle (affiché en bas des bulletins). Le groupe affiché se choisit dans le bandeau, en haut.</p>
+      <div className="grille-fiche">
+        {g.donnees.map((x) => (
+          <article key={x.id} className="carte-fiche">
+            <div className="carte-fiche-titre"><h2>{x.nom}</h2><button className="bouton-lien" onClick={() => setEdition({ id: x.id, nom: x.nom, sigle: x.sigle ?? '' })}>Renommer</button></div>
+            <p className="discret">Sigle : {x.sigle || '(aucun)'}</p>
+            <ul className="liste-simple">
+              {ecoles.donnees.filter((e) => e.groupe_id === x.id).map((e) => (
+                <li key={e.id}><span>{e.nom_officiel} ({e.ville})</span>
+                  {g.donnees.length > 1 && (
+                    <select aria-label="Changer de groupe" value="" onChange={(ev) => ev.target.value && deplacer(e, Number(ev.target.value))} style={{ width: 'auto', marginLeft: 'auto' }}>
+                      <option value="">Déplacer vers…</option>
+                      {g.donnees.filter((y) => y.id !== x.id).map((y) => <option key={y.id} value={y.id}>{y.nom}</option>)}
+                    </select>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+      {edition && (
+        <Fenetre titre={edition.id ? 'Renommer le groupe' : 'Nouveau groupe'} surFermer={() => setEdition(null)} actions={<>
+          <button className="bouton" onClick={() => setEdition(null)}>Annuler</button><button className="bouton bouton-principal" onClick={enregistrer}>Enregistrer</button></>}>
+          {!edition.id && <Champ libelle="Code court" id="g-code" aide="Exemple : GSP. Non modifiable ensuite."><input id="g-code" value={edition.code} onChange={(e) => setEdition({ ...edition, code: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') })} /></Champ>}
+          <Champ libelle="Nom du groupe" id="g-nom"><input id="g-nom" value={edition.nom} onChange={(e) => setEdition({ ...edition, nom: e.target.value })} /></Champ>
+          <Champ libelle="Sigle (bas des bulletins)" id="g-sigle" aide="Exemple : Écoles FVPT"><input id="g-sigle" value={edition.sigle} onChange={(e) => setEdition({ ...edition, sigle: e.target.value })} /></Champ>
+        </Fenetre>
+      )}
     </div>
   );
 }

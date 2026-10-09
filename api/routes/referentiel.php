@@ -6,9 +6,19 @@ function ecole_demandee(): ?int {
   return entier('ecole_id', false);
 }
 
+function r_ref_groupes() {
+  global $UTILISATEUR;
+  if (est_super_admin()) repondre(lignes('SELECT g.*, (SELECT COUNT(*) FROM ecoles e WHERE e.groupe_id = g.id AND e.actif = 1) AS nb_ecoles FROM groupes g WHERE g.actif = 1 ORDER BY g.id'));
+  repondre(lignes('SELECT g.* FROM groupes g JOIN ecoles e ON e.groupe_id = g.id WHERE e.id = ?', [$UTILISATEUR['ecole_id']]));
+}
+
 function r_ref_ecoles() {
   global $UTILISATEUR;
-  if (est_super_admin()) repondre(lignes('SELECT id, code, nom_officiel, ville FROM ecoles WHERE actif = 1 ORDER BY nom_officiel'));
+  if (est_super_admin()) {
+    $g = entier('groupe_id', false);
+    repondre($g ? lignes('SELECT id, code, nom_officiel, ville, groupe_id FROM ecoles WHERE actif = 1 AND groupe_id = ? ORDER BY nom_officiel', [$g])
+                : lignes('SELECT id, code, nom_officiel, ville, groupe_id FROM ecoles WHERE actif = 1 ORDER BY nom_officiel'));
+  }
   repondre(lignes('SELECT id, code, nom_officiel, ville FROM ecoles WHERE id = ?', [$UTILISATEUR['ecole_id']]));
 }
 

@@ -19,7 +19,7 @@ export default function Connexion({ surConnexion }) {
   return (
     <div className="page-connexion">
       <form className="carte-connexion" onSubmit={envoyer}>
-        <h1>Réseau des écoles FVPT</h1>
+        <h1>Gestion des écoles</h1>
         <p className="sous-titre">Notes, bulletins et suivi des élèves</p>
         {erreur && <Alerte>{erreur}</Alerte>}
         <Champ libelle="Identifiant" id="identifiant">

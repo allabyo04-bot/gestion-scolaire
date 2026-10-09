@@ -3,6 +3,9 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 // ---------------------------------------------------------------- Session
 export const Session = createContext(null);
 export const useSession = () => useContext(Session);
+// Groupe d'écoles affiché (choisi dans le bandeau par l'administrateur général)
+export const GroupeActif = createContext({ groupeId: null, groupe: null });
+export const useGroupe = () => useContext(GroupeActif);
 
 export const ROLES = {
   SUPER_ADMIN: 'Administrateur général',
