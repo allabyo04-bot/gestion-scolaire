@@ -6,8 +6,9 @@ import { preparerImage } from '../composants/images.js';
 import ParamClasses from './ParamClasses.jsx';
 import ParamFrais from './ParamFrais.jsx';
 import ParamSauvegardes from './ParamSauvegardes.jsx';
+import ParamBulletin from './ParamBulletin.jsx';
 
-const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs'], ['frais', 'Frais de scolarité']];
+const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs'], ['frais', 'Frais de scolarité'], ['bulletins', 'Bulletins']];
 
 export default function Parametres({ section = 'ecole', sousParam }) {
   const { utilisateur } = useSession();
@@ -25,6 +26,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
       {ecoleId && section === 'classes' && <ParamClasses key={ecoleId} ecoleId={ecoleId} classeId={sousParam} />}
       {ecoleId && section === 'evaluations' && <ConfigEvaluations key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'frais' && <ParamFrais key={ecoleId} ecoleId={ecoleId} />}
+      {ecoleId && section === 'bulletins' && <ParamBulletin key={ecoleId} ecoleId={ecoleId} />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'sauvegardes' && <ParamSauvegardes />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'ecole' && <NouvelleEcole />}
     </section>
@@ -35,7 +37,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
 const CHAMPS = [
   ['nom_officiel', 'Nom officiel de l\'école', 'Tel qu\'il doit apparaître sur les bulletins.'],
   ['sigle', 'Sigle (facultatif)'], ['ville', 'Ville'], ['adresse', 'Adresse'], ['boite_postale', 'Boîte postale'],
-  ['telephone', 'Téléphone'], ['email', 'E-mail'],
+  ['telephone', 'Téléphone'], ['email', 'E-mail'], ['site_web', 'Site internet'],
   ['entete_ligne1', 'Entête : ligne 1', 'Exemple : République du Bénin'],
   ['entete_ligne2', 'Entête : ligne 2', 'Exemple : Ministère des Enseignements secondaire, technique et de la formation professionnelle'],
   ['entete_ligne3', 'Entête : ligne 3', 'Exemple : Direction départementale de l\'Alibori'],
@@ -318,7 +320,8 @@ function ConfigEvaluations({ ecoleId }) {
 }
 
 // ------------------------------------------------------------------ Logo, cachet, signature
-const IMAGES = [['LOGO', 'Logo de l\'école', 'Affiché en tête des reçus, documents et bulletins.', 600],
+const IMAGES = [['LOGO', 'Logo de l\'école', 'Affiché en tête des reçus, documents et bulletins (à gauche).', 600],
+                ['LOGO_FONDATION', 'Logo de la Fondation', 'Affiché à droite de l\'entête du bulletin.', 600],
                 ['CACHET', 'Cachet', 'Scanné sur fond blanc, ou mieux : sur fond transparent (PNG).', 450],
                 ['SIGNATURE', 'Signature de la directrice', 'Signature seule, sur fond blanc ou transparent.', 450]];
 function ImagesEcole({ ecoleId }) {

@@ -335,7 +335,7 @@ function images_ecole(int $id): array {
   return array_column(lignes('SELECT type, donnees FROM ecole_images WHERE ecole_id = ?', [$id]), 'donnees', 'type');
 }
 function entete_ecole(int $id): array {
-  return ['images' => images_ecole($id)] + ligne('SELECT id, nom_officiel, sigle, ville, adresse, boite_postale, telephone, email, entete_ligne1, entete_ligne2, entete_ligne3,
+  return ['images' => images_ecole($id)] + ligne('SELECT id, nom_officiel, sigle, ville, adresse, boite_postale, telephone, email, site_web, entete_ligne1, entete_ligne2, entete_ligne3,
                        devise, nom_directrice, titre_signataire FROM ecoles WHERE id = ?', [$id]);
 }
 

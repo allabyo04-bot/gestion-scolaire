@@ -107,6 +107,9 @@ const ROUTES = [
   'param/image_enregistrer'            => ['parametres', 'r_param_image_enregistrer', 'POST', true],
   'param/image_supprimer'              => ['parametres', 'r_param_image_supprimer', 'POST', true],
   'utilisateurs/generer_acces'         => ['utilisateurs', 'r_utilisateurs_generer_acces', 'POST', true],
+  'bul/classe'                         => ['bulletins', 'r_bul_classe', 'GET', true],
+  'bul/parametres'                     => ['bulletins', 'r_bul_parametres', 'GET', true],
+  'bul/parametres_enregistrer'         => ['bulletins', 'r_bul_parametres_enregistrer', 'POST', true],
   'tableau/bord'                       => ['tableau', 'r_tableau_bord', 'GET', true],
   'admin/sauvegardes'                  => ['admin', 'r_admin_sauvegardes', 'GET', true],
   'admin/sauvegarde_telecharger'       => ['admin', 'r_admin_sauvegarde_telecharger', 'GET', true],
@@ -124,7 +127,7 @@ try {
     if ($u['doit_changer_mdp'] && !str_starts_with($r, 'auth/'))
       erreur('Vous devez d\'abord changer votre mot de passe provisoire.', 428);
   }
-  if (in_array($fichier, ['eleves', 'finances', 'tableau', 'absences', 'caisse'], true)) require __DIR__ . '/routes/parametres.php';
+  if (in_array($fichier, ['eleves', 'finances', 'tableau', 'absences', 'caisse', 'bulletins'], true)) require __DIR__ . '/routes/parametres.php';
   require __DIR__ . "/routes/$fichier.php";
   $fonction();
 } catch (ErreurApi $e) {

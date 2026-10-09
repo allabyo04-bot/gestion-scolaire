@@ -13,7 +13,7 @@ export default function Resultats({ classeId, periodeId }) {
       <a href="#/classes" className="retour">Classes</a>
       <div className="entete-page">
         <h1>{classe} <span className="discret">{periode}</span></h1>
-        <p>Moyennes calculées sur les notes validées uniquement.</p>
+        <p>Moyennes calculées sur les notes validées uniquement. <a href={`#/bulletins/${classeId}/${periodeId}`}>Voir les bulletins</a></p>
       </div>
       {st && (
         <dl className="statistiques">

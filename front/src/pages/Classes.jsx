@@ -33,14 +33,14 @@ export default function Classes() {
           <h2>{nomsCycles[cycle]}</h2>
           <div className="tableau-defilant">
             <table className="tableau">
-              <thead><tr><th scope="col">Classe</th><th scope="col" className="nombre">Élèves</th><th scope="col">Résultats</th>{direction && <th scope="col"><span className="visuellement-cache">Actions</span></th>}</tr></thead>
+              <thead><tr><th scope="col">Classe</th><th scope="col" className="nombre">Élèves</th><th scope="col">Résultats et bulletins</th>{direction && <th scope="col"><span className="visuellement-cache">Actions</span></th>}</tr></thead>
               <tbody>
                 {liste.map((c) => (
                   <tr key={c.id}>
                     <th scope="row">{c.nom}</th>
                     <td className="nombre">{c.effectif}</td>
                     <td className="liens-periodes">
-                      {periodes.donnees?.map((p) => <a key={p.id} href={`#/resultats/${c.id}/${p.id}`}>{p.libelle}</a>)}
+                      {periodes.donnees?.map((p) => <span key={p.id} className="lien-periode">{p.libelle} : <a href={`#/resultats/${c.id}/${p.id}`}>moyennes</a>, <a href={`#/bulletins/${c.id}/${p.id}`}>bulletins</a></span>)}
                     </td>
                     {direction && <td><button className="bouton bouton-discret" onClick={() => setPreparer(c)}>Préparer les évaluations</button></td>}
                   </tr>

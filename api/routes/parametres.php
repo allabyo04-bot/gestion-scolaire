@@ -18,7 +18,7 @@ function annee_en_cours(): array {
 function texte_ou_null(string $nom): ?string { $v = champ($nom, false); return $v === null ? null : (string)$v; }
 
 // ---------------------------------------------------------------- Écoles
-const CHAMPS_ECOLE = ['nom_officiel','sigle','ville','adresse','boite_postale','telephone','email',
+const CHAMPS_ECOLE = ['nom_officiel','sigle','ville','adresse','boite_postale','telephone','email','site_web',
                       'entete_ligne1','entete_ligne2','entete_ligne3','devise','nom_directrice','titre_signataire'];
 
 function r_param_ecole() {
@@ -369,7 +369,7 @@ function r_param_classe_copier_matieres() {
 }
 
 // ---------------------------------------------------------------- Logo, cachet, signature
-const TYPES_IMAGES = ['LOGO', 'CACHET', 'SIGNATURE'];
+const TYPES_IMAGES = ['LOGO', 'LOGO_FONDATION', 'CACHET', 'SIGNATURE'];
 function r_param_images() {
   $e = ecole_cible();
   repondre(array_column(lignes('SELECT type, donnees FROM ecole_images WHERE ecole_id = ?', [$e]), 'donnees', 'type'));

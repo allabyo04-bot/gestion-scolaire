@@ -12,7 +12,7 @@ const STATUTS = {
 const COURT = { ABSENT: 'Abs.', ABSENT_JUSTIFIE: 'Abs. J', ABSENT_NON_JUSTIFIE: 'Abs. NJ', DISPENSE: 'Disp.' };
 // 13.00 → « 13 », 11.60 → « 11,6 » (plus naturel à modifier)
 const noteCourte = (v) => String(Number(v)).replace('.', ',');
-const nomEval = (e) => Number(e.est_conduite) ? 'Note de conduite' : `${e.type === 'INTERRO' ? 'Interro' : 'Devoir'} ${e.numero}`;
+const nomEval = (e) => Number(e.est_conduite) ? 'Note de conduite' : `${{ INTERRO: 'Interro', DEVOIR: 'Devoir', DTL: 'DTL' }[e.type]} ${e.numero}`;
 
 // Valeur saisie → nombre valide ou message d'erreur
 function lireNote(texte) {
@@ -75,7 +75,7 @@ function Evaluations({ cm, periode, direction }) {
   const ajouter = async (type) => {
     try {
       const r = await api.post('notes/ajouter_evaluation', { classe_matiere_id: cm.classe_matiere_id, periode_id: periode.id, type });
-      message(`${type === 'INTERRO' ? 'Interro' : 'Devoir'} ${r.numero} ajouté(e).`);
+      message(`${{ INTERRO: 'Interro', DEVOIR: 'Devoir', DTL: 'DTL' }[type]} ${r.numero} ajouté(e).`);
       evals.recharger(); setChoisie(r.id);
     } catch (e) { message(e.message, 'erreur'); }
   };
@@ -107,6 +107,7 @@ function Evaluations({ cm, periode, direction }) {
         <div className="ajouts">
           <button className="bouton bouton-discret" onClick={() => ajouter('INTERRO')}>Ajouter une interro</button>
           <button className="bouton bouton-discret" onClick={() => ajouter('DEVOIR')}>Ajouter un devoir</button>
+          <button className="bouton bouton-discret" onClick={() => ajouter('DTL')}>Ajouter un DTL</button>
         </div>
       )}
       {courante && <Feuille key={courante.id} evaluation={courante} ouverte={ouverte} direction={direction}

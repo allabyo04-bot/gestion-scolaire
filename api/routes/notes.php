@@ -27,7 +27,7 @@ function r_notes_evaluations() {
   repondre(lignes("SELECT e.*, (SELECT COUNT(*) FROM notes n WHERE n.evaluation_id = e.id) AS nb_notes,
                           (SELECT m.est_conduite FROM matieres m WHERE m.id = ?) AS est_conduite
                    FROM evaluations e WHERE e.classe_matiere_id = ? AND e.periode_id = ?
-                   ORDER BY FIELD(e.type,'INTERRO','DEVOIR'), e.numero", [$cm['matiere_id'], $cm['id'], $p['id']]));
+                   ORDER BY FIELD(e.type,'INTERRO','DTL','DEVOIR'), e.numero", [$cm['matiere_id'], $cm['id'], $p['id']]));
 }
 
 // Crée les évaluations d'une classe pour une période, d'après le paramétrage par défaut
@@ -65,7 +65,7 @@ function r_notes_ajouter_evaluation() {
   $p = periode(entier('periode_id'));
   verifier_periode_ouverte($p);
   $type = strtoupper((string)champ('type'));
-  if (!in_array($type, ['INTERRO', 'DEVOIR'], true)) erreur('Type : INTERRO ou DEVOIR.');
+  if (!in_array($type, ['INTERRO', 'DEVOIR', 'DTL'], true)) erreur('Type : INTERRO, DEVOIR ou DTL.');
   $num = (int)(ligne('SELECT COALESCE(MAX(numero),0) n FROM evaluations WHERE classe_matiere_id = ? AND periode_id = ? AND type = ?',
                      [$cm['id'], $p['id'], $type])['n']) + 1;
   requete('INSERT INTO evaluations (classe_matiere_id, periode_id, type, numero) VALUES (?,?,?,?)', [$cm['id'], $p['id'], $type, $num]);
