@@ -643,3 +643,24 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 }
 .lien-periode { white-space: nowrap; }
 .bareme .ligne-formulaire { margin: .3rem 0; }
+
+/* ================================================================ Compte connecté et marque */
+.zone-compte { display: flex; align-items: center; gap: .75rem; }
+.nom-connecte { display: none; text-align: right; font-weight: 700; font-size: .9rem; line-height: 1.2; }
+.nom-connecte small { display: block; font-weight: 400; opacity: .8; font-size: .78rem; }
+.bouton-deconnexion { display: none; min-height: 2.4rem; padding: .3rem .9rem; border: 1px solid rgba(255,255,255,.6); border-radius: var(--rayon);
+  background: transparent; color: #fff; font-weight: 700; cursor: pointer; }
+.bouton-deconnexion:hover { background: rgba(255,255,255,.15); }
+@media (min-width: 48rem) {
+  .nom-connecte, .bouton-deconnexion { display: block; }
+  .menu-compte .menu-compte-panneau button.lien { display: none; }
+}
+.signature-phil { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.25rem; padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--bordure); color: var(--gris); font-size: .85rem; text-align: center; }
+.signature-phil strong { color: var(--encre); font-family: var(--titre); font-weight: 500; }
+.signature-phil a { color: var(--ardoise); text-decoration: none; font-weight: 700; }
+.signature-phil a:hover { text-decoration: underline; }
+.page-connexion { flex-direction: column; gap: 1rem; display: flex; justify-content: center; align-items: center; }
+.page-connexion .signature-phil { border-top: 0; background: rgba(255,255,255,.85); border-radius: var(--rayon); }
+.contenu + .signature-phil { margin-bottom: 4.5rem; }
+@media print { .signature-phil { display: none !important; } }

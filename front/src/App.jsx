@@ -15,6 +15,7 @@ import FicheEleve from './pages/FicheEleve.jsx';
 import Caisse from './pages/Caisse.jsx';
 import Recu from './pages/Recu.jsx';
 import TableauBord from './pages/TableauBord.jsx';
+import Signature from './composants/Signature.jsx';
 import Absences from './pages/Absences.jsx';
 import Bulletins from './pages/Bulletins.jsx';
 import { ListeClasse, FicheAppel, Certificat } from './pages/Documents.jsx';
@@ -101,16 +102,20 @@ function Coquille({ utilisateur, surDeconnexion }) {
           <strong>{utilisateur.ecole?.nom_officiel ?? 'Réseau des écoles FVPT'}</strong>
           <span>{utilisateur.ecole?.ville ?? 'Toutes les écoles'}</span>
         </div>
-        <details className="menu-compte">
-          <summary aria-label="Mon compte">
-            <span className="initiales" aria-hidden="true">{utilisateur.prenoms[0]}{utilisateur.nom[0]}</span>
-          </summary>
-          <div className="menu-compte-panneau">
-            <p><strong>{utilisateur.prenoms} {utilisateur.nom}</strong><br />{ROLES[utilisateur.role]}</p>
-            <a href="#/mot-de-passe">Changer mon mot de passe</a>
-            <button type="button" className="lien" onClick={surDeconnexion}>Se déconnecter</button>
-          </div>
-        </details>
+        <div className="zone-compte">
+          <span className="nom-connecte">{utilisateur.prenoms} {utilisateur.nom}<small>{ROLES[utilisateur.role]}</small></span>
+          <details className="menu-compte">
+            <summary aria-label="Mon compte">
+              <span className="initiales" aria-hidden="true">{utilisateur.prenoms[0]}{utilisateur.nom[0]}</span>
+            </summary>
+            <div className="menu-compte-panneau">
+              <p><strong>{utilisateur.prenoms} {utilisateur.nom}</strong><br />{ROLES[utilisateur.role]}</p>
+              <a href="#/mot-de-passe">Changer mon mot de passe</a>
+              <button type="button" className="lien" onClick={surDeconnexion}>Se déconnecter</button>
+            </div>
+          </details>
+          <button type="button" className="bouton-deconnexion" onClick={surDeconnexion}>Se déconnecter</button>
+        </div>
       </header>
       {onglets.length > 1 && (
         <nav className="onglets" aria-label="Navigation principale">
@@ -120,6 +125,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
         </nav>
       )}
       <main className="contenu">{ecran}</main>
+      <Signature />
     </div>
   );
 }

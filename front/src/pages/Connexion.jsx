@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { Alerte, Champ } from '../composants/commun.jsx';
+import Signature from '../composants/Signature.jsx';
 
 export default function Connexion({ surConnexion }) {
   const [identifiant, setIdentifiant] = useState('');
@@ -34,6 +35,7 @@ export default function Connexion({ surConnexion }) {
         </button>
         <p className="note-bas">Identifiants perdus ? Adressez-vous à la direction de votre école.</p>
       </form>
+      <Signature />
     </div>
   );
 }
