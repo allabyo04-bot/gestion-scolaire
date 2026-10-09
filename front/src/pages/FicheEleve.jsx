@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection } from '../composants/commun.jsx';
 import { STATUTS_INSC, LIENS, age, formatTel, incoherence } from './Eleves.jsx';
 import { Situation } from './Caisse.jsx';
+import { FenetreJustifier, heuresTexte } from './Absences.jsx';
 
 const dateFr = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 
@@ -69,6 +70,8 @@ export default function FicheEleve({ eleveId }) {
             <Situation inscriptionId={courante.id} compacte />
           </article>
         )}
+
+        {courante && <CarteAbsences inscriptionId={courante.id} />}
 
         <article className="carte-fiche carte-large">
           <div className="carte-fiche-titre"><h2>Parcours</h2>{courante && <button className="bouton-lien" onClick={() => setFenetre({ inscription: courante })}>Modifier l'inscription</button>}</div>
@@ -179,5 +182,37 @@ function FenetreInscriptionModif({ inscription, direction, ecoleId, surFermer, s
       </Champ>
       <label className="case"><input type="checkbox" checked={f.redoublant} onChange={(e) => setF({ ...f, redoublant: e.target.checked })} /> Redouble cette classe</label>
     </Fenetre>
+  );
+}
+
+function CarteAbsences({ inscriptionId }) {
+  const a = useDonnees(() => api.get('abs/eleve', { inscription_id: inscriptionId }), [inscriptionId]);
+  const [choisie, setChoisie] = useState(null);
+  if (!a.donnees) return null;
+  const { periodes, absences } = a.donnees;
+  return (
+    <article className="carte-fiche carte-large">
+      <div className="carte-fiche-titre"><h2>Absences et retards</h2></div>
+      <div className="tableau-defilant">
+        <table className="tableau">
+          <thead><tr><th scope="col">Période</th><th scope="col" className="nombre">Justifiées</th><th scope="col" className="nombre">Non justifiées</th><th scope="col" className="nombre">Retards</th></tr></thead>
+          <tbody>{periodes.map((p) => (
+            <tr key={p.libelle}><th scope="row">{p.libelle}</th><td className="nombre">{heuresTexte(p.heures_justifiees)}</td>
+              <td className={`nombre${p.heures_non_justifiees ? ' texte-retard' : ''}`}>{heuresTexte(p.heures_non_justifiees)}</td><td className="nombre">{p.retards}</td></tr>))}
+          </tbody>
+        </table>
+      </div>
+      {absences.length > 0 && (
+        <ul className="liste-simple">
+          {absences.slice(0, 10).map((x) => (
+            <li key={x.id}>
+              <span>{x.date_absence.split('-').reverse().join('/')}, {x.creneau === 'MATIN' ? 'matin' : 'après-midi'} : {x.statut === 'ABSENT' ? `absent ${heuresTexte(x.heures)}` : `retard ${x.minutes} min`}</span>
+              {x.statut === 'ABSENT' && (Number(x.justifiee) ? <small className="etiquette">Justifiée : {x.motif}</small> : <small className="etiquette etiquette-alerte">Non justifiée</small>)}
+              {x.statut === 'ABSENT' && <button className="bouton-lien" onClick={() => setChoisie(x)}>{Number(x.justifiee) ? 'Modifier' : 'Justifier'}</button>}
+            </li>))}
+        </ul>
+      )}
+      {choisie && <FenetreJustifier absence={choisie} surFermer={() => setChoisie(null)} surFait={() => { setChoisie(null); a.recharger(); }} />}
+    </article>
   );
 }

@@ -436,3 +436,33 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .barre-jour .barre { width: 70%; background: var(--ardoise); border-radius: 3px 3px 0 0; }
 .barre-jour .valeur { font-size: .62rem; color: var(--gris); white-space: nowrap; font-family: var(--titre); }
 .barre-jour .jour { font-size: .7rem; color: var(--gris); white-space: nowrap; }
+
+/* ================================================================ Absences : l'appel */
+.choix-appel { display: flex; flex-wrap: wrap; gap: .75rem; align-items: flex-end; margin-bottom: 1rem; }
+.choix-appel label { display: flex; flex-direction: column; gap: .25rem; font-weight: 700; font-size: .9rem; flex: 1 1 9rem; }
+.bascule-creneau { display: flex; border: 1px solid var(--bordure); border-radius: var(--rayon); overflow: hidden; flex: 1 1 12rem; }
+.bascule-creneau button { flex: 1; min-height: 2.75rem; border: 0; background: #fff; cursor: pointer; font-weight: 700; color: var(--gris); }
+.bascule-creneau button[aria-checked=true] { background: var(--encre); color: #fff; }
+.liste-appel { list-style: none; margin: 0; padding: 0; background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); overflow: hidden;
+  background-image: linear-gradient(90deg, transparent calc(2.4rem - 1px), var(--marge) calc(2.4rem - 1px), var(--marge) calc(2.4rem + 1px), transparent calc(2.4rem + 1px)); }
+.liste-appel li { display: grid; grid-template-columns: 2.4rem 1fr auto; align-items: center; gap: .3rem .6rem; padding: .45rem .6rem .45rem 0; border-bottom: 1px solid var(--ligne); }
+.liste-appel li:last-child { border-bottom: 0; }
+.appel-num { text-align: center; color: var(--gris); font-family: var(--titre); font-size: .85rem; }
+.appel-nom { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.appel-choix { display: inline-flex; border: 1px solid var(--bordure); border-radius: var(--rayon); overflow: hidden; }
+.appel-choix button { min-height: 2.5rem; padding: 0 .6rem; border: 0; border-left: 1px solid var(--bordure); background: #fff; cursor: pointer; font-size: .85rem; color: var(--gris); }
+.appel-choix button:first-child { border-left: 0; }
+.appel-choix button:disabled { opacity: .4; cursor: not-allowed; }
+.appel-choix button[aria-checked=true] { color: #fff; font-weight: 700; }
+.appel-present .appel-choix button[aria-checked=true] { background: var(--ardoise); }
+.appel-absent .appel-choix button[aria-checked=true] { background: var(--marge); }
+.appel-retard .appel-choix button[aria-checked=true] { background: var(--ambre); }
+.appel-absent { background: linear-gradient(90deg, transparent 2.4rem, #FDF0F1 2.4rem); }
+.appel-retard { background: linear-gradient(90deg, transparent 2.4rem, var(--ambre-pale) 2.4rem); }
+.appel-detail { grid-column: 2 / -1; justify-self: end; display: flex; align-items: center; gap: .4rem; font-size: .9rem; color: var(--gris); }
+.appel-detail input { width: 4.5rem; min-height: 2.3rem; padding: .2rem .4rem; text-align: center; font-family: var(--titre); }
+.etiquette-alerte { background: #FCEBEC; color: var(--marge); }
+@media (max-width: 30rem) {
+  .liste-appel li { grid-template-columns: 2.4rem 1fr; }
+  .appel-choix { grid-column: 2; justify-self: start; }
+}

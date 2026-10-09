@@ -15,6 +15,7 @@ import FicheEleve from './pages/FicheEleve.jsx';
 import Caisse from './pages/Caisse.jsx';
 import Recu from './pages/Recu.jsx';
 import TableauBord from './pages/TableauBord.jsx';
+import Absences from './pages/Absences.jsx';
 
 export default function App() {
   const [utilisateur, setUtilisateur] = useState(null);
@@ -57,6 +58,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
     ['tableau', 'Tableau de bord', direction],
     ['accueil', 'Notes', direction || utilisateur.role === 'PROFESSEUR'],
     ['eleves', 'Élèves', gereEleves],
+    ['absences', 'Absences', gereEleves || utilisateur.role === 'PROFESSEUR'],
     ['classes', 'Classes', direction || secretariat || utilisateur.role === 'PROFESSEUR'],
     ['caisse', 'Caisse', caisse],
     ['comptes', 'Comptes', direction],
@@ -74,6 +76,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
     case 'eleves': ecran = gereEleves ? <Eleves classeId={params[0]} /> : null; break;
     case 'eleve': ecran = gereEleves ? <FicheEleve eleveId={params[0]} /> : null; break;
     case 'parametres': ecran = direction ? <Parametres section={params[0]} sousParam={params[1]} /> : null; break;
+    case 'absences': ecran = (gereEleves || utilisateur.role === 'PROFESSEUR') ? <Absences vue={params[0]} /> : null; break;
     case 'tableau': ecran = direction ? <TableauBord /> : null; break;
     case 'accueil': ecran = comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />; break;
     case 'caisse': ecran = caisse ? <Caisse vue={params[0]} inscriptionId={params[1]} /> : null; break;
@@ -83,7 +86,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
   }
   const actif = { saisie: 'accueil', resultats: 'classes', eleve: 'eleves', recu: 'caisse' }[page]
     ?? (page === 'accueil' && comptable ? 'caisse' : page === 'accueil' && secretariat ? 'eleves' : page);
-  const ongletActif = ['tableau', 'accueil', 'eleves', 'classes', 'caisse', 'comptes', 'parametres', 'journal'].includes(actif) ? actif : direction ? 'tableau' : 'accueil';
+  const ongletActif = ['tableau', 'accueil', 'eleves', 'absences', 'classes', 'caisse', 'comptes', 'parametres', 'journal'].includes(actif) ? actif : direction ? 'tableau' : 'accueil';
 
   return (
     <div className="coquille">

@@ -121,8 +121,12 @@ function r_param_parametres_enregistrer() {
   $mode = strtoupper((string)champ('mode_moy_annuelle'));
   if (!in_array($mode, ['SIMPLE', 'PONDEREE'], true)) erreur('Mode : SIMPLE ou PONDEREE.');
   $passage = note_valide(champ('moyenne_passage'));
+  $hm = (float)str_replace(',', '.', (string)(champ('heures_matin', false) ?? $avant['heures_matin']));
+  $ha = (float)str_replace(',', '.', (string)(champ('heures_apres_midi', false) ?? $avant['heures_apres_midi']));
+  if ($hm <= 0 || $hm > 8 || $ha <= 0 || $ha > 8) erreur("Durée d'une demi-journée : entre 0,5 et 8 heures.");
   bd()->beginTransaction();
-  requete('UPDATE parametres_annee SET mode_moy_annuelle = ?, moyenne_passage = ? WHERE id = ?', [$mode, $passage, $avant['id']]);
+  requete('UPDATE parametres_annee SET mode_moy_annuelle = ?, moyenne_passage = ?, heures_matin = ?, heures_apres_midi = ? WHERE id = ?',
+          [$mode, $passage, $hm, $ha, $avant['id']]);
   foreach ((array)(champ('poids', false) ?? []) as $pid => $poids) {
     $p = str_replace(',', '.', (string)$poids);
     if (!is_numeric($p) || $p <= 0 || $p > 10) { bd()->rollBack(); erreur('Poids de période invalide.'); }
@@ -131,6 +135,19 @@ function r_param_parametres_enregistrer() {
   bd()->commit();
   journaliser('MODIFICATION', 'parametres_annee', $avant['id'], 'Paramètres de calcul',
               ['mode' => $avant['mode_moy_annuelle'], 'passage' => $avant['moyenne_passage']], ['mode' => $mode, 'passage' => $passage]);
+  repondre();
+}
+
+function r_param_periode_dates() {
+  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  $p = periode(entier('id'));
+  $d = (string)champ('date_debut'); $f = (string)champ('date_fin');
+  foreach ([$d, $f] as $x) if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $x)) erreur('Date invalide.');
+  if ($f <= $d) erreur('La date de fin doit être après la date de début.');
+  if (ligne('SELECT id FROM periodes WHERE ecole_id = ? AND annee_id = ? AND id <> ? AND date_debut <= ? AND date_fin >= ?',
+            [$p['ecole_id'], $p['annee_id'], $p['id'], $f, $d])) erreur('Ces dates chevauchent une autre période.');
+  requete('UPDATE periodes SET date_debut = ?, date_fin = ? WHERE id = ?', [$d, $f, $p['id']]);
+  journaliser('MODIFICATION', 'periodes', $p['id'], "{$p['libelle']} : du $d au $f", ['du' => $p['date_debut'], 'au' => $p['date_fin']], ['du' => $d, 'au' => $f]);
   repondre();
 }
 

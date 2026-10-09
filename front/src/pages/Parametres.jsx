@@ -107,6 +107,11 @@ function AnneePeriodes({ ecoleId }) {
   const d = useDonnees(() => api.get('param/periodes', { ecole_id: ecoleId }), [ecoleId]);
   const [type, setType] = useState('TRIMESTRE');
   const [reglages, setReglages] = useState(null);
+  const [dates, setDates] = useState(null);
+  const enregistrerDates = async () => {
+    try { await api.post('param/periode_dates', dates); message(`Dates du ${dates.libelle} enregistrées.`); setDates(null); d.recharger(); }
+    catch (x) { message(x.message, 'erreur'); }
+  };
 
   const creer = async () => {
     try { await api.post('param/periodes_creer', { ecole_id: ecoleId, type_periode: type }); message('Découpage de l\'année créé.'); d.recharger(); }
@@ -145,10 +150,12 @@ function AnneePeriodes({ ecoleId }) {
             <>
               <div className="tableau-defilant">
                 <table className="tableau">
-                  <thead><tr><th scope="col">Période</th><th scope="col">État</th><th scope="col"><span className="visuellement-cache">Action</span></th></tr></thead>
+                  <thead><tr><th scope="col">Période</th><th scope="col">Dates</th><th scope="col">État</th><th scope="col"><span className="visuellement-cache">Action</span></th></tr></thead>
                   <tbody>{d.donnees.periodes.map((p) => (
                     <tr key={p.id}>
                       <th scope="row">{p.libelle}</th>
+                      <td><button className="bouton-lien" onClick={() => setDates({ id: p.id, libelle: p.libelle, date_debut: p.date_debut ?? '', date_fin: p.date_fin ?? '' })}>
+                        {p.date_debut ? `${p.date_debut.split('-').reverse().join('/')} au ${p.date_fin.split('-').reverse().join('/')}` : 'À renseigner'}</button></td>
                       <td>{p.statut === 'OUVERTE' ? <span className="pastille pastille-ouverte">Ouverte</span> : <span className="pastille pastille-close">Clôturée</span>}</td>
                       <td><button className="bouton-lien" onClick={() => basculer(p)}>{p.statut === 'OUVERTE' ? 'Clôturer' : 'Rouvrir'}</button></td>
                     </tr>))}
@@ -156,6 +163,17 @@ function AnneePeriodes({ ecoleId }) {
                 </table>
               </div>
               <ReglesCalcul donnees={d.donnees} reglages={reglages} setReglages={setReglages} surEnregistrer={enregistrer} />
+              {dates && (
+                <Fenetre titre={`Dates du ${dates.libelle}`} surFermer={() => setDates(null)} actions={<>
+                  <button className="bouton" onClick={() => setDates(null)}>Annuler</button>
+                  <button className="bouton bouton-principal" onClick={enregistrerDates}>Enregistrer</button></>}>
+                  <p className="discret">Les absences sont rattachées au trimestre d'après ces dates.</p>
+                  <div className="deux-colonnes">
+                    <Champ libelle="Début" id="pd-d"><input id="pd-d" type="date" value={dates.date_debut} onChange={(e) => setDates({ ...dates, date_debut: e.target.value })} /></Champ>
+                    <Champ libelle="Fin" id="pd-f"><input id="pd-f" type="date" value={dates.date_fin} onChange={(e) => setDates({ ...dates, date_fin: e.target.value })} /></Champ>
+                  </div>
+                </Fenetre>
+              )}
             </>
           )}
         </>
@@ -167,6 +185,8 @@ function AnneePeriodes({ ecoleId }) {
 function ReglesCalcul({ donnees, reglages, setReglages, surEnregistrer }) {
   const base = { mode_moy_annuelle: donnees.parametres?.mode_moy_annuelle ?? 'SIMPLE',
                  moyenne_passage: String(Number(donnees.parametres?.moyenne_passage ?? 10)).replace('.', ','),
+                 heures_matin: String(Number(donnees.parametres?.heures_matin ?? 4)).replace('.', ','),
+                 heures_apres_midi: String(Number(donnees.parametres?.heures_apres_midi ?? 2)).replace('.', ','),
                  poids: Object.fromEntries(donnees.periodes.map((p) => [p.id, String(Number(p.poids)).replace('.', ',')])) };
   const v = reglages ?? base;
   const maj = (k, x) => setReglages({ ...v, [k]: x });
@@ -182,6 +202,14 @@ function ReglesCalcul({ donnees, reglages, setReglages, surEnregistrer }) {
         </Champ>
         <Champ libelle="Moyenne de passage" id="r-passage" aide="Sur 20. Sert aux décisions de fin d'année.">
           <input id="r-passage" inputMode="decimal" value={v.moyenne_passage} onChange={(e) => maj('moyenne_passage', e.target.value)} />
+        </Champ>
+      </div>
+      <div className="grille-champs">
+        <Champ libelle="Heures de cours le matin" id="r-hm" aide="Heures comptées pour une absence d'une matinée entière.">
+          <input id="r-hm" inputMode="decimal" value={v.heures_matin} onChange={(e) => maj('heures_matin', e.target.value)} />
+        </Champ>
+        <Champ libelle="Heures de cours l'après-midi" id="r-ha">
+          <input id="r-ha" inputMode="decimal" value={v.heures_apres_midi} onChange={(e) => maj('heures_apres_midi', e.target.value)} />
         </Champ>
       </div>
       {v.mode_moy_annuelle === 'PONDEREE' && (

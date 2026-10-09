@@ -88,6 +88,14 @@ const ROUTES = [
   'fin/remise_supprimer'               => ['finances', 'r_fin_remise_supprimer', 'POST', true],
   'fin/journal'                        => ['finances', 'r_fin_journal', 'GET', true],
   'fin/impayes'                        => ['finances', 'r_fin_impayes', 'GET', true],
+  'abs/mes_classes'                    => ['absences', 'r_abs_mes_classes', 'GET', true],
+  'abs/appel'                          => ['absences', 'r_abs_appel', 'GET', true],
+  'abs/appel_enregistrer'              => ['absences', 'r_abs_appel_enregistrer', 'POST', true],
+  'abs/justifier'                      => ['absences', 'r_abs_justifier', 'POST', true],
+  'abs/a_justifier'                    => ['absences', 'r_abs_a_justifier', 'GET', true],
+  'abs/bilan_classe'                   => ['absences', 'r_abs_bilan_classe', 'GET', true],
+  'abs/eleve'                          => ['absences', 'r_abs_eleve', 'GET', true],
+  'param/periode_dates'                => ['parametres', 'r_param_periode_dates', 'POST', true],
   'tableau/bord'                       => ['tableau', 'r_tableau_bord', 'GET', true],
   'admin/sauvegardes'                  => ['admin', 'r_admin_sauvegardes', 'GET', true],
   'admin/sauvegarde_telecharger'       => ['admin', 'r_admin_sauvegarde_telecharger', 'GET', true],
@@ -105,7 +113,7 @@ try {
     if ($u['doit_changer_mdp'] && !str_starts_with($r, 'auth/'))
       erreur('Vous devez d\'abord changer votre mot de passe provisoire.', 428);
   }
-  if (in_array($fichier, ['eleves', 'finances', 'tableau'], true)) require __DIR__ . '/routes/parametres.php';
+  if (in_array($fichier, ['eleves', 'finances', 'tableau', 'absences'], true)) require __DIR__ . '/routes/parametres.php';
   require __DIR__ . "/routes/$fichier.php";
   $fonction();
 } catch (ErreurApi $e) {
