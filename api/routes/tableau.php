@@ -83,7 +83,7 @@ function bilan_ecole(int $ecole, array $a): array {
                      FROM evaluations e JOIN classe_matieres cm ON cm.id = e.classe_matiere_id JOIN classes c ON c.id = cm.classe_id
                      JOIN utilisateurs u ON u.id = cm.professeur_id
                      WHERE c.ecole_id = ? AND e.periode_id = ? AND e.statut = 'BROUILLON'
-                     GROUP BY u.id ORDER BY non_validees DESC LIMIT 5", [$ecole, $periode['id']]);
+                     GROUP BY u.id, u.nom, u.prenoms ORDER BY non_validees DESC LIMIT 5", [$ecole, $periode['id']]);
   }
   foreach (['matieres', 'sans_professeur', 'evaluations', 'validees', 'en_cours'] as $k) $notes[$k] = (int)($notes[$k] ?? 0);
 
@@ -100,7 +100,7 @@ function bilan_ecole(int $ecole, array $a): array {
   $abs['plus_absents'] = $pc ? lignes("SELECT el.id AS eleve_id, el.nom, el.prenoms, c.nom AS classe, SUM(a.heures) AS heures
                  FROM absences a JOIN inscriptions i ON i.id = a.inscription_id JOIN eleves el ON el.id = i.eleve_id JOIN classes c ON c.id = a.classe_id
                  WHERE a.ecole_id = ? AND a.statut = 'ABSENT' AND a.justifiee = 0 AND a.date_absence BETWEEN ? AND ?
-                 GROUP BY i.id HAVING heures > 0 ORDER BY heures DESC LIMIT 3", [$ecole, $pc['date_debut'], $pc['date_fin']]) : [];
+                 GROUP BY i.id, el.id, el.nom, el.prenoms, c.nom HAVING heures > 0 ORDER BY heures DESC LIMIT 3", [$ecole, $pc['date_debut'], $pc['date_fin']]) : [];
   foreach (['a_justifier', 'retards_7j'] as $k) $abs[$k] = (int)$abs[$k];
   foreach (['heures_a_justifier', 'heures_7j'] as $k) $abs[$k] = (float)$abs[$k];
 

@@ -66,7 +66,8 @@ foreach ($fichiers as $f) {
 }
 
 // 3. Premier compte
-if (!ligne("SELECT id FROM utilisateurs WHERE role = 'SUPER_ADMIN' LIMIT 1")) {
+// (le compte « theo » est le compte d'origine ; d'autres administrateurs, comme « phil », peuvent déjà exister)
+if (!ligne("SELECT id FROM utilisateurs WHERE identifiant = 'theo'")) {
   $mdp = getenv('ADMIN_MOT_DE_PASSE') ?: 'Bienvenue2026';
   requete("INSERT INTO utilisateurs (ecole_id, role, nom, prenoms, identifiant, mot_de_passe_hash, doit_changer_mdp)
            VALUES (NULL, 'SUPER_ADMIN', 'SOUMÉ', 'Théodore', 'theo', ?, 1)", [password_hash($mdp, PASSWORD_DEFAULT)]);

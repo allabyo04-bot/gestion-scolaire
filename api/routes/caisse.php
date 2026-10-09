@@ -104,5 +104,5 @@ function jours_non_remis(int $ecole, string $du, string $au): array {
                  FROM paiements p JOIN utilisateurs u ON u.id = p.encaisse_par
                  LEFT JOIN remises_caisse rc ON rc.ecole_id = p.ecole_id AND rc.caissier_id = p.encaisse_par AND rc.date_caisse = p.date_paiement
                  WHERE p.ecole_id = ? AND p.annule = 0 AND p.date_paiement BETWEEN ? AND ? AND rc.id IS NULL
-                 GROUP BY p.date_paiement, p.encaisse_par ORDER BY p.date_paiement DESC", [$ecole, $du, $au]);
+                 GROUP BY p.date_paiement, p.encaisse_par, u.nom, u.prenoms ORDER BY p.date_paiement DESC", [$ecole, $du, $au]);
 }
