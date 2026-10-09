@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, aller, formatDate } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 import { fcfa } from '../composants/montants.js';
+import RemiseCaisse from './RemiseCaisse.jsx';
 
 export const MODES = { ESPECES: 'Espèces', MOBILE_MONEY: 'Mobile money', VIREMENT: 'Virement', CHEQUE: 'Chèque' };
 const ETATS = { PAYEE: ['Payée', 'statut-nouveau'], PARTIELLE: ['Partielle', 'statut-reinscription'], A_VENIR: ['À venir', 'statut-ignore'], EN_RETARD: ['En retard', 'statut-erreur'] };
@@ -17,10 +18,11 @@ export default function Caisse({ vue = 'encaisser', inscriptionId }) {
       <div className="entete-page"><h1>Caisse</h1><p>Scolarité : encaissements, reçus, journal et impayés.</p></div>
       <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} />
       <nav className="sous-onglets" aria-label="Caisse">
-        {[['encaisser', 'Encaisser'], ['journal', 'Journal de caisse'], ['impayes', 'Impayés']].map(([id, lib]) =>
+        {[['encaisser', 'Encaisser'], ['remise', 'Remise de caisse'], ['journal', 'Journal de caisse'], ['impayes', 'Impayés']].map(([id, lib]) =>
           <a key={id} href={`#/caisse/${id}`} aria-current={vue === id ? 'page' : undefined}>{lib}</a>)}
       </nav>
       {ecoleId && vue === 'encaisser' && <Encaisser key={ecoleId} ecoleId={ecoleId} inscriptionId={inscriptionId} />}
+      {ecoleId && vue === 'remise' && <RemiseCaisse key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && vue === 'journal' && <JournalCaisse key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && vue === 'impayes' && <Impayes key={ecoleId} ecoleId={ecoleId} />}
     </section>

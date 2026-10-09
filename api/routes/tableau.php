@@ -4,6 +4,7 @@
 //  Administrateur général : toutes les écoles ; directrice : son école.
 // =====================================================================
 require_once __DIR__ . '/finances.php';
+require_once __DIR__ . '/caisse.php';
 
 function r_tableau_bord() {
   global $UTILISATEUR;
@@ -54,6 +55,8 @@ function bilan_ecole(int $ecole, array $a): array {
     if ($retard > 0) $f['eleves_en_retard']++;
     if ($paye >= $du) $f['eleves_soldes']++;
   }
+  $f['jours_non_remis'] = count(jours_non_remis($ecole, date('Y-m-d', strtotime('-7 day')), date('Y-m-d', strtotime('-1 day'))));
+  $f['remises_a_confirmer'] = (int)ligne("SELECT COUNT(*) AS n FROM remises_caisse WHERE ecole_id = ? AND statut = 'REMISE'", [$ecole])['n'];
   $f['taux'] = $f['attendu'] ? round(100 * $f['encaisse'] / $f['attendu'], 1) : 0;
   $f['aujourdhui'] = (int)ligne('SELECT COALESCE(SUM(montant),0) AS t FROM paiements WHERE ecole_id = ? AND annule = 0 AND date_paiement = CURDATE()', [$ecole])['t'];
 

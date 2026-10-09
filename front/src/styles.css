@@ -470,3 +470,28 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .texte-alerte { color: var(--ambre); font-weight: 700; }
 .statistiques .stat-alerte { background: var(--ambre-pale); }
 .statistiques .stat-alerte dd { color: var(--ambre); }
+
+/* ================================================================ Bordereau de remise de caisse */
+.bordereau { background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); padding: 1.25rem; max-width: 48rem; margin: 1rem 0; color: #111; }
+.bordereau-entete { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-bottom: 2px solid var(--encre); padding-bottom: .6rem; margin-bottom: .8rem; flex-wrap: wrap; }
+.bordereau-entete > div:first-child { display: flex; flex-direction: column; }
+.bordereau-entete strong { font-family: var(--titre); font-size: 1.1rem; color: var(--encre-fonce); }
+.bordereau-titre { text-align: right; }
+.bordereau-titre h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .06em; }
+.bordereau-titre p { margin: .15rem 0 0; color: #444; }
+.tableau-bordereau tfoot th, .tableau-bordereau tfoot td { border-bottom: 0; padding-top: .35rem; padding-bottom: .35rem; }
+.tableau-bordereau tfoot th { text-align: right; font-weight: 400; }
+.tableau-bordereau .ligne-total th, .tableau-bordereau .ligne-total td { font-weight: 700; border-top: 2px solid var(--encre); font-size: 1.05rem; }
+.bordereau-especes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: 1rem 0 .5rem; }
+.bordereau-especes div { border: 1px solid var(--ligne); border-radius: 4px; padding: .5rem .7rem; display: flex; flex-direction: column; }
+.bordereau-especes span { font-size: .8rem; color: #555; }
+.bordereau-especes strong { font-family: var(--titre); font-size: 1.15rem; }
+.bordereau-especes .ecart-non-nul strong { color: var(--marge); }
+.bordereau-lettres { font-style: italic; font-size: .9rem; }
+.bordereau-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem; }
+.bordereau-signatures div { border-top: 1px solid #999; padding-top: .3rem; min-height: 5rem; }
+.bordereau-signatures p { margin: 0; font-size: .85rem; }
+.signature-nom { font-weight: 700; margin-top: .2rem !important; }
+@media (max-width: 34rem) { .bordereau-especes { grid-template-columns: 1fr; } }
+@media print { .bordereau { border: 0; padding: 0; max-width: none; margin: 0; } .bordereau .discret { color: #444; } }
+.tableau td.chiffres { white-space: nowrap; }

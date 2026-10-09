@@ -49,6 +49,8 @@ export default function TableauBord() {
           const f = e.finances, n = e.notes, eff = e.effectifs;
           const alertes = [
             f.sans_tarif > 0 && [`${f.sans_tarif} élève(s) sans tarif`, '#/parametres/frais'],
+            f.jours_non_remis > 0 && [`${f.jours_non_remis} journée(s) de caisse encaissée(s) sans remise`, '#/caisse/remise'],
+            f.remises_a_confirmer > 0 && [`${f.remises_a_confirmer} remise(s) de caisse à confirmer`, '#/caisse/remise'],
             n.classes_sans_matieres > 0 && [`${n.classes_sans_matieres} classe(s) sans matières`, '#/parametres/classes'],
             n.sans_professeur > 0 && [`${n.sans_professeur} matière(s) sans professeur`, '#/parametres/classes'],
             n.classes_sans_evaluations > 0 && [`${n.classes_sans_evaluations} classe(s) sans interros ni devoirs préparés`, '#/classes'],

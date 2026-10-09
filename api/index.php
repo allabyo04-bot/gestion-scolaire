@@ -96,6 +96,10 @@ const ROUTES = [
   'abs/bilan_classe'                   => ['absences', 'r_abs_bilan_classe', 'GET', true],
   'abs/eleve'                          => ['absences', 'r_abs_eleve', 'GET', true],
   'param/periode_dates'                => ['parametres', 'r_param_periode_dates', 'POST', true],
+  'caisse/jour'                        => ['caisse', 'r_caisse_jour', 'GET', true],
+  'caisse/remettre'                    => ['caisse', 'r_caisse_remettre', 'POST', true],
+  'caisse/confirmer'                   => ['caisse', 'r_caisse_confirmer', 'POST', true],
+  'caisse/remises'                     => ['caisse', 'r_caisse_remises', 'GET', true],
   'tableau/bord'                       => ['tableau', 'r_tableau_bord', 'GET', true],
   'admin/sauvegardes'                  => ['admin', 'r_admin_sauvegardes', 'GET', true],
   'admin/sauvegarde_telecharger'       => ['admin', 'r_admin_sauvegarde_telecharger', 'GET', true],
@@ -113,7 +117,7 @@ try {
     if ($u['doit_changer_mdp'] && !str_starts_with($r, 'auth/'))
       erreur('Vous devez d\'abord changer votre mot de passe provisoire.', 428);
   }
-  if (in_array($fichier, ['eleves', 'finances', 'tableau', 'absences'], true)) require __DIR__ . '/routes/parametres.php';
+  if (in_array($fichier, ['eleves', 'finances', 'tableau', 'absences', 'caisse'], true)) require __DIR__ . '/routes/parametres.php';
   require __DIR__ . "/routes/$fichier.php";
   $fonction();
 } catch (ErreurApi $e) {
