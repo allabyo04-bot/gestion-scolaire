@@ -82,7 +82,24 @@ function bilan_ecole(int $ecole, array $a): array {
   }
   foreach (['matieres', 'sans_professeur', 'evaluations', 'validees', 'en_cours'] as $k) $notes[$k] = (int)($notes[$k] ?? 0);
 
+  // ---- Absences
+  $abs = ['appels_aujourdhui' => (int)ligne("SELECT COUNT(DISTINCT j.enregistrement_id) AS n FROM journal_audit j JOIN classes c ON c.id = j.enregistrement_id
+             WHERE j.action = 'APPEL' AND j.table_cible = 'classes' AND j.cree_le >= CURDATE() AND c.ecole_id = ? AND c.annee_id = ?", [$ecole, $a['id']])['n']];
+  $abs += ligne("SELECT COUNT(*) AS a_justifier, COALESCE(SUM(heures),0) AS heures_a_justifier FROM absences
+                 WHERE ecole_id = ? AND statut = 'ABSENT' AND justifiee = 0", [$ecole]);
+  $abs += ligne("SELECT COALESCE(SUM(CASE WHEN statut = 'ABSENT' THEN heures END),0) AS heures_7j, SUM(statut = 'RETARD') AS retards_7j
+                 FROM absences WHERE ecole_id = ? AND date_absence >= CURDATE() - INTERVAL 6 DAY", [$ecole]);
+  // Élèves les plus absents du trimestre en cours (heures non justifiées)
+  $pc = ligne('SELECT * FROM periodes WHERE ecole_id = ? AND annee_id = ? AND date_debut <= CURDATE() AND date_fin >= CURDATE() LIMIT 1', [$ecole, $a['id']]);
+  $abs['periode'] = $pc['libelle'] ?? null;
+  $abs['plus_absents'] = $pc ? lignes("SELECT el.id AS eleve_id, el.nom, el.prenoms, c.nom AS classe, SUM(a.heures) AS heures
+                 FROM absences a JOIN inscriptions i ON i.id = a.inscription_id JOIN eleves el ON el.id = i.eleve_id JOIN classes c ON c.id = a.classe_id
+                 WHERE a.ecole_id = ? AND a.statut = 'ABSENT' AND a.justifiee = 0 AND a.date_absence BETWEEN ? AND ?
+                 GROUP BY i.id HAVING heures > 0 ORDER BY heures DESC LIMIT 3", [$ecole, $pc['date_debut'], $pc['date_fin']]) : [];
+  foreach (['a_justifier', 'retards_7j'] as $k) $abs[$k] = (int)$abs[$k];
+  foreach (['heures_a_justifier', 'heures_7j'] as $k) $abs[$k] = (float)$abs[$k];
+
   $comptes = lignes("SELECT role, COUNT(*) AS n FROM utilisateurs WHERE ecole_id = ? AND actif = 1 GROUP BY role", [$ecole]);
   return ['effectifs' => ['total' => (int)$eff['total'], 'filles' => (int)$eff['filles'], 'classes' => $nbClasses, 'par_cycle' => $parCycle],
-          'finances' => $f, 'notes' => $notes, 'comptes' => array_column($comptes, 'n', 'role')];
+          'finances' => $f, 'notes' => $notes, 'absences' => $abs, 'comptes' => array_column($comptes, 'n', 'role')];
 }

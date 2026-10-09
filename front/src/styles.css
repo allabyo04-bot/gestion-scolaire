@@ -466,3 +466,7 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
   .liste-appel li { grid-template-columns: 2.4rem 1fr; }
   .appel-choix { grid-column: 2; justify-self: start; }
 }
+.jauge-appel span { background: var(--ambre); }
+.texte-alerte { color: var(--ambre); font-weight: 700; }
+.statistiques .stat-alerte { background: var(--ambre-pale); }
+.statistiques .stat-alerte dd { color: var(--ambre); }

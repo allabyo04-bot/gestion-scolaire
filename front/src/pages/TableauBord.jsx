@@ -1,6 +1,7 @@
 import { api } from '../api.js';
 import { useDonnees, useSession, Chargement, Alerte } from '../composants/commun.jsx';
 import { fcfa } from '../composants/montants.js';
+import { heuresTexte } from './Absences.jsx';
 
 const pct = (a, b) => (b ? Math.round((100 * a) / b) : 0);
 const CYCLES = { MATERNELLE: 'Maternelle', PRIMAIRE: 'Primaire', COLLEGE: 'Collège', LYCEE: 'Lycée' };
@@ -21,7 +22,8 @@ export default function TableauBord() {
   const reseau = utilisateur.role === 'SUPER_ADMIN';
   const somme = (f) => ecoles.reduce((s, e) => s + f(e), 0);
   const tot = { eleves: somme((e) => e.effectifs.total), filles: somme((e) => e.effectifs.filles), attendu: somme((e) => e.finances.attendu),
-                encaisse: somme((e) => e.finances.encaisse), retard: somme((e) => e.finances.en_retard), jour: somme((e) => e.finances.aujourdhui) };
+                encaisse: somme((e) => e.finances.encaisse), retard: somme((e) => e.finances.en_retard), jour: somme((e) => e.finances.aujourdhui),
+                aJustifier: somme((e) => e.absences.a_justifier), appels: somme((e) => e.absences.appels_aujourdhui), classes: somme((e) => e.effectifs.classes) };
   const maxJour = Math.max(1, ...serie.map((j) => j.total));
 
   return (
@@ -37,6 +39,8 @@ export default function TableauBord() {
           <div><dt>Frais encaissés</dt><dd>{fcfa(tot.encaisse)}</dd><small>{pct(tot.encaisse, tot.attendu)} % de {fcfa(tot.attendu)}</small></div>
           <div className={tot.retard ? 'stat-retard' : ''}><dt>Paiements en retard</dt><dd>{fcfa(tot.retard)}</dd><small>échéances dépassées</small></div>
           <div><dt>Encaissé aujourd'hui</dt><dd>{fcfa(tot.jour)}</dd><small>toutes écoles</small></div>
+          <div><dt>Appel fait aujourd'hui</dt><dd>{tot.appels} / {tot.classes}</dd><small>classes</small></div>
+          <div className={tot.aJustifier ? 'stat-alerte' : ''}><dt>Absences à justifier</dt><dd>{tot.aJustifier}</dd><small>toutes écoles</small></div>
         </dl>
       )}
 
@@ -86,6 +90,22 @@ export default function TableauBord() {
                     )}
                   </>
                 ) : <p className="discret">Aucune interro ni aucun devoir préparé pour cette période.</p>}
+              </div>
+
+              <div className="bloc-indicateur">
+                <h3>Absences</h3>
+                <p className="chiffre-cle">{e.absences.appels_aujourdhui} / {eff.classes} <small>classes ont fait l'appel aujourd'hui</small></p>
+                <Jauge valeur={e.absences.appels_aujourdhui} total={eff.classes} classe="jauge-appel" />
+                <p className="discret">7 derniers jours : {heuresTexte(e.absences.heures_7j)} d'absence, {e.absences.retards_7j} retard(s).</p>
+                {e.absences.a_justifier > 0 && <p className="texte-alerte">{e.absences.a_justifier} absence(s) à justifier ({heuresTexte(e.absences.heures_a_justifier)}). <a href="#/absences/justifier">Voir</a></p>}
+                {e.absences.plus_absents.length > 0 && (
+                  <>
+                    <p className="discret">Les plus absents{e.absences.periode ? ` du ${e.absences.periode}` : ''} (non justifié) :</p>
+                    <ul className="liste-compacte">
+                      {e.absences.plus_absents.map((x) => <li key={x.eleve_id}><a href={`#/eleve/${x.eleve_id}`}>{x.nom} {x.prenoms}</a>, {x.classe} : {heuresTexte(x.heures)}</li>)}
+                    </ul>
+                  </>
+                )}
               </div>
 
               {alertes.length > 0 && (
