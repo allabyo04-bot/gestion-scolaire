@@ -371,7 +371,8 @@ function ParamGroupes() {
   const ecoles = useDonnees(() => api.get('ref/ecoles'), []);
   const [edition, setEdition] = useState(null);
   const enregistrer = async () => {
-    try { await api.post('param/groupe_enregistrer', edition); message('Groupe enregistré.'); setEdition(null); g.recharger(); }
+    const { logoActuel, ...donnees } = edition;
+    try { await api.post('param/groupe_enregistrer', donnees); message('Groupe enregistré. Rechargez la page pour voir les nouvelles couleurs.'); setEdition(null); g.recharger(); }
     catch (x) { message(x.message, 'erreur'); }
   };
   const deplacer = async (ecole, groupeId) => {
@@ -390,8 +391,13 @@ function ParamGroupes() {
       <div className="grille-fiche">
         {g.donnees.map((x) => (
           <article key={x.id} className="carte-fiche">
-            <div className="carte-fiche-titre"><h2>{x.nom}</h2><button className="bouton-lien" onClick={() => setEdition({ id: x.id, nom: x.nom, sigle: x.sigle ?? '' })}>Renommer</button></div>
-            <p className="discret">Sigle : {x.sigle || '(aucun)'}</p>
+            <div className="carte-fiche-titre"><h2>{x.nom}</h2><button className="bouton-lien" onClick={() => setEdition({ id: x.id, nom: x.nom, sigle: x.sigle ?? '', couleur: x.couleur ?? '', couleur_accent: x.couleur_accent ?? '', logoActuel: x.logo })}>Modifier</button></div>
+            <div className="identite-groupe">
+              {x.logo ? <img src={x.logo} alt="" /> : <span className="discret">Pas de logo</span>}
+              <span className="pastille" style={{ background: x.couleur || '#1F3B73' }} title="Couleur principale" />
+              <span className="pastille" style={{ background: x.couleur_accent || '#fff' }} title="Couleur d'accent" />
+              <span className="discret">Sigle : {x.sigle || '(aucun)'}</span>
+            </div>
             <ul className="liste-simple">
               {ecoles.donnees.filter((e) => e.groupe_id === x.id).map((e) => (
                 <li key={e.id}><span>{e.nom_officiel} ({e.ville})</span>
@@ -413,6 +419,14 @@ function ParamGroupes() {
           {!edition.id && <Champ libelle="Code court" id="g-code" aide="Exemple : GSP. Non modifiable ensuite."><input id="g-code" value={edition.code} onChange={(e) => setEdition({ ...edition, code: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') })} /></Champ>}
           <Champ libelle="Nom du groupe" id="g-nom"><input id="g-nom" value={edition.nom} onChange={(e) => setEdition({ ...edition, nom: e.target.value })} /></Champ>
           <Champ libelle="Sigle (bas des bulletins)" id="g-sigle" aide="Exemple : Écoles FVPT"><input id="g-sigle" value={edition.sigle} onChange={(e) => setEdition({ ...edition, sigle: e.target.value })} /></Champ>
+          <div className="deux-colonnes">
+            <Champ libelle="Couleur principale" id="g-c1" aide="Bandeau, boutons, titres. Choisir une teinte foncée."><input id="g-c1" type="color" value={edition.couleur || '#1F3B73'} onChange={(e) => setEdition({ ...edition, couleur: e.target.value })} /></Champ>
+            <Champ libelle="Couleur d'accent" id="g-c2" aide="Liseré sous le bandeau."><input id="g-c2" type="color" value={edition.couleur_accent || '#FFFFFF'} onChange={(e) => setEdition({ ...edition, couleur_accent: e.target.value })} /></Champ>
+          </div>
+          <Champ libelle="Logo du groupe" id="g-logo" aide="Affiché dans le bandeau. Une image PNG ou JPEG.">
+            <input id="g-logo" type="file" accept="image/png,image/jpeg,image/webp" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { setEdition({ ...edition, logo: await preparerImage(f, 400) }); } catch (x) { message(x.message, 'erreur'); } }} />
+          </Champ>
+          {(edition.logo || edition.logoActuel) && <img src={edition.logo || edition.logoActuel} alt="" style={{ height: '4rem' }} />}
         </Fenetre>
       )}
     </div>

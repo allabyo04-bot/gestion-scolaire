@@ -407,16 +407,21 @@ function r_param_groupe_enregistrer() {
   $nom = trim((string)champ('nom'));
   if (mb_strlen($nom) < 3) erreur('Nom du groupe trop court.');
   $sigle = texte_ou_null('sigle');
+  $couleur = function ($k) { $v = texte_ou_null($k); if ($v !== null && !preg_match('/^#[0-9A-Fa-f]{6}$/', $v)) erreur('Couleur invalide.'); return $v; };
+  $c1 = $couleur('couleur'); $c2 = $couleur('couleur_accent');
+  $logo = champ('logo', false);
+  if ($logo !== null && $logo !== '' && (!preg_match('#^data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$#', $logo) || strlen($logo) > 600000)) erreur('Logo invalide ou trop lourd.');
   if ($id) {
     $avant = ligne('SELECT * FROM groupes WHERE id = ?', [$id]);
     if (!$avant) erreur('Groupe introuvable.', 404);
-    requete('UPDATE groupes SET nom = ?, sigle = ? WHERE id = ?', [$nom, $sigle, $id]);
+    requete('UPDATE groupes SET nom = ?, sigle = ?, couleur = ?, couleur_accent = ? WHERE id = ?', [$nom, $sigle, $c1, $c2, $id]);
+    if ($logo !== null) requete('UPDATE groupes SET logo = ? WHERE id = ?', [$logo === '' ? null : $logo, $id]);
     journaliser('MODIFICATION', 'groupes', $id, "Groupe renommé : $nom", ['nom' => $avant['nom'], 'sigle' => $avant['sigle']], ['nom' => $nom, 'sigle' => $sigle]);
   } else {
     $code = strtoupper((string)champ('code'));
     if (!preg_match('/^[A-Z0-9_-]{2,20}$/', $code)) erreur('Code du groupe : 2 à 20 lettres majuscules ou chiffres.');
     if (ligne('SELECT id FROM groupes WHERE code = ?', [$code])) erreur('Ce code de groupe existe déjà.');
-    requete('INSERT INTO groupes (code, nom, sigle) VALUES (?,?,?)', [$code, $nom, $sigle]);
+    requete('INSERT INTO groupes (code, nom, sigle, couleur, couleur_accent, logo) VALUES (?,?,?,?,?,?)', [$code, $nom, $sigle, $c1, $c2, $logo ?: null]);
     $id = (int)bd()->lastInsertId();
     journaliser('CREATION', 'groupes', $id, "Groupe créé : $nom");
   }

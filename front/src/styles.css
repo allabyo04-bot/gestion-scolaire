@@ -668,3 +668,12 @@ fieldset.groupe-champs legend { font-family: var(--titre); font-weight: 500; col
 .choix-groupe { width: auto; max-width: 70vw; min-height: 2.2rem; padding: .2rem 1.8rem .2rem .5rem; background-color: rgba(255,255,255,.12); color: #fff;
   border: 1px solid rgba(255,255,255,.4); font-family: var(--titre); font-weight: 500; font-size: 1.05rem; }
 .choix-groupe option { color: #111; }
+/* Identité du groupe (couleurs et logo) */
+.bandeau { border-bottom: 4px solid var(--accent, transparent); }
+.logo-groupe { width: 2.75rem; height: 2.75rem; object-fit: contain; background: #fff; border-radius: 50%; padding: 2px; flex: none; }
+.bandeau:has(.logo-groupe) { justify-content: flex-start; }
+.bandeau:has(.logo-groupe) .zone-compte { margin-left: auto; }
+.identite-groupe { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: .3rem 0 .6rem; }
+.identite-groupe img { height: 3rem; }
+.pastille { width: 1.4rem; height: 1.4rem; border-radius: 50%; border: 1px solid var(--bordure); display: inline-block; }
+input[type=color] { min-height: 2.6rem; padding: .15rem; width: 5rem; }

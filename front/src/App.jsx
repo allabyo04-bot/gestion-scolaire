@@ -51,6 +51,12 @@ export default function App() {
 }
 
 const CLE_GROUPE = 'gs_groupe';
+// Couleurs du groupe : la couleur principale remplace le bleu, l'accent souligne le bandeau
+function themeGroupe(g) {
+  if (!g?.couleur) return undefined;
+  return { '--encre': g.couleur, '--encre-fonce': `color-mix(in srgb, ${g.couleur} 72%, black)`,
+           '--encre-pale': `color-mix(in srgb, ${g.couleur} 9%, white)`, '--accent': g.couleur_accent || 'transparent' };
+}
 function Coquille({ utilisateur, surDeconnexion }) {
   const { page, params } = useRoute();
   const superAdmin = utilisateur.role === 'SUPER_ADMIN';
@@ -110,8 +116,9 @@ function Coquille({ utilisateur, surDeconnexion }) {
 
   return (
     <GroupeActif.Provider value={{ groupeId: superAdmin ? groupeId : (utilisateur.ecole?.groupe_id ?? null), groupe }}>
-    <div className="coquille" key={superAdmin ? `g${groupeId}` : 'g'}>
+    <div className="coquille" key={superAdmin ? `g${groupeId}` : 'g'} style={themeGroupe(groupe)}>
       <header className="bandeau">
+        {groupe?.logo && <img className="logo-groupe" src={groupe.logo} alt="" />}
         <div className="bandeau-ecole">
           {superAdmin ? (
             <>
