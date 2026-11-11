@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useMessage, Chargement, Alerte, formatDate } from '../composants/commun.jsx';
@@ -51,7 +52,7 @@ export default function ParamSauvegardes() {
       </div>
       <h3 className="titre-sous-section">Historique</h3>
       {d.donnees.historique.length === 0 ? <p className="discret">Aucune sauvegarde pour l'instant.</p> : (
-        <div className="tableau-defilant">
+        <TableauDefilant>
           <table className="tableau">
             <thead><tr><th scope="col">Date</th><th scope="col">Type</th><th scope="col">Résultat</th><th scope="col" className="nombre">Taille</th><th scope="col">Destination</th></tr></thead>
             <tbody>{d.donnees.historique.map((h) => (
@@ -65,7 +66,7 @@ export default function ParamSauvegardes() {
               </tr>))}
             </tbody>
           </table>
-        </div>
+        </TableauDefilant>
       )}
     </div>
   );

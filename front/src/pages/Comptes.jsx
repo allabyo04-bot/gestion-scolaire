@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, ROLES, formatDate } from '../composants/commun.jsx';
@@ -46,7 +47,7 @@ export default function Comptes() {
       {comptes.charge && <Chargement />}
       {comptes.erreur && <Alerte>{comptes.erreur}</Alerte>}
       {comptes.donnees && (
-        <div className="tableau-defilant">
+        <TableauDefilant>
           <table className="tableau">
             <thead><tr><th scope="col">Nom</th><th scope="col">Rôle</th>{superAdmin && <th scope="col">École</th>}<th scope="col">Identifiant</th><th scope="col">Dernière connexion</th><th scope="col"><span className="visuellement-cache">Actions</span></th></tr></thead>
             <tbody>
@@ -67,7 +68,7 @@ export default function Comptes() {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableauDefilant>
       )}
       {creer && <FenetreCreation superAdmin={superAdmin} surFermer={() => setCreer(false)}
         surCree={(r) => { setCreer(false); setProvisoire(r); comptes.recharger(); }} />}

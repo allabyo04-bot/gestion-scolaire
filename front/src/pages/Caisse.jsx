@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, aller, formatDate } from '../composants/commun.jsx';
@@ -122,7 +123,7 @@ export function Situation({ inscriptionId, compacte = false }) {
           {!compacte && (
             <>
               <h3 className="titre-sous-section">Tranches</h3>
-              <div className="tableau-defilant">
+              <TableauDefilant>
                 <table className="tableau">
                   <thead><tr><th scope="col">Tranche</th><th scope="col">Échéance</th><th scope="col" className="nombre">À payer</th><th scope="col" className="nombre">Payé</th><th scope="col">État</th></tr></thead>
                   <tbody>{tranches.map((x) => (
@@ -130,10 +131,10 @@ export function Situation({ inscriptionId, compacte = false }) {
                       <td className="nombre">{fcfa(x.paye)}</td><td><span className={ETATS[x.etat][1]}>{ETATS[x.etat][0]}</span></td></tr>))}
                   </tbody>
                 </table>
-              </div>
+              </TableauDefilant>
               <h3 className="titre-sous-section">Paiements</h3>
               {paiements.length === 0 ? <p className="discret">Aucun paiement pour l'instant.</p> : (
-                <div className="tableau-defilant">
+                <TableauDefilant>
                   <table className="tableau">
                     <thead><tr><th scope="col">Reçu</th><th scope="col">Date</th><th scope="col" className="nombre">Montant</th><th scope="col">Mode</th><th scope="col"><span className="visuellement-cache">Actions</span></th></tr></thead>
                     <tbody>{paiements.map((p) => (
@@ -149,7 +150,7 @@ export function Situation({ inscriptionId, compacte = false }) {
                       </tr>))}
                     </tbody>
                   </table>
-                </div>
+                </TableauDefilant>
               )}
               <div className="entete-avec-action">
                 <h3 className="titre-sous-section">Remises</h3>
@@ -275,7 +276,7 @@ function JournalCaisse({ ecoleId }) {
           </dl>
           {j.donnees.paiements.length === 0 ? <div className="vide"><p>Aucun paiement sur cette période.</p></div> : (
             <>
-              <div className="tableau-defilant">
+              <TableauDefilant>
                 <table className="tableau">
                   <thead><tr><th scope="col">Reçu</th><th scope="col">Élève</th><th scope="col" className="nombre">Montant</th><th scope="col">Mode</th><th scope="col">Caissier</th></tr></thead>
                   <tbody>{j.donnees.paiements.map((p) => (
@@ -287,7 +288,7 @@ function JournalCaisse({ ecoleId }) {
                     </tr>))}
                   </tbody>
                 </table>
-              </div>
+              </TableauDefilant>
               <button className="bouton pas-imprimer" onClick={() => window.print()}>Imprimer le journal</button>
             </>
           )}
@@ -328,7 +329,7 @@ function Impayes({ ecoleId }) {
           {r.donnees.totaux.sans_tarif > 0 && <Alerte type="info">{r.donnees.totaux.sans_tarif} élève(s) ne sont pas comptés : leur niveau n'a pas de tarif.</Alerte>}
           {liste.length === 0 ? <div className="vide"><p>{retardSeul ? 'Aucun retard de paiement.' : 'Tous les élèves sont à jour.'}</p></div> : (
             <>
-              <div className="tableau-defilant">
+              <TableauDefilant>
                 <table className="tableau">
                   <thead><tr><th scope="col">Élève</th>{!classeId && <th scope="col">Classe</th>}<th scope="col" className="nombre">Payé</th><th scope="col" className="nombre">Reste</th><th scope="col" className="nombre">En retard</th><th scope="col">Tuteur</th></tr></thead>
                   <tbody>{liste.map((e) => (
@@ -341,7 +342,7 @@ function Impayes({ ecoleId }) {
                     </tr>))}
                   </tbody>
                 </table>
-              </div>
+              </TableauDefilant>
               <button className="bouton pas-imprimer" onClick={() => window.print()}>Imprimer la liste</button>
             </>
           )}

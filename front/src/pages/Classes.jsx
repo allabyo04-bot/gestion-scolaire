@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, gereNotes } from '../composants/commun.jsx';
@@ -31,7 +32,7 @@ export default function Classes() {
       {Object.entries(cycles).map(([cycle, liste]) => (
         <div key={cycle} className="groupe-cycle">
           <h2>{nomsCycles[cycle]}</h2>
-          <div className="tableau-defilant">
+          <TableauDefilant>
             <table className="tableau">
               <thead><tr><th scope="col">Classe</th><th scope="col" className="nombre">Élèves</th><th scope="col">Résultats et bulletins</th>{direction && <th scope="col"><span className="visuellement-cache">Actions</span></th>}</tr></thead>
               <tbody>
@@ -47,7 +48,7 @@ export default function Classes() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableauDefilant>
         </div>
       ))}
       {preparer && <FenetrePreparer classe={preparer} periodes={periodes.donnees ?? []} surFermer={() => setPreparer(null)} />}

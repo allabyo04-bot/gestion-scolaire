@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { api } from '../api.js';
 import { useDonnees, Chargement, Alerte, formatNote, rangTexte } from '../composants/commun.jsx';
 
@@ -25,7 +26,7 @@ export default function Resultats({ classeId, periodeId }) {
       )}
       {!st && <div className="vide"><p>Aucune note validée pour cette période. Les moyennes apparaîtront dès la première validation.</p></div>}
       {st && (
-        <div className="tableau-defilant">
+        <TableauDefilant>
           <table className="tableau tableau-resultats">
             <thead>
               <tr>
@@ -49,7 +50,7 @@ export default function Resultats({ classeId, periodeId }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableauDefilant>
       )}
     </section>
   );

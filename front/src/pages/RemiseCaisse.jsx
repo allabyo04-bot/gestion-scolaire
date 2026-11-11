@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, formatDate } from '../composants/commun.jsx';
@@ -154,7 +155,7 @@ function SuiviDirection({ ecoleId, surOuvrir }) {
       )}
       <h3 className="titre-sous-section">Remises {aConfirmer.length ? `(${aConfirmer.length} à confirmer)` : ''}</h3>
       {remises.length === 0 ? <p className="discret">Aucune remise sur la période.</p> : (
-        <div className="tableau-defilant">
+        <TableauDefilant>
           <table className="tableau">
             <thead><tr><th scope="col">Journée</th><th scope="col">Caissier</th><th scope="col" className="nombre">Encaissé</th><th scope="col" className="nombre">Espèces remises</th><th scope="col">Écart</th><th scope="col">État</th></tr></thead>
             <tbody>{remises.map((r) => (
@@ -166,7 +167,7 @@ function SuiviDirection({ ecoleId, surOuvrir }) {
               </tr>))}
             </tbody>
           </table>
-        </div>
+        </TableauDefilant>
       )}
     </div>
   );

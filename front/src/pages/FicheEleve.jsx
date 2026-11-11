@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection } from '../composants/commun.jsx';
@@ -194,7 +195,7 @@ function CarteAbsences({ inscriptionId }) {
   return (
     <article className="carte-fiche carte-large">
       <div className="carte-fiche-titre"><h2>Absences et retards</h2></div>
-      <div className="tableau-defilant">
+      <TableauDefilant>
         <table className="tableau">
           <thead><tr><th scope="col">Période</th><th scope="col" className="nombre">Justifiées</th><th scope="col" className="nombre">Non justifiées</th><th scope="col" className="nombre">Retards</th></tr></thead>
           <tbody>{periodes.map((p) => (
@@ -202,7 +203,7 @@ function CarteAbsences({ inscriptionId }) {
               <td className={`nombre${p.heures_non_justifiees ? ' texte-retard' : ''}`}>{heuresTexte(p.heures_non_justifiees)}</td><td className="nombre">{p.retards}</td></tr>))}
           </tbody>
         </table>
-      </div>
+      </TableauDefilant>
       {absences.length > 0 && (
         <ul className="liste-simple">
           {absences.slice(0, 10).map((x) => (

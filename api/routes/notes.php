@@ -12,7 +12,12 @@ function r_notes_mes_affectations() {
           JOIN annees_scolaires a ON a.id = c.annee_id LEFT JOIN utilisateurs u ON u.id = cm.professeur_id
           WHERE cm.actif = 1 AND a.en_cours = 1';
   if ($UTILISATEUR['role'] === 'PROFESSEUR')  $l = lignes("$sql AND cm.professeur_id = ? ORDER BY c.nom, m.libelle", [$UTILISATEUR['id']]);
-  elseif (est_transversal())                  $l = lignes("$sql ORDER BY ec.nom_officiel, c.nom, m.libelle");
+  elseif (est_transversal()) {
+    // Seulement les écoles du groupe choisi dans le bandeau (sinon toutes)
+    $g = entier('groupe_id', false);
+    $l = $g ? lignes("$sql AND ec.groupe_id = ? ORDER BY ec.nom_officiel, c.nom, m.libelle", [$g])
+            : lignes("$sql ORDER BY ec.nom_officiel, c.nom, m.libelle");
+  }
   else                                         $l = lignes("$sql AND c.ecole_id = ? ORDER BY c.nom, m.libelle", [$UTILISATEUR['ecole_id']]);
   repondre($l);
 }

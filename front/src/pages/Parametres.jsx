@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useGroupe, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
@@ -153,7 +154,7 @@ function AnneePeriodes({ ecoleId }) {
             </div>
           ) : (
             <>
-              <div className="tableau-defilant">
+              <TableauDefilant>
                 <table className="tableau">
                   <thead><tr><th scope="col">Période</th><th scope="col">Dates</th><th scope="col">État</th><th scope="col"><span className="visuellement-cache">Action</span></th></tr></thead>
                   <tbody>{d.donnees.periodes.map((p) => (
@@ -166,7 +167,7 @@ function AnneePeriodes({ ecoleId }) {
                     </tr>))}
                   </tbody>
                 </table>
-              </div>
+              </TableauDefilant>
               <ReglesCalcul donnees={d.donnees} reglages={reglages} setReglages={setReglages} surEnregistrer={enregistrer} />
               {dates && (
                 <Fenetre titre={`Dates du ${dates.libelle}`} surFermer={() => setDates(null)} actions={<>
@@ -282,7 +283,7 @@ function ConfigEvaluations({ ecoleId }) {
     <div>
       <h2 className="titre-section">Nombre d'interros et de devoirs par période</h2>
       <p className="discret texte-explicatif">C'est ce qui sera créé quand vous préparez les évaluations d'une classe. Vous pourrez ensuite, matière par matière, ajouter ou retirer une interro. La conduite reçoit toujours une seule note.</p>
-      <div className="tableau-defilant">
+      <TableauDefilant>
         <table className="tableau">
           <thead><tr><th scope="col">S'applique à</th><th scope="col" className="nombre">Interros</th><th scope="col" className="nombre">Devoirs</th><th scope="col"><span className="visuellement-cache">Actions</span></th></tr></thead>
           <tbody>
@@ -297,7 +298,7 @@ function ConfigEvaluations({ ecoleId }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableauDefilant>
       <button className="bouton" onClick={() => setEdition({ niveau_id: '', nb_interros: 3, nb_devoirs: 2, nouveau: true })}>Ajouter une exception pour un niveau</button>
       {edition && (
         <Fenetre titre={edition.nouveau ? 'Exception pour un niveau' : 'Modifier le paramétrage'} surFermer={() => setEdition(null)} actions={<>

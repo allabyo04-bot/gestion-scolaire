@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
@@ -26,7 +27,7 @@ export default function ParamClasses({ ecoleId, classeId }) {
       </div>
       {classes.donnees.length === 0 && <div className="vide"><p>Aucune classe pour l'année en cours. Commencez par créer vos classes, puis ajoutez leurs matières.</p></div>}
       {classes.donnees.length > 0 && (
-        <div className="tableau-defilant">
+        <TableauDefilant>
           <table className="tableau">
             <thead><tr><th scope="col">Classe</th><th scope="col">Niveau</th><th scope="col">Professeur principal</th>
               <th scope="col" className="nombre">Matières</th><th scope="col" className="nombre">Élèves</th><th scope="col"><span className="visuellement-cache">Actions</span></th></tr></thead>
@@ -46,7 +47,7 @@ export default function ParamClasses({ ecoleId, classeId }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableauDefilant>
       )}
       {edition && <FenetreClasse ecoleId={ecoleId} classe={edition} ref_={ref} surFermer={() => setEdition(null)} surFait={() => { setEdition(null); classes.recharger(); }} />}
     </div>
@@ -155,7 +156,7 @@ function MatieresClasse({ classe, classes, profs, surChangement }) {
       {liste.charge && !liste.donnees && <Chargement />}
       {liste.donnees?.length === 0 && <div className="vide"><p>Aucune matière. Ajoutez-les une à une, ou copiez celles d'une classe du même niveau.</p></div>}
       {liste.donnees?.length > 0 && (
-        <div className="tableau-defilant">
+        <TableauDefilant>
           <table className="tableau">
             <thead><tr><th scope="col">Ordre</th><th scope="col">Matière</th><th scope="col" className="nombre">Coef.</th><th scope="col">Professeur</th><th scope="col"><span className="visuellement-cache">Actions</span></th></tr></thead>
             <tbody>
@@ -176,7 +177,7 @@ function MatieresClasse({ classe, classes, profs, surChangement }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableauDefilant>
       )}
       <p className="discret texte-explicatif">L'ordre est celui des lignes du bulletin.</p>
       {edition && <FenetreMatiere classe={classe} matiere={edition} catalogue={catalogue} profs={profs} dejaPresentes={(liste.donnees ?? []).map((m) => m.matiere_id)}

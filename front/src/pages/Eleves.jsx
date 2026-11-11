@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, aller } from '../composants/commun.jsx';
@@ -69,7 +70,7 @@ export default function Eleves({ classeId }) {
 
 function TableEleves({ eleves, avecClasse }) {
   return (
-    <div className="tableau-defilant">
+    <TableauDefilant>
       <table className="tableau tableau-eleves">
         <thead><tr><th scope="col">Élève</th>{avecClasse && <th scope="col">Classe</th>}<th scope="col">Educmaster</th><th scope="col">Tuteur</th></tr></thead>
         <tbody>
@@ -87,7 +88,7 @@ function TableEleves({ eleves, avecClasse }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TableauDefilant>
   );
 }
 

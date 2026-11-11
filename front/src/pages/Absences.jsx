@@ -1,3 +1,4 @@
+import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
 import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ } from '../composants/commun.jsx';
@@ -144,7 +145,7 @@ function AJustifier({ ecoleId }) {
   return (
     <>
       <p className="discret">{l.donnees.length} absence(s) non justifiée(s), les plus récentes d'abord.</p>
-      <div className="tableau-defilant">
+      <TableauDefilant>
         <table className="tableau">
           <thead><tr><th scope="col">Élève</th><th scope="col">Date</th><th scope="col" className="nombre">Durée</th><th scope="col"><span className="visuellement-cache">Action</span></th></tr></thead>
           <tbody>{l.donnees.map((a) => (
@@ -156,7 +157,7 @@ function AJustifier({ ecoleId }) {
             </tr>))}
           </tbody>
         </table>
-      </div>
+      </TableauDefilant>
       {choisie && <FenetreJustifier absence={choisie} surFermer={() => setChoisie(null)} surFait={() => { setChoisie(null); l.recharger(); }} />}
     </>
   );
@@ -186,7 +187,7 @@ function Bilan({ ecoleId }) {
         <>
           <h2 className="seulement-imprimer">Absences, {b.donnees.classe}, {b.donnees.periode}</h2>
           <p className="discret">{b.donnees.periode} : du {b.donnees.du.split('-').reverse().join('/')} au {b.donnees.au.split('-').reverse().join('/')}.</p>
-          <div className="tableau-defilant">
+          <TableauDefilant>
             <table className="tableau">
               <thead><tr><th scope="col">Élève</th><th scope="col" className="nombre">Justifiées</th><th scope="col" className="nombre">Non justifiées</th><th scope="col" className="nombre">Retards</th></tr></thead>
               <tbody>{tries.map((e) => (
@@ -198,7 +199,7 @@ function Bilan({ ecoleId }) {
                 </tr>))}
               </tbody>
             </table>
-          </div>
+          </TableauDefilant>
           <button className="bouton pas-imprimer" onClick={() => window.print()}>Imprimer le bilan</button>
         </>
       )}

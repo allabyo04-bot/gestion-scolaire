@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, Chargement, Alerte, estDirection, gereNotes } from '../composants/commun.jsx';
+import { useDonnees, useSession, useGroupe, Chargement, Alerte, gereNotes } from '../composants/commun.jsx';
 
 export default function Accueil() {
   const { utilisateur } = useSession();
   const direction = gereNotes(utilisateur);   // direction ou coordination pédagogique
   const prof = utilisateur.role === 'PROFESSEUR';
-  const { donnees, erreur, charge, recharger } = useDonnees(() => api.get('notes/mes_affectations'), []);
+  const { groupeId } = useGroupe();
+  const { donnees, erreur, charge, recharger } = useDonnees(() => api.get('notes/mes_affectations', { groupe_id: groupeId }), [groupeId]);
   const [filtre, setFiltre] = useState('');
 
   const groupes = useMemo(() => {
