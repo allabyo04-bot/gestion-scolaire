@@ -4,7 +4,7 @@
 // =====================================================================
 function ecole_cible(): int {
   global $UTILISATEUR;
-  if (!est_super_admin()) return (int)$UTILISATEUR['ecole_id'];
+  if (!est_transversal()) return (int)$UTILISATEUR['ecole_id'];
   $e = entier('ecole_id', false);
   if (!$e) erreur('Choisissez une école.');
   if (!ligne('SELECT id FROM ecoles WHERE id = ?', [$e])) erreur('École introuvable.', 404);

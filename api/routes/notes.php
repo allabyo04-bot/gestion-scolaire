@@ -12,7 +12,7 @@ function r_notes_mes_affectations() {
           JOIN annees_scolaires a ON a.id = c.annee_id LEFT JOIN utilisateurs u ON u.id = cm.professeur_id
           WHERE cm.actif = 1 AND a.en_cours = 1';
   if ($UTILISATEUR['role'] === 'PROFESSEUR')  $l = lignes("$sql AND cm.professeur_id = ? ORDER BY c.nom, m.libelle", [$UTILISATEUR['id']]);
-  elseif (est_super_admin())                  $l = lignes("$sql ORDER BY ec.nom_officiel, c.nom, m.libelle");
+  elseif (est_transversal())                  $l = lignes("$sql ORDER BY ec.nom_officiel, c.nom, m.libelle");
   else                                         $l = lignes("$sql AND c.ecole_id = ? ORDER BY c.nom, m.libelle", [$UTILISATEUR['ecole_id']]);
   repondre($l);
 }
@@ -33,7 +33,7 @@ function r_notes_evaluations() {
 // Crée les évaluations d'une classe pour une période, d'après le paramétrage par défaut
 // (niveau précis d'abord, sinon valeur de l'école). Ne touche pas à ce qui existe déjà.
 function r_notes_generer_evaluations() {
-  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  exiger_role(...ROLES_NOTES);
   $c = classe(entier('classe_id'));
   $p = periode(entier('periode_id'));
   verifier_periode_ouverte($p);
@@ -60,7 +60,7 @@ function r_notes_generer_evaluations() {
 
 // Ajoute une interro ou un devoir supplémentaire pour UNE matière (cas particulier)
 function r_notes_ajouter_evaluation() {
-  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  exiger_role(...ROLES_NOTES);
   $cm = classe_matiere(entier('classe_matiere_id'));
   $p = periode(entier('periode_id'));
   verifier_periode_ouverte($p);
@@ -76,7 +76,7 @@ function r_notes_ajouter_evaluation() {
 
 // Supprime une évaluation encore vide (erreur de paramétrage)
 function r_notes_supprimer_evaluation() {
-  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  exiger_role(...ROLES_NOTES);
   $e = evaluation(entier('evaluation_id'));
   verifier_periode_ouverte($e['periode']);
   if (ligne('SELECT id FROM notes WHERE evaluation_id = ? LIMIT 1', [$e['id']])) erreur('Impossible : des notes sont déjà saisies pour cette évaluation.', 409);
@@ -161,7 +161,7 @@ function r_notes_valider() {
 // Correction d'une note VALIDÉE : directrice ou super admin, motif obligatoire, historique conservé
 function r_notes_corriger() {
   global $UTILISATEUR;
-  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  exiger_role(...ROLES_NOTES);
   $e = evaluation(entier('evaluation_id'));
   verifier_periode_ouverte($e['periode']);
   if ($e['statut'] !== 'VALIDEE') erreur("Cette évaluation n'est pas encore validée : utilisez la saisie normale.", 409);
@@ -190,7 +190,7 @@ function r_notes_corriger() {
 
 // La direction rouvre une évaluation validée pour que le prof puisse la reprendre
 function r_notes_rouvrir() {
-  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  exiger_role(...ROLES_NOTES);
   $e = evaluation(entier('evaluation_id'));
   verifier_periode_ouverte($e['periode']);
   $motif = (string)champ('motif');
@@ -202,7 +202,7 @@ function r_notes_rouvrir() {
 }
 
 function r_notes_historique() {
-  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  exiger_role(...ROLES_NOTES);
   $e = evaluation(entier('evaluation_id'));
   repondre(lignes('SELECT h.*, el.nom, el.prenoms, CONCAT(u.nom, " ", u.prenoms) AS auteur
                    FROM notes_historique h JOIN notes n ON n.id = h.note_id

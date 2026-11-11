@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, jeton, quandSessionExpire } from './api.js';
-import { Session, GroupeActif, ZoneMessages, useRoute, aller, ROLES, estDirection, Chargement } from './composants/commun.jsx';
+import { Session, GroupeActif, ZoneMessages, useRoute, aller, ROLES, estDirection, estTransversal, gereNotes, Chargement } from './composants/commun.jsx';
 import Connexion from './pages/Connexion.jsx';
 import ChangerMdp from './pages/ChangerMdp.jsx';
 import Accueil from './pages/Accueil.jsx';
@@ -59,7 +59,7 @@ function themeGroupe(g) {
 }
 function Coquille({ utilisateur, surDeconnexion }) {
   const { page, params } = useRoute();
-  const superAdmin = utilisateur.role === 'SUPER_ADMIN';
+  const superAdmin = estTransversal(utilisateur);   // choisit le groupe dans le bandeau
   const [groupes, setGroupes] = useState([]);
   const [groupeId, setGroupeIdBrut] = useState(() => { try { return Number(localStorage.getItem(CLE_GROUPE)) || null; } catch { return null; } });
   const setGroupeId = (g) => { setGroupeIdBrut(g); try { localStorage.setItem(CLE_GROUPE, String(g)); } catch { /* ignore */ } };
@@ -78,10 +78,10 @@ function Coquille({ utilisateur, surDeconnexion }) {
   const caisse = gereEleves || comptable;
   const onglets = [
     ['tableau', 'Tableau de bord', direction],
-    ['accueil', 'Notes', direction || utilisateur.role === 'PROFESSEUR'],
+    ['accueil', 'Notes', gereNotes(utilisateur) || utilisateur.role === 'PROFESSEUR'],
     ['eleves', 'Élèves', gereEleves],
     ['absences', 'Absences', gereEleves || utilisateur.role === 'PROFESSEUR'],
-    ['classes', 'Classes', direction || secretariat || utilisateur.role === 'PROFESSEUR'],
+    ['classes', 'Classes', gereNotes(utilisateur) || secretariat || utilisateur.role === 'PROFESSEUR'],
     ['caisse', 'Caisse', caisse],
     ['comptes', 'Comptes', direction],
     ['parametres', 'Paramètres', direction],

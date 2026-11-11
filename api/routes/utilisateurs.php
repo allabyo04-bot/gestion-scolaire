@@ -2,7 +2,7 @@
 // Super admin : tous les rôles, toutes les écoles.
 // Directrice : secrétariat, comptable et professeurs de SON école.
 function roles_creables(): array {
-  return est_super_admin() ? ['SUPER_ADMIN','DIRECTRICE','SECRETARIAT','COMPTABLE','PROFESSEUR']
+  return est_super_admin() ? ['SUPER_ADMIN','COORDINATION','DIRECTRICE','SECRETARIAT','COMPTABLE','PROFESSEUR']
                            : ['SECRETARIAT','COMPTABLE','PROFESSEUR'];
 }
 
@@ -44,7 +44,7 @@ function r_utilisateurs_creer() {
   exiger_role('SUPER_ADMIN', 'DIRECTRICE');
   $role = strtoupper((string)champ('role'));
   if (!in_array($role, roles_creables(), true)) erreur("Vous ne pouvez pas créer un compte de ce type.", 403);
-  $ecole = $role === 'SUPER_ADMIN' ? null : (est_super_admin() ? entier('ecole_id') : (int)$UTILISATEUR['ecole_id']);
+  $ecole = in_array($role, ['SUPER_ADMIN', 'COORDINATION'], true) ? null : (est_super_admin() ? entier('ecole_id') : (int)$UTILISATEUR['ecole_id']);
   if ($ecole && !ligne('SELECT id FROM ecoles WHERE id = ?', [$ecole])) erreur('École introuvable.', 404);
   $identifiant = strtolower((string)champ('identifiant'));
   if (!preg_match('/^[a-z0-9._-]{3,60}$/', $identifiant)) erreur('Identifiant : 3 à 60 caractères (lettres, chiffres, point, tiret).');

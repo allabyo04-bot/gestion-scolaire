@@ -86,7 +86,7 @@ export default function Comptes() {
 }
 
 function FenetreCreation({ superAdmin, surFermer, surCree }) {
-  const roles = superAdmin ? ['PROFESSEUR', 'SECRETARIAT', 'COMPTABLE', 'DIRECTRICE', 'SUPER_ADMIN'] : ['PROFESSEUR', 'SECRETARIAT', 'COMPTABLE'];
+  const roles = superAdmin ? ['PROFESSEUR', 'SECRETARIAT', 'COMPTABLE', 'DIRECTRICE', 'COORDINATION', 'SUPER_ADMIN'] : ['PROFESSEUR', 'SECRETARIAT', 'COMPTABLE'];
   const [f, setF] = useState({ role: 'PROFESSEUR', nom: '', prenoms: '', identifiant: '', telephone: '', email: '' });
   const [ecoleId, setEcoleId] = useState(null);
   const [erreur, setErreur] = useState('');
@@ -109,7 +109,7 @@ function FenetreCreation({ superAdmin, surFermer, surCree }) {
       <Champ libelle="Rôle" id="f-role">
         <select id="f-role" value={f.role} onChange={maj('role')}>{roles.map((r) => <option key={r} value={r}>{ROLES[r]}</option>)}</select>
       </Champ>
-      {superAdmin && f.role !== 'SUPER_ADMIN' && <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} />}
+      {superAdmin && !['SUPER_ADMIN', 'COORDINATION'].includes(f.role) && <ChoixEcole valeur={ecoleId} surChangement={setEcoleId} />}
       <div className="deux-colonnes">
         <Champ libelle="Nom" id="f-nom"><input id="f-nom" value={f.nom} onChange={maj('nom')} onBlur={proposer} /></Champ>
         <Champ libelle="Prénoms" id="f-prenoms"><input id="f-prenoms" value={f.prenoms} onChange={maj('prenoms')} onBlur={proposer} /></Champ>

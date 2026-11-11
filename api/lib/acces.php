@@ -4,7 +4,7 @@
 
 function verifier_ecole(int $ecole_id): void {
   global $UTILISATEUR;
-  if (est_super_admin()) return;
+  if (est_transversal()) return;
   if ((int)$UTILISATEUR['ecole_id'] !== $ecole_id) erreur('Accès refusé : cette école ne vous est pas rattachée.', 403);
 }
 
@@ -42,7 +42,7 @@ function evaluation(int $id): array {
 // Le professeur ne peut agir que sur ses propres matières ; directrice et super admin sur toute l'école
 function verifier_droit_saisie(array $cm): void {
   global $UTILISATEUR;
-  if (in_array($UTILISATEUR['role'], ROLES_ADMIN_ECOLE, true)) return;
+  if (in_array($UTILISATEUR['role'], ROLES_NOTES, true)) return;
   if ($UTILISATEUR['role'] === 'PROFESSEUR' && (int)$cm['professeur_id'] === (int)$UTILISATEUR['id']) return;
   erreur("Vous n'êtes pas le professeur de cette matière dans cette classe.", 403);
 }
@@ -54,7 +54,7 @@ function verifier_periode_ouverte(array $p): void {
 // Droit de consulter les résultats d'une classe
 function verifier_consultation_classe(array $classe): void {
   global $UTILISATEUR;
-  if (in_array($UTILISATEUR['role'], ['SUPER_ADMIN', 'DIRECTRICE', 'SECRETARIAT'], true)) return;
+  if (in_array($UTILISATEUR['role'], ['SUPER_ADMIN', 'DIRECTRICE', 'SECRETARIAT', 'COORDINATION'], true)) return;
   if ($UTILISATEUR['role'] === 'PROFESSEUR' && (int)$classe['prof_principal_id'] === (int)$UTILISATEUR['id']) return;
   erreur("Vous n'avez pas accès aux résultats de cette classe.", 403);
 }

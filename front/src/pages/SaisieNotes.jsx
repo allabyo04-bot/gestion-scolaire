@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, formatNote, formatDate } from '../composants/commun.jsx';
+import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, gereNotes, formatNote, formatDate } from '../composants/commun.jsx';
 
 const STATUTS = {
   NOTE: 'Note',
@@ -26,7 +26,7 @@ function lireNote(texte) {
 
 export default function SaisieNotes({ classeMatiereId }) {
   const { utilisateur } = useSession();
-  const direction = estDirection(utilisateur);
+  const direction = gereNotes(utilisateur);   // direction ou coordination pédagogique
   const affectations = useDonnees(() => api.get('notes/mes_affectations'), []);
   const cm = affectations.donnees?.find((a) => String(a.classe_matiere_id) === String(classeMatiereId));
   const periodes = useDonnees(() => cm ? api.get('ref/periodes', { ecole_id: cm.ecole_id }) : Promise.resolve([]), [cm?.ecole_id]);

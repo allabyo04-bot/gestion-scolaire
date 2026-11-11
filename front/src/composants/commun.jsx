@@ -9,12 +9,17 @@ export const useGroupe = () => useContext(GroupeActif);
 
 export const ROLES = {
   SUPER_ADMIN: 'Administrateur général',
+  COORDINATION: 'Coordination pédagogique',
   DIRECTRICE: 'Direction',
   SECRETARIAT: 'Secrétariat',
   COMPTABLE: 'Comptabilité',
   PROFESSEUR: 'Professeur',
 };
 export const estDirection = (u) => u && ['SUPER_ADMIN', 'DIRECTRICE'].includes(u.role);
+// Compte sans école, qui choisit le groupe et l'école à l'écran
+export const estTransversal = (u) => u && ['SUPER_ADMIN', 'COORDINATION'].includes(u.role);
+// Gestion des notes : direction et coordination pédagogique
+export const gereNotes = (u) => u && ['SUPER_ADMIN', 'DIRECTRICE', 'COORDINATION'].includes(u.role);
 
 // ---------------------------------------------------------------- Navigation par ancre (#/page/param)
 export function useRoute() {

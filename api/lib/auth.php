@@ -3,6 +3,8 @@
 $UTILISATEUR = null;
 
 const ROLES_ADMIN_ECOLE = ['SUPER_ADMIN', 'DIRECTRICE'];
+// Gestion des notes (préparer, corriger, rouvrir) : direction et coordination pédagogique
+const ROLES_NOTES = ['SUPER_ADMIN', 'DIRECTRICE', 'COORDINATION'];
 
 function lire_jeton(): ?string {
   $h = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
@@ -84,6 +86,13 @@ function exiger_role(string ...$roles): void {
 function est_super_admin(): bool {
   global $UTILISATEUR;
   return $UTILISATEUR['role'] === 'SUPER_ADMIN';
+}
+
+// Compte sans école, qui choisit l'école à l'écran : administrateur général ou coordination pédagogique.
+// Ne donne AUCUN droit par lui-même : chaque route vérifie aussi le rôle.
+function est_transversal(): bool {
+  global $UTILISATEUR;
+  return in_array($UTILISATEUR['role'], ['SUPER_ADMIN', 'COORDINATION'], true);
 }
 
 function valider_mdp(string $mdp): void {

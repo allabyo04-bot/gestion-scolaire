@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection } from '../composants/commun.jsx';
+import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, gereNotes } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 
 export default function Classes() {
   const { utilisateur } = useSession();
-  const direction = estDirection(utilisateur);
+  const direction = gereNotes(utilisateur);   // direction ou coordination pédagogique
   const [ecoleId, setEcoleId] = useState(utilisateur.ecole?.id ?? null);
   const pret = !!ecoleId;
   const classes = useDonnees(() => pret ? api.get('ref/classes', { ecole_id: ecoleId }) : Promise.resolve(null), [ecoleId]);

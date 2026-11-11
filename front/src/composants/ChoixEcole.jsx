@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useGroupe } from './commun.jsx';
+import { useDonnees, useSession, useGroupe, estTransversal } from './commun.jsx';
 
 // Pour l'administrateur général : choisir l'école sur laquelle travailler
 export default function ChoixEcole({ valeur, surChangement, toutes = false }) {
@@ -13,7 +13,7 @@ export default function ChoixEcole({ valeur, surChangement, toutes = false }) {
     if (!toutes && (!valeur || !dedans) && ecoles.donnees.length) surChangement(ecoles.donnees[0].id);
     if (toutes && valeur && !dedans) surChangement(null);
   }, [ecoles.donnees, valeur, toutes, surChangement]);
-  if (utilisateur.role !== 'SUPER_ADMIN' || !ecoles.donnees) return null;
+  if (!estTransversal(utilisateur) || !ecoles.donnees) return null;
   return (
     <label className="choix-ecole">
       <span>École</span>

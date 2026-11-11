@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, Chargement, Alerte, estDirection } from '../composants/commun.jsx';
+import { useDonnees, useSession, Chargement, Alerte, estDirection, gereNotes } from '../composants/commun.jsx';
 
 export default function Accueil() {
   const { utilisateur } = useSession();
-  const direction = estDirection(utilisateur);
+  const direction = gereNotes(utilisateur);   // direction ou coordination pédagogique
   const prof = utilisateur.role === 'PROFESSEUR';
   const { donnees, erreur, charge, recharger } = useDonnees(() => api.get('notes/mes_affectations'), []);
   const [filtre, setFiltre] = useState('');
@@ -42,7 +42,7 @@ export default function Accueil() {
       <div className="liste-classes">
         {groupes.map((g) => (
           <article key={g.classe + g.ecole} className="bloc-classe">
-            <h2>{g.classe}{utilisateur.role === 'SUPER_ADMIN' && <span className="discret"> — {g.ecole}</span>}</h2>
+            <h2>{g.classe}{['SUPER_ADMIN', 'COORDINATION'].includes(utilisateur.role) && <span className="discret"> — {g.ecole}</span>}</h2>
             <ul>
               {g.matieres.map((m) => (
                 <li key={m.classe_matiere_id}>
