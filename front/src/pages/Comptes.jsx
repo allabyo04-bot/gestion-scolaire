@@ -1,7 +1,7 @@
 import TableauDefilant from '../composants/TableauDefilant.jsx';
 import { useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, ROLES, formatDate } from '../composants/commun.jsx';
+import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, ROLES, libelleRole, formatDate } from '../composants/commun.jsx';
 import { useGroupe } from '../composants/commun.jsx';
 import ChoixEcole from '../composants/ChoixEcole.jsx';
 
@@ -15,6 +15,7 @@ export default function Comptes() {
   const [creer, setCreer] = useState(false);
   const [provisoire, setProvisoire] = useState(null);
   const [codes, setCodes] = useState(null);
+  const [modif, setModif] = useState(null);
   const jamais = (comptes.donnees ?? []).filter((c) => c.actif && !c.derniere_connexion && c.id !== utilisateur.id && (superAdmin || ['SECRETARIAT', 'COMPTABLE', 'PROFESSEUR'].includes(c.role)));
   const genererCodes = async () => {
     if (!ecoleId && superAdmin) { message("Choisissez d'abord une école.", 'erreur'); return; }
@@ -23,6 +24,7 @@ export default function Comptes() {
     catch (x) { message(x.message, 'erreur'); }
   };
   if (codes) return <FeuilleCodes codes={codes} surFermer={() => setCodes(null)} />;
+  const fenetreModif = modif && <ModifierCompte compte={modif} surFermer={() => setModif(null)} surFait={() => { setModif(null); comptes.recharger(); }} />;
 
   const activer = async (c) => {
     try { await api.post('utilisateurs/activer', { id: c.id, actif: c.actif ? 0 : 1 }); message(c.actif ? 'Compte désactivé.' : 'Compte réactivé.'); comptes.recharger(); }
@@ -54,12 +56,13 @@ export default function Comptes() {
               {comptes.donnees.map((c) => (
                 <tr key={c.id} className={c.actif ? '' : 'inactif'}>
                   <th scope="row">{c.nom} {c.prenoms}{!c.actif && <small className="etiquette">Désactivé</small>}</th>
-                  <td>{ROLES[c.role]}</td>
+                  <td>{libelleRole(c.role, c.sexe, Number(c.ecole_primaire))}</td>
                   {superAdmin && <td>{c.ecole ?? 'Toutes'}</td>}
                   <td><code>{c.identifiant}</code></td>
                   <td>{c.derniere_connexion ? formatDate(c.derniere_connexion) : <small className="etiquette etiquette-alerte">Jamais connecté</small>}</td>
                   <td className="actions-ligne">
                     {c.id !== utilisateur.id && (superAdmin || ['SECRETARIAT', 'COMPTABLE', 'PROFESSEUR'].includes(c.role)) && <>
+                      <button className="bouton-lien" onClick={() => setModif(c)}>Modifier</button>
                       <button className="bouton-lien" onClick={() => reinitialiser(c)}>Nouveau mot de passe</button>
                       <button className="bouton-lien" onClick={() => activer(c)}>{c.actif ? 'Désactiver' : 'Réactiver'}</button>
                     </>}
@@ -72,6 +75,7 @@ export default function Comptes() {
       )}
       {creer && <FenetreCreation superAdmin={superAdmin} surFermer={() => setCreer(false)}
         surCree={(r) => { setCreer(false); setProvisoire(r); comptes.recharger(); }} />}
+      {fenetreModif}
       {provisoire && (
         <Fenetre titre="Mot de passe provisoire" surFermer={() => setProvisoire(null)}
                  actions={<button className="bouton bouton-principal" onClick={() => setProvisoire(null)}>J'ai noté le mot de passe</button>}>
@@ -88,7 +92,7 @@ export default function Comptes() {
 
 function FenetreCreation({ superAdmin, surFermer, surCree }) {
   const roles = superAdmin ? ['PROFESSEUR', 'SECRETARIAT', 'COMPTABLE', 'DIRECTRICE', 'COORDINATION', 'SUPER_ADMIN'] : ['PROFESSEUR', 'SECRETARIAT', 'COMPTABLE'];
-  const [f, setF] = useState({ role: 'PROFESSEUR', nom: '', prenoms: '', identifiant: '', telephone: '', email: '' });
+  const [f, setF] = useState({ role: 'PROFESSEUR', nom: '', prenoms: '', sexe: '', identifiant: '', telephone: '', email: '' });
   const [ecoleId, setEcoleId] = useState(null);
   const [erreur, setErreur] = useState('');
   const maj = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -118,6 +122,9 @@ function FenetreCreation({ superAdmin, surFermer, surCree }) {
       <Champ libelle="Identifiant de connexion" id="f-id" aide="Proposé automatiquement, modifiable. Lettres, chiffres et points.">
         <input id="f-id" autoCapitalize="none" value={f.identifiant} onChange={maj('identifiant')} />
       </Champ>
+      <Champ libelle="Sexe" id="f-sexe" aide="Sert à afficher Instituteur ou Institutrice, Directeur ou Directrice.">
+        <select id="f-sexe" value={f.sexe} onChange={maj('sexe')}><option value="">Non précisé</option><option value="F">Femme</option><option value="M">Homme</option></select>
+      </Champ>
       <div className="deux-colonnes">
         <Champ libelle="Téléphone (facultatif)" id="f-tel"><input id="f-tel" type="tel" value={f.telephone} onChange={maj('telephone')} /></Champ>
         <Champ libelle="E-mail (facultatif)" id="f-mail"><input id="f-mail" type="email" value={f.email} onChange={maj('email')} /></Champ>
@@ -144,7 +151,7 @@ function FeuilleCodes({ codes, surFermer }) {
             <div key={c.identifiant} className="etiquette-code">
               <p className="ec-ecole">{c.ecole}</p>
               <p className="ec-nom">{c.nom} {c.prenoms}</p>
-              <p className="ec-role">{ROLES[c.role]}</p>
+              <p className="ec-role">{libelleRole(c.role, c.sexe, c.ecole_primaire)}</p>
               <dl>
                 <div><dt>Adresse</dt><dd>{adresse.replace(/^https?:\/\//, '')}</dd></div>
                 <div><dt>Identifiant</dt><dd><code>{c.identifiant}</code></dd></div>
@@ -156,5 +163,31 @@ function FeuilleCodes({ codes, surFermer }) {
         </div>
       )}
     </section>
+  );
+}
+
+// Corriger le nom, les prénoms, le sexe ou le téléphone d'un compte
+function ModifierCompte({ compte, surFermer, surFait }) {
+  const message = useMessage();
+  const [f, setF] = useState({ nom: compte.nom, prenoms: compte.prenoms, sexe: compte.sexe ?? '', telephone: compte.telephone ?? '' });
+  const [erreur, setErreur] = useState('');
+  const maj = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const envoyer = async () => {
+    try { await api.post('utilisateurs/modifier', { id: compte.id, ...f }); message('Compte modifié.'); surFait(); } catch (x) { setErreur(x.message); }
+  };
+  return (
+    <Fenetre titre={`Modifier ${compte.nom} ${compte.prenoms}`} surFermer={surFermer} actions={<>
+      <button className="bouton" onClick={surFermer}>Annuler</button><button className="bouton bouton-principal" onClick={envoyer}>Enregistrer</button></>}>
+      {erreur && <Alerte>{erreur}</Alerte>}
+      <div className="deux-colonnes">
+        <Champ libelle="Nom" id="m-nom"><input id="m-nom" value={f.nom} onChange={maj('nom')} /></Champ>
+        <Champ libelle="Prénoms" id="m-prenoms"><input id="m-prenoms" value={f.prenoms} onChange={maj('prenoms')} /></Champ>
+      </div>
+      <div className="deux-colonnes">
+        <Champ libelle="Sexe" id="m-sexe"><select id="m-sexe" value={f.sexe} onChange={maj('sexe')}><option value="">Non précisé</option><option value="F">Femme</option><option value="M">Homme</option></select></Champ>
+        <Champ libelle="Téléphone" id="m-tel"><input id="m-tel" type="tel" value={f.telephone} onChange={maj('telephone')} /></Champ>
+      </div>
+      <p className="discret">Le rôle, l'école et l'identifiant ne changent pas.</p>
+    </Fenetre>
   );
 }

@@ -18,6 +18,26 @@ function utilisateur_cible(int $id): array {
   return $u;
 }
 
+function sexe_valide(): ?string {
+  $s = strtoupper(trim((string)(champ('sexe', false) ?? '')));
+  if ($s === '') return null;
+  if (!in_array($s, ['M', 'F'], true)) erreur('Sexe : M ou F.');
+  return $s;
+}
+
+// Corriger le nom, les prénoms, le sexe ou le téléphone d'un compte (le rôle et l'école ne changent pas)
+function r_utilisateurs_modifier() {
+  exiger_role('SUPER_ADMIN', 'DIRECTRICE');
+  $u = utilisateur_cible(entier('id'));
+  $nom = mb_strtoupper(trim((string)champ('nom'))); $prenoms = trim((string)champ('prenoms'));
+  if (mb_strlen($nom) < 2 || $prenoms === '') erreur('Le nom et les prénoms sont obligatoires.');
+  $apres = ['nom' => $nom, 'prenoms' => $prenoms, 'sexe' => sexe_valide(), 'telephone' => (trim((string)(champ('telephone', false) ?? '')) ?: null)];
+  requete('UPDATE utilisateurs SET nom = ?, prenoms = ?, sexe = ?, telephone = ? WHERE id = ?', [...array_values($apres), $u['id']]);
+  journaliser('MODIFICATION', 'utilisateurs', (int)$u['id'], "Compte modifié : {$u['identifiant']}",
+              ['nom' => $u['nom'], 'prenoms' => $u['prenoms'], 'sexe' => $u['sexe'], 'telephone' => $u['telephone']], $apres);
+  repondre();
+}
+
 function mdp_provisoire(): string {
   $c = 'abcdefghjkmnpqrstuvwxyz23456789';
   $m = '';
@@ -29,9 +49,10 @@ function r_utilisateurs_liste() {
   global $UTILISATEUR;
   exiger_role('SUPER_ADMIN', 'DIRECTRICE');
   $ecole = est_super_admin() ? entier('ecole_id', false) : (int)$UTILISATEUR['ecole_id'];
-  $sql = 'SELECT u.id, u.ecole_id, e.nom_officiel AS ecole, u.role, u.nom, u.prenoms, u.telephone, u.email,
-                 u.identifiant, u.actif, u.derniere_connexion, u.doit_changer_mdp
-          FROM utilisateurs u LEFT JOIN ecoles e ON e.id = u.ecole_id';
+  $sql = "SELECT u.id, u.ecole_id, e.nom_officiel AS ecole, u.role, u.nom, u.prenoms, u.sexe, u.telephone, u.email,
+                 u.identifiant, u.actif, u.derniere_connexion, u.doit_changer_mdp,
+                 (EXISTS (SELECT 1 FROM classes cp WHERE cp.ecole_id = u.ecole_id) AND NOT EXISTS (SELECT 1 FROM classes cs JOIN niveaux ns ON ns.id = cs.niveau_id WHERE cs.ecole_id = u.ecole_id AND ns.cycle IN ('COLLEGE','LYCEE'))) AS ecole_primaire
+          FROM utilisateurs u LEFT JOIN ecoles e ON e.id = u.ecole_id";
   $g = est_super_admin() ? entier('groupe_id', false) : null;
   if ($ecole) repondre(lignes("$sql WHERE u.ecole_id = ? ORDER BY u.nom", [$ecole]));
   // Vue d'ensemble : les comptes du groupe choisi, plus les administrateurs généraux (sans école)
@@ -50,9 +71,10 @@ function r_utilisateurs_creer() {
   if (!preg_match('/^[a-z0-9._-]{3,60}$/', $identifiant)) erreur('Identifiant : 3 à 60 caractères (lettres, chiffres, point, tiret).');
   if (ligne('SELECT id FROM utilisateurs WHERE identifiant = ?', [$identifiant])) erreur('Cet identifiant est déjà utilisé.');
 
+  $sexe = sexe_valide();
   $mdp = mdp_provisoire();
-  requete('INSERT INTO utilisateurs (ecole_id, role, nom, prenoms, telephone, email, identifiant, mot_de_passe_hash, cree_par)
-           VALUES (?,?,?,?,?,?,?,?,?)', [$ecole, $role, mb_strtoupper((string)champ('nom')), (string)champ('prenoms'),
+  requete('INSERT INTO utilisateurs (ecole_id, role, nom, prenoms, sexe, telephone, email, identifiant, mot_de_passe_hash, cree_par)
+           VALUES (?,?,?,?,?,?,?,?,?,?)', [$ecole, $role, mb_strtoupper((string)champ('nom')), (string)champ('prenoms'), $sexe,
            champ('telephone', false), champ('email', false), $identifiant, password_hash($mdp, PASSWORD_DEFAULT), $UTILISATEUR['id']]);
   $id = (int)bd()->lastInsertId();
   journaliser('CREATION', 'utilisateurs', $id, "Compte $role créé : $identifiant", null,
@@ -100,8 +122,14 @@ function r_utilisateurs_generer_acces() {
     $mdp = mdp_provisoire();
     requete('UPDATE utilisateurs SET mot_de_passe_hash = ?, doit_changer_mdp = 1, tentatives_echouees = 0, bloque_jusqu_a = NULL WHERE id = ?',
             [password_hash($mdp, PASSWORD_DEFAULT), $u['id']]);
-    $res[] = ['nom' => $u['nom'], 'prenoms' => $u['prenoms'], 'role' => $u['role'], 'identifiant' => $u['identifiant'], 'mot_de_passe' => $mdp, 'ecole' => $u['ecole']];
+    $res[] = ['nom' => $u['nom'], 'prenoms' => $u['prenoms'], 'role' => $u['role'], 'sexe' => $u['sexe'], 'identifiant' => $u['identifiant'],
+              'mot_de_passe' => $mdp, 'ecole' => $u['ecole'], 'ecole_primaire' => ecole_primaire((int)$u['ecole_id'])];
   }
   journaliser('REINITIALISATION_MDP', 'utilisateurs', null, count($res) . " code(s) d'accès générés pour impression");
   repondre($res);
+}
+
+function ecole_primaire(int $ecole): bool {
+  return (bool)ligne("SELECT 1 AS x FROM classes WHERE ecole_id = ? LIMIT 1", [$ecole])
+      && !ligne("SELECT 1 AS x FROM classes c JOIN niveaux n ON n.id = c.niveau_id WHERE c.ecole_id = ? AND n.cycle IN ('COLLEGE','LYCEE') LIMIT 1", [$ecole]);
 }

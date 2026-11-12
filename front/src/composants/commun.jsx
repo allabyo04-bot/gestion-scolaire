@@ -15,6 +15,13 @@ export const ROLES = {
   COMPTABLE: 'Comptabilité',
   PROFESSEUR: 'Professeur',
 };
+// Intitulé affiché selon le sexe et le type d'école : Instituteur / Institutrice au primaire,
+// Directeur / Directrice. Le rôle et les droits, eux, ne changent pas.
+export function libelleRole(role, sexe, primaire) {
+  if (role === 'PROFESSEUR' && primaire) return sexe === 'F' ? 'Institutrice' : sexe === 'M' ? 'Instituteur' : 'Instituteur / Institutrice';
+  if (role === 'DIRECTRICE') return sexe === 'F' ? 'Directrice' : sexe === 'M' ? 'Directeur' : ROLES.DIRECTRICE;
+  return ROLES[role];
+}
 export const estDirection = (u) => u && ['SUPER_ADMIN', 'DIRECTRICE'].includes(u.role);
 // Compte sans école, qui choisit le groupe et l'école à l'écran
 export const estTransversal = (u) => u && ['SUPER_ADMIN', 'COORDINATION'].includes(u.role);

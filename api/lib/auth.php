@@ -21,8 +21,10 @@ function profil_public(array $u): array {
   $ecole = $u['ecole_id'] ? ligne('SELECT e.id, e.code, e.nom_officiel, e.ville, e.groupe_id, g.nom AS groupe FROM ecoles e LEFT JOIN groupes g ON g.id = e.groupe_id WHERE e.id = ?', [$u['ecole_id']]) : null;
   return [
     'id' => (int)$u['id'], 'nom' => $u['nom'], 'prenoms' => $u['prenoms'],
-    'role' => $u['role'], 'identifiant' => $u['identifiant'],
-    'ecole' => $ecole, 'doit_changer_mdp' => (bool)$u['doit_changer_mdp'],
+    'role' => $u['role'], 'identifiant' => $u['identifiant'], 'sexe' => $u['sexe'] ?? null,
+    'ecole' => $ecole ? $ecole + ['primaire' => (bool)ligne("SELECT 1 AS x FROM classes WHERE ecole_id = ? LIMIT 1", [$ecole['id']])
+                                  && !ligne("SELECT 1 AS x FROM classes c JOIN niveaux n ON n.id = c.niveau_id WHERE c.ecole_id = ? AND n.cycle IN ('COLLEGE','LYCEE') LIMIT 1", [$ecole['id']])] : null,
+    'doit_changer_mdp' => (bool)$u['doit_changer_mdp'],
   ];
 }
 

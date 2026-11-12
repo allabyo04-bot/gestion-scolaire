@@ -108,6 +108,7 @@ const ROUTES = [
   'param/images'                       => ['parametres', 'r_param_images', 'GET', true],
   'param/image_enregistrer'            => ['parametres', 'r_param_image_enregistrer', 'POST', true],
   'param/image_supprimer'              => ['parametres', 'r_param_image_supprimer', 'POST', true],
+  'utilisateurs/modifier'              => ['utilisateurs', 'r_utilisateurs_modifier', 'POST', true],
   'utilisateurs/generer_acces'         => ['utilisateurs', 'r_utilisateurs_generer_acces', 'POST', true],
   'bul/classe'                         => ['bulletins', 'r_bul_classe', 'GET', true],
   'bul/parametres'                     => ['bulletins', 'r_bul_parametres', 'GET', true],

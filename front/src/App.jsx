@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, jeton, quandSessionExpire } from './api.js';
-import { Session, GroupeActif, ZoneMessages, useRoute, aller, ROLES, estDirection, estTransversal, gereNotes, Chargement } from './composants/commun.jsx';
+import { Session, GroupeActif, ZoneMessages, useRoute, aller, ROLES, libelleRole, estDirection, estTransversal, gereNotes, Chargement } from './composants/commun.jsx';
 import Connexion from './pages/Connexion.jsx';
 import ChangerMdp from './pages/ChangerMdp.jsx';
 import Accueil from './pages/Accueil.jsx';
@@ -135,13 +135,13 @@ function Coquille({ utilisateur, surDeconnexion }) {
           )}
         </div>
         <div className="zone-compte">
-          <span className="nom-connecte">{utilisateur.prenoms} {utilisateur.nom}<small>{ROLES[utilisateur.role]}</small></span>
+          <span className="nom-connecte">{utilisateur.prenoms} {utilisateur.nom}<small>{libelleRole(utilisateur.role, utilisateur.sexe, utilisateur.ecole?.primaire)}</small></span>
           <details className="menu-compte">
             <summary aria-label="Mon compte">
               <span className="initiales" aria-hidden="true">{utilisateur.prenoms[0]}{utilisateur.nom[0]}</span>
             </summary>
             <div className="menu-compte-panneau">
-              <p><strong>{utilisateur.prenoms} {utilisateur.nom}</strong><br />{ROLES[utilisateur.role]}</p>
+              <p><strong>{utilisateur.prenoms} {utilisateur.nom}</strong><br />{libelleRole(utilisateur.role, utilisateur.sexe, utilisateur.ecole?.primaire)}</p>
               <a href="#/mot-de-passe">Changer mon mot de passe</a>
               <button type="button" className="lien" onClick={surDeconnexion}>Se déconnecter</button>
             </div>
