@@ -41,9 +41,16 @@ export default function Classes() {
                     <th scope="row">{c.nom}</th>
                     <td className="nombre">{c.effectif}</td>
                     <td className="liens-periodes">
-                      {periodes.donnees?.map((p) => <span key={p.id} className="lien-periode">{p.libelle} : <a href={`#/resultats/${c.id}/${p.id}`}>moyennes</a>, <a href={`#/bulletins/${c.id}/${p.id}`}>bulletins</a></span>)}
+                      {c.cycle === 'PRIMAIRE' ? (<>
+                        {periodes.donnees?.map((p) => <span key={p.id} className="lien-periode">{p.libelle} : <a href={`#/primaire-bilan/${c.id}/${p.numero}`}>bilan</a>, <a href={`#/primaire-bulletins/${c.id}/${p.numero}`}>bulletins</a></span>)}
+                        <span className="lien-periode"><a href={`#/primaire-bilan/${c.id}/annee`}>bilan de l'année</a></span>
+                      </>) : c.cycle === 'MATERNELLE' ? (
+                        periodes.donnees?.map((p) => <span key={p.id} className="lien-periode">{p.libelle} : <a href={`#/maternelle/${c.id}/${p.numero}`}>grilles</a>, <a href={`#/maternelle-livrets/${c.id}/${p.numero}`}>impression</a></span>)
+                      ) : periodes.donnees?.map((p) => <span key={p.id} className="lien-periode">{p.libelle} : <a href={`#/resultats/${c.id}/${p.id}`}>moyennes</a>, <a href={`#/bulletins/${c.id}/${p.id}`}>bulletins</a></span>)}
                     </td>
-                    {direction && <td><button className="bouton bouton-discret" onClick={() => setPreparer(c)}>Préparer les évaluations</button></td>}
+                    {direction && <td>{['COLLEGE', 'LYCEE'].includes(c.cycle)
+                      ? <button className="bouton bouton-discret" onClick={() => setPreparer(c)}>Préparer les évaluations</button>
+                      : c.cycle === 'PRIMAIRE' ? <a className="bouton bouton-discret" href={`#/primaire/${c.id}/1`}>Saisie des évaluations</a> : null}</td>}
                   </tr>
                 ))}
               </tbody>

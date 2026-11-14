@@ -18,6 +18,9 @@ import TableauBord from './pages/TableauBord.jsx';
 import Signature from './composants/Signature.jsx';
 import Absences from './pages/Absences.jsx';
 import Bulletins from './pages/Bulletins.jsx';
+import PrimaireSaisie from './pages/PrimaireSaisie.jsx';
+import PrimaireBilan, { PrimaireBulletins } from './pages/PrimaireBilan.jsx';
+import Maternelle, { MaternelleLivrets } from './pages/Maternelle.jsx';
 import { ListeClasse, FicheAppel, Certificat } from './pages/Documents.jsx';
 
 export default function App() {
@@ -102,6 +105,11 @@ function Coquille({ utilisateur, surDeconnexion }) {
       ecran = !gereEleves ? null : params[0] === 'liste' ? <ListeClasse classeId={params[1]} /> : params[0] === 'appel' ? <FicheAppel classeId={params[1]} />
         : params[0] === 'certificat' ? <Certificat eleveId={params[1]} /> : null; break;
     case 'bulletins': ecran = <Bulletins classeId={params[0]} periodeId={params[1]} />; break;
+    case 'primaire': ecran = <PrimaireSaisie classeId={params[0]} numero={params[1]} />; break;
+    case 'primaire-bilan': ecran = <PrimaireBilan classeId={params[0]} vue={params[1]} />; break;
+    case 'primaire-bulletins': ecran = <PrimaireBulletins classeId={params[0]} trimestre={params[1]} />; break;
+    case 'maternelle': ecran = <Maternelle classeId={params[0]} trimestre={params[1]} />; break;
+    case 'maternelle-livrets': ecran = <MaternelleLivrets classeId={params[0]} trimestre={params[1]} />; break;
     case 'absences': ecran = (gereEleves || utilisateur.role === 'PROFESSEUR') ? <Absences vue={params[0]} /> : null; break;
     case 'tableau': ecran = direction ? <TableauBord /> : null; break;
     case 'accueil': ecran = comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />; break;
@@ -110,7 +118,7 @@ function Coquille({ utilisateur, surDeconnexion }) {
     case 'mot-de-passe': ecran = <ChangerMdp surTermine={() => aller('accueil')} />; break;
     default: ecran = direction ? <TableauBord /> : comptable ? <Caisse /> : secretariat ? <Eleves /> : <Accueil />;
   }
-  const actif = { saisie: 'accueil', resultats: 'classes', bulletins: 'classes', eleve: 'eleves', recu: 'caisse', document: 'eleves' }[page]
+  const actif = { saisie: 'accueil', primaire: 'accueil', maternelle: 'accueil', 'primaire-bilan': 'classes', 'primaire-bulletins': 'classes', 'maternelle-livrets': 'classes', resultats: 'classes', bulletins: 'classes', eleve: 'eleves', recu: 'caisse', document: 'eleves' }[page]
     ?? (page === 'accueil' && comptable ? 'caisse' : page === 'accueil' && secretariat ? 'eleves' : page);
   const ongletActif = ['tableau', 'accueil', 'eleves', 'absences', 'classes', 'caisse', 'comptes', 'parametres', 'journal'].includes(actif) ? actif : direction ? 'tableau' : 'accueil';
 

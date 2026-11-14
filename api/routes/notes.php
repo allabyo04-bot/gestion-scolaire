@@ -8,9 +8,9 @@ function r_notes_mes_affectations() {
                  c.ecole_id, ec.nom_officiel AS ecole, a.libelle AS annee, cm.professeur_id,
                  CONCAT(u.nom, " ", u.prenoms) AS professeur
           FROM classe_matieres cm JOIN classes c ON c.id = cm.classe_id JOIN matieres m ON m.id = cm.matiere_id
-          JOIN ecoles ec ON ec.id = c.ecole_id
+          JOIN ecoles ec ON ec.id = c.ecole_id JOIN niveaux nv ON nv.id = c.niveau_id
           JOIN annees_scolaires a ON a.id = c.annee_id LEFT JOIN utilisateurs u ON u.id = cm.professeur_id
-          WHERE cm.actif = 1 AND a.en_cours = 1';
+          WHERE cm.actif = 1 AND a.en_cours = 1 AND nv.cycle IN (\'COLLEGE\', \'LYCEE\')';
   if ($UTILISATEUR['role'] === 'PROFESSEUR')  $l = lignes("$sql AND cm.professeur_id = ? ORDER BY c.nom, m.libelle", [$UTILISATEUR['id']]);
   elseif (est_transversal()) {
     // Seulement les écoles du groupe choisi dans le bandeau (sinon toutes)

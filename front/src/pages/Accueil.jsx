@@ -9,6 +9,9 @@ export default function Accueil() {
   const { groupeId } = useGroupe();
   const { donnees, erreur, charge, recharger } = useDonnees(() => api.get('notes/mes_affectations', { groupe_id: groupeId }), [groupeId]);
   const [filtre, setFiltre] = useState('');
+  // Classes du primaire et de la maternelle (saisie par le titulaire, toutes matières)
+  const prim = useDonnees(() => api.get('prim/mes_classes', { groupe_id: groupeId }), [groupeId]);
+  const transversal = ['SUPER_ADMIN', 'COORDINATION'].includes(utilisateur.role);
 
   const groupes = useMemo(() => {
     const g = new Map();
@@ -34,7 +37,29 @@ export default function Accueil() {
       )}
       {charge && <Chargement />}
       {erreur && <Alerte action={<button className="bouton" onClick={recharger}>Réessayer</button>}>{erreur}</Alerte>}
-      {!charge && !erreur && groupes.length === 0 && (
+      {(prim.donnees?.length ?? 0) > 0 && (
+        <div className="groupe-cycle">
+          <h2>Primaire et maternelle</h2>
+          <div className="liste-classes">
+            {prim.donnees.filter((c) => !filtre || `${c.nom} ${c.ecole} ${c.titulaire ?? ''}`.toLowerCase().includes(filtre.trim().toLowerCase())).map((c) => (
+              <article key={c.id} className="bloc-classe">
+                <h2>{c.nom}{transversal && <span className="discret"> — {c.ecole}</span>}</h2>
+                <p className="discret">{c.effectif} élève(s){c.titulaire ? ` · titulaire : ${c.titulaire}` : ' · aucun titulaire désigné'}</p>
+                <ul>
+                  {c.cycle === 'PRIMAIRE' ? (<>
+                    <li><a href={`#/primaire/${c.id}/1`} className="ligne-matiere"><span className="matiere-nom">Saisir les évaluations</span><span className="matiere-coef">9 matières</span></a></li>
+                    <li><a href={`#/primaire-bilan/${c.id}/1`} className="ligne-matiere"><span className="matiere-nom">Bilans et bulletins</span></a></li>
+                  </>) : (
+                    <li><a href={`#/maternelle/${c.id}/1`} className="ligne-matiere"><span className="matiere-nom">Grilles d'observation</span><span className="matiere-coef">TS / S / PS</span></a></li>
+                  )}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+      {(prim.donnees?.length ?? 0) > 0 && groupes.length > 0 && <h2 className="titre-section">Collège et lycée</h2>}
+      {!charge && !erreur && groupes.length === 0 && !(prim.donnees?.length) && (
         <div className="vide">
           {prof ? <p>Aucune matière ne vous est encore affectée. La direction doit vous attribuer vos classes.</p>
                 : <p>Aucune matière pour l'année en cours. Créez d'abord les classes et leurs matières.</p>}

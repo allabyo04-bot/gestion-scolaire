@@ -8,8 +8,9 @@ import ParamClasses from './ParamClasses.jsx';
 import ParamFrais from './ParamFrais.jsx';
 import ParamSauvegardes from './ParamSauvegardes.jsx';
 import ParamBulletin from './ParamBulletin.jsx';
+import ParamPrimaire from './ParamPrimaire.jsx';
 
-const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs'], ['frais', 'Frais de scolarité'], ['bulletins', 'Bulletins']];
+const SECTIONS = [['ecole', 'École'], ['annee', 'Année et périodes'], ['classes', 'Classes et matières'], ['evaluations', 'Interros et devoirs'], ['frais', 'Frais de scolarité'], ['bulletins', 'Bulletins'], ['primaire', 'Règles du primaire']];
 
 export default function Parametres({ section = 'ecole', sousParam }) {
   const { utilisateur } = useSession();
@@ -28,6 +29,7 @@ export default function Parametres({ section = 'ecole', sousParam }) {
       {ecoleId && section === 'evaluations' && <ConfigEvaluations key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'frais' && <ParamFrais key={ecoleId} ecoleId={ecoleId} />}
       {ecoleId && section === 'bulletins' && <ParamBulletin key={ecoleId} ecoleId={ecoleId} />}
+      {ecoleId && section === 'primaire' && <ParamPrimaire key={ecoleId} ecoleId={ecoleId} />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'sauvegardes' && <ParamSauvegardes />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'groupes' && <ParamGroupes />}
       {utilisateur.role === 'SUPER_ADMIN' && section === 'ecole' && <NouvelleEcole />}

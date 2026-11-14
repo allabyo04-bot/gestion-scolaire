@@ -683,3 +683,62 @@ input[type=color] { min-height: 2.6rem; padding: .15rem; width: 5rem; }
 .bouton-export { border: 1px solid var(--bordure); background: #fff; color: var(--ardoise); font-weight: 700; font-size: .8rem;
   border-radius: var(--rayon); padding: .25rem .7rem; cursor: pointer; min-height: 2rem; }
 .bouton-export:hover { background: var(--encre-pale); }
+
+/* ================================================================ Primaire et maternelle */
+.etiquette-ok { background: var(--ardoise-pale); color: var(--ardoise); }
+.choix-evaluations { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin: 0 0 1rem; }
+.groupe-evaluations { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.groupe-evaluations .discret { font-size: .85rem; margin-right: .2rem; }
+.choix-evaluations .choix-eval { min-height: 2.75rem; padding: .3rem .9rem; border-radius: 999px; border: 1px solid var(--bordure); background: #fff; color: var(--graphite);
+  font: inherit; font-weight: 700; cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; }
+.choix-evaluations .choix-eval small { font-weight: 400; font-size: .72rem; color: var(--gris); }
+.choix-evaluations .choix-eval.active { background: var(--encre); border-color: var(--encre); color: #fff; }
+.choix-evaluations .choix-eval.active small { color: #dfe7f5; }
+.grille-primaire { min-width: 60rem; }
+.grille-primaire th, .grille-primaire td { text-align: center; padding: .35rem .3rem; }
+.grille-primaire thead th { font-size: .8rem; line-height: 1.2; }
+.grille-primaire .g, .bilan-primaire .g, .grille-maternelle .g { text-align: left; white-space: nowrap; }
+.grille-primaire .calc, .bilan-primaire .calc { background: var(--encre-pale); }
+.grille-primaire .fort, .bilan-primaire .fort { font-weight: 700; }
+.case-note { display: inline-block; width: 3.3rem; min-height: 2.4rem; padding: .3rem .2rem; text-align: center; border: 1px solid var(--bordure);
+  border-radius: 5px; background: #fff; font: inherit; font-variant-numeric: tabular-nums; }
+input.case-note:focus { outline: 2px solid var(--encre); outline-offset: 1px; }
+.case-note.sous-seuil { background: var(--ambre-pale); border-color: #E7C27A; color: var(--ambre); font-weight: 700; }
+.case-note.invalide { background: #FCEBEC; border-color: var(--marge); color: var(--marge); }
+span.case-note { line-height: 1.7; }
+button.case-note.corrigeable { cursor: pointer; text-decoration: underline dotted; }
+.pied-saisie { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin-top: 1rem; }
+.pied-saisie p { margin: 0; max-width: 46rem; }
+.a-enregistrer { color: var(--ambre); }
+.texte-ok { color: var(--ardoise); font-weight: 700; }
+.texte-alerte { color: var(--marge); font-weight: 700; }
+.cartes-bilan { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .75rem; margin: 0 0 1.25rem; }
+.carte-chiffre { background: #fff; border: 1px solid var(--bordure); border-radius: var(--rayon); padding: .8rem 1rem; display: flex; flex-direction: column; gap: .2rem; }
+.carte-chiffre span { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--gris); }
+.carte-chiffre strong { font-family: var(--titre); font-size: 1.6rem; color: var(--encre-fonce); }
+.carte-chiffre strong.ok { color: var(--ardoise); }
+.carte-chiffre strong.alerte { color: var(--ambre); }
+.bilan-primaire th, .bilan-primaire td { text-align: center; }
+.bilan-primaire thead small { font-weight: 400; color: var(--gris); }
+.grille-maternelle td { text-align: center; }
+.choix-appreciation { width: 3rem; height: 2.75rem; border: 1px solid var(--bordure); border-radius: 5px; background: #fff; font: inherit; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
+.choix-appreciation.choisi { background: var(--encre); border-color: var(--encre); color: #fff; }
+.choix-appreciation:disabled { cursor: default; }
+.formulaire-large input.court { width: 4rem; text-align: center; }
+/* Bulletin du primaire et grille de la maternelle (A4) */
+.bul-primaire { font-size: 10pt; line-height: 1.3; }
+.bul-primaire .bul-notes td, .bul-primaire .bul-notes th { padding: 1.2mm 2mm; }
+.bul-primaire .bul-notes .g { text-align: left; }
+.bp-identite { display: grid; grid-template-columns: 1fr 1fr; gap: 1mm 6mm; border: 1.5px dashed #444; padding: 2mm 3mm; margin: 3mm 0; }
+.bp-identite p { margin: 0; }
+.bp-note { font-size: 8pt; margin: 1.5mm 0 3mm; color: #333; }
+.bp-bilan { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid #333; margin: 0 0 3mm; }
+.bp-bilan > div { padding: 2mm 3mm; display: flex; flex-direction: column; gap: .5mm; }
+.bp-bilan > div + div { border-left: 1px solid #777; }
+.bp-bilan span { font-size: 8pt; font-weight: 700; text-transform: uppercase; }
+.bp-bilan strong { font-size: 13pt; }
+.bp-bilan small { font-size: 8pt; }
+.bp-annee { margin: 0 0 3mm; }
+.bp-appreciation { margin: 2mm 0; }
+.bp-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; margin-top: 4mm; min-height: 32mm; }
+.bp-grille td.fort { font-size: 12pt; }
