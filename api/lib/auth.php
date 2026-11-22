@@ -5,6 +5,8 @@ $UTILISATEUR = null;
 const ROLES_ADMIN_ECOLE = ['SUPER_ADMIN', 'DIRECTRICE'];
 // Gestion des notes (préparer, corriger, rouvrir) : direction et coordination pédagogique
 const ROLES_NOTES = ['SUPER_ADMIN', 'DIRECTRICE', 'COORDINATION'];
+// Correction d'une note validée et réouverture d'une évaluation : Secrétariat général uniquement (décision du réseau, nov. 2026)
+const ROLES_CORRECTION_NOTES = ['SUPER_ADMIN'];
 
 function lire_jeton(): ?string {
   $h = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';

@@ -115,7 +115,7 @@ function r_notes_enregistrer() {
   verifier_droit_saisie($e['cm']);
   verifier_periode_ouverte($e['periode']);
   if ($e['statut'] !== 'BROUILLON')
-    erreur('Ces notes sont validées et verrouillées. Seule la direction peut les corriger.', 409);
+    erreur('Ces notes sont validées et verrouillées. Toute modification passe par le Secrétariat général.', 409);
   $notes = champ('notes');
   if (!is_array($notes) || !$notes) erreur('Aucune note reçue.');
 
@@ -163,10 +163,10 @@ function r_notes_valider() {
   repondre();
 }
 
-// Correction d'une note VALIDÉE : directrice ou super admin, motif obligatoire, historique conservé
+// Correction d'une note VALIDÉE : Secrétariat général uniquement, motif obligatoire, historique conservé
 function r_notes_corriger() {
   global $UTILISATEUR;
-  exiger_role(...ROLES_NOTES);
+  exiger_role(...ROLES_CORRECTION_NOTES);
   $e = evaluation(entier('evaluation_id'));
   verifier_periode_ouverte($e['periode']);
   if ($e['statut'] !== 'VALIDEE') erreur("Cette évaluation n'est pas encore validée : utilisez la saisie normale.", 409);
@@ -195,7 +195,7 @@ function r_notes_corriger() {
 
 // La direction rouvre une évaluation validée pour que le prof puisse la reprendre
 function r_notes_rouvrir() {
-  exiger_role(...ROLES_NOTES);
+  exiger_role(...ROLES_CORRECTION_NOTES);
   $e = evaluation(entier('evaluation_id'));
   verifier_periode_ouverte($e['periode']);
   $motif = (string)champ('motif');

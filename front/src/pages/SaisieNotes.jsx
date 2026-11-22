@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, gereNotes, formatNote, formatDate } from '../composants/commun.jsx';
+import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, estDirection, gereNotes, peutCorrigerNotes, formatNote, formatDate } from '../composants/commun.jsx';
 
 const STATUTS = {
   NOTE: 'Note',
@@ -27,6 +27,7 @@ function lireNote(texte) {
 export default function SaisieNotes({ classeMatiereId }) {
   const { utilisateur } = useSession();
   const direction = gereNotes(utilisateur);   // direction ou coordination pédagogique
+  const correcteur = peutCorrigerNotes(utilisateur);   // corrections après validation : Secrétariat général
   const affectations = useDonnees(() => api.get('notes/mes_affectations'), []);
   const cm = affectations.donnees?.find((a) => String(a.classe_matiere_id) === String(classeMatiereId));
   const periodes = useDonnees(() => cm ? api.get('ref/periodes', { ecole_id: cm.ecole_id }) : Promise.resolve([]), [cm?.ecole_id]);
@@ -59,12 +60,12 @@ export default function SaisieNotes({ classeMatiereId }) {
       )}
       {periodes.erreur && <Alerte>{periodes.erreur}</Alerte>}
       {periodes.donnees?.length === 0 && <div className="vide"><p>Aucune période n'est ouverte pour l'année en cours.</p></div>}
-      {periode && <Evaluations cm={cm} periode={periode} direction={direction} />}
+      {periode && <Evaluations cm={cm} periode={periode} direction={direction} correcteur={correcteur} />}
     </section>
   );
 }
 
-function Evaluations({ cm, periode, direction }) {
+function Evaluations({ cm, periode, direction, correcteur }) {
   const message = useMessage();
   const evals = useDonnees(() => api.get('notes/evaluations', { classe_matiere_id: cm.classe_matiere_id, periode_id: periode.id }),
                            [cm.classe_matiere_id, periode.id]);
@@ -110,13 +111,13 @@ function Evaluations({ cm, periode, direction }) {
           <button className="bouton bouton-discret" onClick={() => ajouter('DTL')}>Ajouter un DTL</button>
         </div>
       )}
-      {courante && <Feuille key={courante.id} evaluation={courante} ouverte={ouverte} direction={direction}
+      {courante && <Feuille key={courante.id} evaluation={courante} ouverte={ouverte} direction={direction} correcteur={correcteur}
                             surChangement={evals.recharger} />}
     </>
   );
 }
 
-function Feuille({ evaluation, ouverte, direction, surChangement }) {
+function Feuille({ evaluation, ouverte, direction, correcteur, surChangement }) {
   const message = useMessage();
   const feuille = useDonnees(() => api.get('notes/feuille', { evaluation_id: evaluation.id }), [evaluation.id]);
   const [saisies, setSaisies] = useState({});       // inscription_id → { texte, statut }
@@ -191,9 +192,9 @@ function Feuille({ evaluation, ouverte, direction, surChangement }) {
   return (
     <div className="zone-feuille">
       {validee && (
-        <Alerte type="info" action={direction && ouverte &&
+        <Alerte type="info" action={correcteur && ouverte &&
           <button className="bouton bouton-discret" onClick={() => setFenetre('rouvrir')}>Rouvrir pour le professeur</button>}>
-          Validé{evaluation.validee_le ? ` le ${formatDate(evaluation.validee_le)}` : ''}. {direction ? 'Pour modifier une note, utilisez « Corriger ».' : 'Seule la direction peut corriger une note.'}
+          Validé{evaluation.validee_le ? ` le ${formatDate(evaluation.validee_le)}` : ''}. {correcteur ? 'Pour modifier une note, utilisez « Corriger ».' : 'Toute modification passe par le Secrétariat général.'}
         </Alerte>
       )}
       {!ouverte && <Alerte type="info">Période clôturée : consultation uniquement.</Alerte>}
@@ -236,7 +237,7 @@ function Feuille({ evaluation, ouverte, direction, surChangement }) {
                     <span className={e.statut && e.statut !== 'NOTE' ? 'marque-absent' : 'note-lue'}>
                       {e.statut === 'NOTE' ? formatNote(e.valeur) : e.statut ? COURT[e.statut] : '—'}
                     </span>
-                    {direction && validee && ouverte && e.note_id &&
+                    {correcteur && validee && ouverte && e.note_id &&
                       <button type="button" className="bouton-lien" onClick={() => setFenetre({ correction: e })}>Corriger</button>}
                   </>
                 )}
@@ -258,7 +259,7 @@ function Feuille({ evaluation, ouverte, direction, surChangement }) {
         <Fenetre titre={`Valider ${nomEval(evaluation).toLowerCase()} ?`} surFermer={() => setFenetre(null)} actions={<>
           <button className="bouton" onClick={() => setFenetre(null)}>Annuler</button>
           <button className="bouton bouton-principal" onClick={valider}>Valider les notes</button></>}>
-          <p>Après validation, les notes seront verrouillées. {direction ? '' : 'Pour toute correction, il faudra passer par la direction.'}</p>
+          <p>Après validation, les notes seront verrouillées. {correcteur ? '' : 'Toute correction passera ensuite par le Secrétariat général.'}</p>
           <p>Vérifiez une dernière fois les {eleves.length} notes avant de confirmer.</p>
         </Fenetre>
       )}

@@ -187,7 +187,7 @@ function r_prim_enregistrer() {
   if (!is_array($notes) || !$notes) erreur('Aucune note reçue.');
   $matieres = array_flip(array_map(fn($m) => (int)$m['id'], prim_matieres((int)$c['id'])));
   foreach (prim_evaluations((int)$c['id'], $num) as $e)
-    if ($e['statut'] === 'VALIDEE') erreur('Cette évaluation est validée et verrouillée. Seule la direction peut corriger une note.', 409);
+    if ($e['statut'] === 'VALIDEE') erreur('Cette évaluation est validée et verrouillée. Toute modification passe par le Secrétariat général.', 409);
   $inscrits = array_flip(array_map('intval', array_column(lignes("SELECT id FROM inscriptions WHERE classe_id = ? AND statut = 'ACTIF'", [$c['id']]), 'id')));
   $permis = $UTILISATEUR['role'] === 'PROFESSEUR' ? ['NOTE', 'ABSENT'] : ['NOTE', 'ABSENT', 'ABSENT_JUSTIFIE', 'ABSENT_NON_JUSTIFIE', 'DISPENSE'];
 
@@ -243,7 +243,7 @@ function r_prim_valider() {
 
 // La direction (ou la coordination) rouvre une évaluation validée pour que le titulaire la reprenne
 function r_prim_rouvrir() {
-  exiger_role(...ROLES_NOTES);
+  exiger_role(...ROLES_CORRECTION_NOTES);
   $c = classe_cycle(entier('classe_id'), 'PRIMAIRE');
   $p = params_primaire((int)$c['ecole_id']);
   $num = entier('numero');

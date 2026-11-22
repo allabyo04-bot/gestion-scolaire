@@ -27,6 +27,8 @@ export const estDirection = (u) => u && ['SUPER_ADMIN', 'DIRECTRICE'].includes(u
 export const estTransversal = (u) => u && ['SUPER_ADMIN', 'COORDINATION'].includes(u.role);
 // Gestion des notes : direction et coordination pédagogique
 export const gereNotes = (u) => u && ['SUPER_ADMIN', 'DIRECTRICE', 'COORDINATION'].includes(u.role);
+// Correction d'une note validée et réouverture d'une évaluation : Secrétariat général uniquement (décision du réseau, nov. 2026)
+export const peutCorrigerNotes = (u) => u && u.role === 'SUPER_ADMIN';
 
 // ---------------------------------------------------------------- Navigation par ancre (#/page/param)
 export function useRoute() {

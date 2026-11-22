@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
-import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, gereNotes, aller } from '../composants/commun.jsx';
+import { useDonnees, useSession, useMessage, Chargement, Alerte, Fenetre, Champ, gereNotes, peutCorrigerNotes, aller } from '../composants/commun.jsx';
 
 // Saisie d'une évaluation formative du primaire : tous les élèves × toutes les matières.
 // Codes acceptés dans une case : une note de 0 à 20, A (absent) ; pour la direction aussi
@@ -37,6 +37,7 @@ export default function PrimaireSaisie({ classeId, numero }) {
   const num = Number(numero) || 1;
   const { utilisateur } = useSession();
   const direction = gereNotes(utilisateur);
+  const correcteur = peutCorrigerNotes(utilisateur);   // corrections après validation : Secrétariat général
   const message = useMessage();
   const d = useDonnees(() => api.get('prim/grille', { classe_id: classeId, numero: num }), [classeId, num]);
   const [saisie, setSaisie] = useState({});
@@ -125,8 +126,8 @@ export default function PrimaireSaisie({ classeId, numero }) {
 
       {p.a_confirmer && <Alerte type="info">Règles de calcul par défaut, à confirmer par l'école : seuil des deux tiers des matières, passage avec {p.passage_min} évaluations réussies sur {p.nb_evaluations}.</Alerte>}
       {g.statut === 'VALIDEE' && (
-        <Alerte type="info" action={direction && g.periode.statut === 'OUVERTE' ? <button className="bouton" onClick={() => setRouvrir(true)}>Rouvrir pour le titulaire</button> : null}>
-          Évaluation validée : les notes sont verrouillées.{direction ? ' Cliquez sur une note pour la corriger (avec un motif).' : ' Seule la direction peut corriger une note.'}
+        <Alerte type="info" action={correcteur && g.periode.statut === 'OUVERTE' ? <button className="bouton" onClick={() => setRouvrir(true)}>Rouvrir pour le titulaire</button> : null}>
+          Évaluation validée : les notes sont verrouillées.{correcteur ? ' Cliquez sur une note pour la corriger (avec un motif).' : ' Toute modification passe par le Secrétariat général.'}
         </Alerte>
       )}
       {g.periode.statut !== 'OUVERTE' && <Alerte type="info">Ce trimestre est clôturé : aucune modification possible.</Alerte>}
@@ -155,7 +156,7 @@ export default function PrimaireSaisie({ classeId, numero }) {
                     const m = g.matieres.find((x) => x.id === c.cm);
                     return (
                       <td key={c.cm}>
-                        {direction && g.statut === 'VALIDEE' && g.periode.statut === 'OUVERTE' && c.texte !== ''
+                        {correcteur && g.statut === 'VALIDEE' && g.periode.statut === 'OUVERTE' && c.texte !== ''
                           ? <button type="button" className={`${classe} corrigeable`} onClick={() => setCorrection({ eleve: e, matiere: m, texte: c.texte })} aria-label={`Corriger ${m.libelle} de ${e.nom} ${e.prenoms}`}>{c.texte}</button>
                           : <span className={classe}>{c.texte || '—'}</span>}
                       </td>
